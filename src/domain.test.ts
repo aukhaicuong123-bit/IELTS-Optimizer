@@ -18,10 +18,16 @@ describe('IELTS Optimizer learning domain', () => {
     expect(Object.values(map).reduce((a, b) => a + b, 0)).toBeCloseTo(30)
     expect(Object.keys(map).length).toBe(2)
   })
+  it('does not create phantom minutes for invalid time ranges', () => {
+    const map = minutesByDate([{ id: 'bad', startedAt: 'not-a-date', endedAt: 'not-a-date', minutes: 0 }])
+    expect(Object.values(map).reduce((a, b) => a + b, 0)).toBe(0)
+  })
   it('maps practice intensity to a bounded heat level', () => {
     expect(heatLevel(0, profile.dailyGoalMinutes!)).toBe(0)
     expect(heatLevel(30, profile.dailyGoalMinutes!)).toBe(5)
     expect(heatLevel(120, profile.dailyGoalMinutes!)).toBe(5)
+    expect(heatLevel(7.5, profile.dailyGoalMinutes!)).toBe(1)
+    expect(heatLevel(15, profile.dailyGoalMinutes!)).toBe(2)
   })
   it('recommends open Error Memory before a generic activity', () => {
     const error = { id: 'e', questionId: 'q2', attemptId: 'a1', passageId: 'p', type: 'multiple-choice' as const, objective: 'detail', learnerAnswer: 'wrong', correctAnswer: 'right', explanation: 'x', createdAt: '2026-01-01T10:00:00Z', reviewCount: 0, retestAttemptIds: [] }
