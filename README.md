@@ -15,6 +15,12 @@ Production verification:
 npm run build
 ```
 
+## Public access
+
+The project includes a GitHub Pages workflow. After GitHub Pages is enabled with **GitHub Actions** as its source, the public app is available at:
+
+https://aukhaicuong123-bit.github.io/IELTS-Optimizer/
+
 ## Product assumptions
 
 - The Reading score is a practice result, not an official IELTS band estimate.
