@@ -1,0 +1,11 @@
+export type Skill = 'Reading' | 'Listening' | 'Writing' | 'Speaking'
+export type QuestionType = 'multiple-choice' | 'true-false-not-given'
+export type Page = 'dashboard' | 'plan' | 'practice' | 'errors' | 'record' | 'profile'
+export type Profile = { targetBand?: number; currentLevel?: string; examDate?: string; dailyGoalMinutes?: number; daysOff: string[]; priority: Skill }
+export type Question = { id: string; type: QuestionType; prompt: string; options: string[]; answer: string; explanation: string; objective: string }
+export type Passage = { id: string; title: string; level: string; minutes: number; text: string; questions: Question[] }
+export type Attempt = { id: string; passageId: string; skill: Skill; answers: Record<string,string>; score: number; total: number; kind: 'practice'|'retest'; createdAt: string; objectiveIds: string[] }
+export type ErrorRecord = { id: string; questionId: string; attemptId: string; passageId: string; type: QuestionType; objective: string; learnerAnswer: string; correctAnswer: string; explanation: string; createdAt: string; reviewCount: number; retestAttemptIds: string[] }
+export type StudySession = { id: string; startedAt: string; endedAt: string; minutes: number; activity?: string; skill?: Skill }
+export type PlanItem = { id: string; date: string; title: string; skill: Skill; objective: string; minutes: number; status: 'planned'|'done'|'skipped'; reason?: string }
+export type Store = { version: 1; profile: Profile; attempts: Attempt[]; errors: ErrorRecord[]; sessions: StudySession[]; plan: PlanItem[]; activeSession?: { id: string; startedAt: string } }
