@@ -27,9 +27,10 @@ describe('IELTS Optimizer learning domain', () => {
     expect(Object.values(map).reduce((a, b) => a + b, 0)).toBeCloseTo(10)
   })
   it('splits recorded active intervals across local dates without counting the pause gap', () => {
-    const map = minutesByDate([{ id: 'intervals', startedAt: '2026-01-01T16:59:00Z', endedAt: '2026-01-02T17:39:00Z', minutes: 11, activeIntervals: [{ startedAt: '2026-01-01T16:59:00Z', endedAt: '2026-01-01T17:01:00Z' }, { startedAt: '2026-01-02T17:30:00Z', endedAt: '2026-01-02T17:39:00Z' }] }])
-    expect(map[localDate('2026-01-01T16:59:00Z')]).toBeCloseTo(1)
-    expect(map[localDate('2026-01-02T17:30:00Z')]).toBeCloseTo(9)
+    const firstStart = new Date(2026, 0, 1, 23, 59), firstEnd = new Date(2026, 0, 2, 0, 1), secondStart = new Date(2026, 0, 2, 0, 30), secondEnd = new Date(2026, 0, 2, 0, 39)
+    const map = minutesByDate([{ id: 'intervals', startedAt: firstStart.toISOString(), endedAt: secondEnd.toISOString(), minutes: 11, activeIntervals: [{ startedAt: firstStart.toISOString(), endedAt: firstEnd.toISOString() }, { startedAt: secondStart.toISOString(), endedAt: secondEnd.toISOString() }] }])
+    expect(map[localDate(firstStart.toISOString())]).toBeCloseTo(1)
+    expect(map[localDate(secondStart.toISOString())]).toBeCloseTo(10)
   })
   it('aligns heatmap weeks to Sunday for every month boundary', () => {
     const start = startOfLocalWeek(new Date(2026, 2, 1))
