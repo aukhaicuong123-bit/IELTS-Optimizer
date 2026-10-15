@@ -18,4 +18,8 @@ describe('storage migration and deletion', () => {
     clearStore()
     expect(data.size).toBe(0)
   })
+  it('pauses a recovered timer instead of counting closed-tab time', () => {
+    data.set('ielts-optimizer-store-v1', JSON.stringify({ version: 1, activeSession: { id: 's', startedAt: '2026-01-01T10:00:00Z', lastResumedAt: '2026-01-01T10:00:00Z', accumulatedSeconds: 30, paused: false } }))
+    expect(loadStore().activeSession?.paused).toBe(true)
+  })
 })
