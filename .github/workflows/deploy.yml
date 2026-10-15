@@ -1,4 +1,4 @@
-name: Deploy OptiStudy
+name: Deploy IELTS Optimizer
 
 on:
   push:
