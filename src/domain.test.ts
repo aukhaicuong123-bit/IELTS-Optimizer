@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { heatLevel, makeErrors, mergeAttemptErrors, minutesByDate, recommendations, scoreAttempt, startOfLocalWeek } from './domain'
+import { heatLevel, localDate, makeErrors, mergeAttemptErrors, minutesByDate, recommendations, scoreAttempt, startOfLocalWeek } from './domain'
 import type { Attempt, Profile, StudySession } from './types'
 
 const profile: Profile = { daysOff: [], priority: 'Reading', dailyGoalMinutes: 30 }
@@ -22,6 +22,15 @@ describe('IELTS Optimizer learning domain', () => {
     const map = minutesByDate([{ id: 'bad', startedAt: 'not-a-date', endedAt: 'not-a-date', minutes: 0 }])
     expect(Object.values(map).reduce((a, b) => a + b, 0)).toBe(0)
   })
+  it('uses measured active minutes instead of paused wall-clock time', () => {
+    const map = minutesByDate([{ id: 'paused', startedAt: '2026-01-01T10:00:00Z', endedAt: '2026-01-01T12:00:00Z', minutes: 10 }])
+    expect(Object.values(map).reduce((a, b) => a + b, 0)).toBeCloseTo(10)
+  })
+  it('splits recorded active intervals across local dates without counting the pause gap', () => {
+    const map = minutesByDate([{ id: 'intervals', startedAt: '2026-01-01T16:59:00Z', endedAt: '2026-01-02T17:39:00Z', minutes: 11, activeIntervals: [{ startedAt: '2026-01-01T16:59:00Z', endedAt: '2026-01-01T17:01:00Z' }, { startedAt: '2026-01-02T17:30:00Z', endedAt: '2026-01-02T17:39:00Z' }] }])
+    expect(map[localDate('2026-01-01T16:59:00Z')]).toBeCloseTo(1)
+    expect(map[localDate('2026-01-02T17:30:00Z')]).toBeCloseTo(9)
+  })
   it('aligns heatmap weeks to Sunday for every month boundary', () => {
     const start = startOfLocalWeek(new Date(2026, 2, 1))
     expect(start.getDay()).toBe(0)
@@ -36,18 +45,32 @@ describe('IELTS Optimizer learning domain', () => {
   })
   it('recommends open Error Memory before a generic activity', () => {
     const error = { id: 'e', questionId: 'q2', attemptId: 'a1', passageId: 'p', type: 'multiple-choice' as const, objective: 'detail', learnerAnswer: 'wrong', correctAnswer: 'right', explanation: 'x', createdAt: '2026-01-01T10:00:00Z', reviewCount: 0, retestAttemptIds: [] }
-    expect(recommendations(profile, [attempt], [error], []).page).toBe('errors')
-    expect(recommendations(profile, [], [], []).page).toBe('practice')
+    const state = { difficultyId: 'reading:legacy-error:e', status: 'open' as const, occurrences: [], chronology: 'reliable' as const, durableMastery: 'not-demonstrated' as const }
+    expect(recommendations(profile, [attempt], [error], [], { 'reading:legacy-error:e': state }).page).toBe('errors')
+    expect(recommendations(profile, [], [], [], {}).page).toBe('practice')
   })
   it('keeps one stable error identity while recording repeated failed attempts', () => {
     const questions = [{ id: 'q2', type: 'multiple-choice' as const, prompt: 'detail?', options: ['right', 'wrong'], answer: 'right', explanation: 'x', objective: 'detail' }]
     const first = { ...attempt, answers: { q2: 'wrong' }, objectiveIds: ['detail'] }
-    const second = { ...first, id: 'a2', kind: 'retest' as const, createdAt: '2026-01-02T10:00:00Z' }
     const initial = makeErrors(first, questions)
+    const target = { difficultyId: `reading:legacy-error:${initial[0].id}`, occurrenceId: `reading:occurrence:${initial[0].id}:${initial[0].occurrences?.[0].id}` }
+    const second = { ...first, id: 'a2', kind: 'retest' as const, createdAt: '2026-01-02T10:00:00Z', responseTargets: { q2: target } }
     const merged = mergeAttemptErrors(initial, second, questions)
     expect(merged).toHaveLength(1)
     expect(merged[0].attemptIds).toEqual(['a1', 'a2'])
-    const passed = { ...second, id: 'a3', answers: { q2: 'right' } }
+    const passed = { ...second, id: 'a3', answers: { q2: 'right' }, responseTargets: { q2: target } }
     expect(mergeAttemptErrors(merged, passed, questions)[0].retestAttemptIds).toContain('a3')
+  })
+  it('does not merge an untargeted Retest into Error Memory', () => {
+    const questions = [{ id: 'q2', type: 'multiple-choice' as const, prompt: 'detail?', options: ['right', 'wrong'], answer: 'right', explanation: 'x', objective: 'detail' }]
+    const initial = makeErrors({ ...attempt, answers: { q2: 'wrong' }, objectiveIds: ['detail'] }, questions)
+    const untargeted: Attempt = { ...attempt, id: 'untargeted', kind: 'retest', answers: { q2: 'wrong' }, objectiveIds: ['detail'] }
+    expect(mergeAttemptErrors(initial, untargeted, questions)).toEqual(initial)
+  })
+  it('does not merge a Retest with a mismatched occurrence identity', () => {
+    const questions = [{ id: 'q2', type: 'multiple-choice' as const, prompt: 'detail?', options: ['right', 'wrong'], answer: 'right', explanation: 'x', objective: 'detail' }]
+    const initial = makeErrors({ ...attempt, answers: { q2: 'wrong' }, objectiveIds: ['detail'] }, questions)
+    const mismatched: Attempt = { ...attempt, id: 'mismatched', kind: 'retest', answers: { q2: 'right' }, objectiveIds: ['detail'], responseTargets: { q2: { difficultyId: `reading:legacy-error:${initial[0].id}`, occurrenceId: 'reading:occurrence:other:o1' } } }
+    expect(mergeAttemptErrors(initial, mismatched, questions)).toEqual(initial)
   })
 })

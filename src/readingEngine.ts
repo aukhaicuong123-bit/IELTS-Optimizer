@@ -47,4 +47,11 @@ export const deriveReadingStates = (errors: ErrorRecord[], attempts: Attempt[], 
   return { evidence, statesByDifficulty }
 }
 
-export const targetFor = (error: ErrorRecord, occurrenceId = error.occurrences?.[0] ? stableOccurrenceId(error, error.occurrences[0]) : readingOccurrenceId(error)): ReadingOccurrenceTarget => ({ difficultyId: readingDifficultyId(error), occurrenceId })
+export const targetFor = (error: ErrorRecord, occurrenceId?: string): ReadingOccurrenceTarget => {
+  if (!error.occurrences?.length) return { difficultyId: readingDifficultyId(error), occurrenceId: readingOccurrenceId(error) }
+  if (occurrenceId && error.occurrences.some(occurrence => stableOccurrenceId(error, occurrence) === occurrenceId)) return { difficultyId: readingDifficultyId(error), occurrenceId }
+  // Multiple occurrences are intentionally ambiguous without an explicit target.
+  // The adapter will not allow an empty target to resolve anything.
+  if (error.occurrences.length > 1) return { difficultyId: readingDifficultyId(error), occurrenceId: '' }
+  return { difficultyId: readingDifficultyId(error), occurrenceId: stableOccurrenceId(error, error.occurrences[0]) }
+}

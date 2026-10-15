@@ -22,4 +22,11 @@ describe('storage migration and deletion', () => {
     data.set('ielts-optimizer-store-v1', JSON.stringify({ version: 1, activeSession: { id: 's', startedAt: '2026-01-01T10:00:00Z', lastResumedAt: '2026-01-01T10:00:00Z', accumulatedSeconds: 30, paused: false } }))
     expect(loadStore().activeSession?.paused).toBe(true)
   })
+  it('recovers drafts and submissions without dropping older history', () => {
+    data.set('ielts-optimizer-store-v1', JSON.stringify({ version: 1, attempts: [{ id: 'old' }], drafts: [{ id: 'd1', skill: 'Writing', activityId: 'writing-academic-task-2', content: 'draft', updatedAt: '2026-01-01T10:00:00Z' }], submissions: [{ id: 'sub1', skill: 'Writing', activityId: 'writing-academic-task-2', response: 'saved', createdAt: '2026-01-01T10:00:00Z', feedbackMode: 'self-review', completed: true }] }))
+    const store = loadStore()
+    expect(store.attempts[0].id).toBe('old')
+    expect(store.drafts?.[0].content).toBe('draft')
+    expect(store.submissions?.[0].id).toBe('sub1')
+  })
 })

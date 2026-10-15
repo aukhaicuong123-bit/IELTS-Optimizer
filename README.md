@@ -15,10 +15,14 @@ Public app: https://aukhaicuong123-bit.github.io/IELTS-Optimizer/
 
 ## Implemented
 
-- Reading practice with per-question feedback and a different Retest passage testing the same objectives.
-- Error history is preserved; an error closes only after a correct matching objective in Retest. New Retest errors are stored.
-- Timer sessions use one React/localStorage source of truth, support pause/resume, and are labelled measured activity. No leaderboard or pressure streak is used.
-- Heatmap uses study-session minutes only, local calendar dates, cross-midnight splitting, goal-based colours, planned rest dates and keyboard-accessible day cells.
+- Reading practice with per-question feedback, passage evidence cues and a different Retest passage testing the same authored equivalence key. Every Retest targets one explicit difficulty/occurrence pair.
+- Error history is preserved; the Learning Engine derives occurrence state conservatively from reliable evidence. Historical Retest IDs alone never prove success.
+- Listening uses browser-generated speech with honest labelling, playback controls and a transcript fallback. It is not an official IELTS recording.
+- Writing supports Academic Task 1, Academic Task 2 and General Training Task 1 practice, local draft autosave, word count and transparent rule-based revision cues.
+- Speaking supports browser recording/playback where available, transcript/notes fallback and local practice history without fabricated pronunciation or band scores.
+- Vocabulary and Grammar review activities are linked to real Error Memory and save correction evidence to Learning Record.
+- Timer sessions store active intervals, exclude paused time, survive reloads as paused sessions and are labelled measured activity. No leaderboard or pressure streak is used.
+- Heatmap uses measured active intervals, local calendar dates, cross-midnight splitting, goal-based colours, planned rest dates, activity counts, skill summaries and keyboard-accessible day cells.
 - Reflection is saved on each attempt. Learning Network uses named external resources and clearly reports that real Peer Learning is unavailable in local mode.
 - Learning Design maps Behaviorism, Cognitivism, Constructivism, Connectivism, TPACK and SAMR to implemented or explicitly planned features.
 
