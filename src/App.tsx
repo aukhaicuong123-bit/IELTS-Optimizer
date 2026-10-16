@@ -42,6 +42,7 @@ import {
   localDate,
   mergeAttemptErrors,
   minutesByDate,
+  measuredMinutes,
   recommendations,
   scoreAttempt,
   snapshotActiveSession
@@ -128,7 +129,7 @@ export default function App() {
   const [headerNow, setHeaderNow] = useState(Date.now())
 
   useEffect(() => {
-    localStorage.setItem('ielts-optimizer-store-v1', JSON.stringify(store))
+    if (!store.recoveryState) localStorage.setItem('ielts-optimizer-store-v1', JSON.stringify(store))
   }, [store])
 
   useEffect(() => {
@@ -216,6 +217,13 @@ export default function App() {
       </aside>
 
       <main>
+        {store.recoveryState && (
+          <section className="panel" role="alert" style={{ marginBottom: '16px', borderColor: 'var(--red)' }}>
+            <b>Data recovery mode</b>
+            <p className="muted">{store.recoveryState.message} Reset storage only after saving the raw backup if needed.</p>
+            {store.recoveryState.raw && <details><summary>Show preserved raw data</summary><pre style={{ maxHeight: '120px', overflow: 'auto' }}>{store.recoveryState.raw}</pre></details>}
+          </section>
+        )}
         <header>
           <div>
             <div className="section-kicker">
@@ -925,7 +933,7 @@ function Practice({
   const isRetestMode = targets.length > 0
 
   const retestPassage = retestContext
-    ? passages.find(p => p.questions.some(q => q.equivalenceKey && q.equivalenceKey === retestContext.sourceQuestion.equivalenceKey))
+    ? passages.find(p => p.id !== retestContext.error.passageId && p.questions.some(q => q.equivalenceKey && q.equivalenceKey === retestContext.sourceQuestion.equivalenceKey))
     : undefined
 
   const passage = isRetestMode
@@ -961,7 +969,7 @@ function Practice({
     const timestamp = new Date().toISOString()
     const responseTargets = isRetestMode && retestContext
       ? passage.questions.reduce<Record<string, ReadingOccurrenceTarget>>((map, q) => {
-          if (q.equivalenceKey && q.equivalenceKey === retestContext.sourceQuestion.equivalenceKey) {
+          if (Object.keys(map).length === 0 && q.equivalenceKey && q.equivalenceKey === retestContext.sourceQuestion.equivalenceKey) {
             map[q.id] = retestContext.target
           }
           return map
@@ -993,7 +1001,8 @@ function Practice({
           id: uid('session'),
           startedAt: timestamp,
           endedAt: timestamp,
-          minutes: passage.minutes,
+          minutes: 0,
+          activeIntervals: [],
           skill: 'Reading',
           activity: `${isRetestMode ? 'Retest' : 'Reading'} · ${passage.title}`
         }
@@ -2165,7 +2174,7 @@ function ErrorDrill({
 }) {
   const [reflection, setReflection] = useState('')
   const linked = s.errors.filter(error => `${error.objective} ${error.explanation}`.toLowerCase().includes(filter.toLowerCase()))
-  const items = linked.length ? linked : s.errors.slice(0, 5)
+  const items = linked
 
   const review = (error: Store['errors'][number]) => {
     if (!reflection.trim()) return note('Write a correction rule before saving.')
@@ -2492,7 +2501,7 @@ function Record({
         </p>
       </section>
       <section className="panel">
-        <b>{s.sessions.reduce((total, item) => total + item.minutes, 0)} measured minutes</b>
+        <b>{Math.round(s.sessions.reduce((total, item) => total + measuredMinutes(item), 0))} measured minutes</b>
         {s.sessions.length === 0 ? (
           <p className="muted">No study sessions yet.</p>
         ) : (
@@ -2507,7 +2516,7 @@ function Record({
                     {new Date(item.startedAt).toLocaleString()} → {new Date(item.endedAt).toLocaleString()}
                   </small>
                 </div>
-                <strong>{item.minutes} min</strong>
+                <strong>{measuredMinutes(item) > 0 ? `${Math.round(measuredMinutes(item))} min` : 'Not counted'}</strong>
               </div>
             ))
         )}
@@ -2634,9 +2643,9 @@ function Profile({
 
   const resetAll = () => {
     if (confirm('Clear all learner attempts, errors, and history?')) {
-      clearStore()
+      const cleared = clearStore()
       setS(loadStore())
-      note('All learner data reset.')
+      note(cleared ? 'All learner data reset.' : 'Warning: some learner-progress keys could not be removed.')
     }
   }
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { heatLevel, localDate, makeErrors, mergeAttemptErrors, minutesByDate, recommendations, scoreAttempt, snapshotActiveSession, startOfLocalWeek } from './domain'
+import { heatLevel, localDate, makeErrors, mergeAttemptErrors, measuredMinutes, minutesByDate, recommendations, scoreAttempt, snapshotActiveSession, startOfLocalWeek } from './domain'
 import type { ActiveSession, Attempt, Profile, StudySession } from './types'
 
 const profile: Profile = { daysOff: [], priority: 'Reading', dailyGoalMinutes: 30 }
@@ -13,7 +13,7 @@ describe('IELTS Optimizer learning domain', () => {
     expect(makeErrors(attempt, questions)[0].objective).toBe('detail')
   })
   it('splits a cross-midnight session across both local dates', () => {
-    const sessions: StudySession[] = [{ id: 's', startedAt: '2026-01-01T23:50:00', endedAt: '2026-01-02T00:20:00', minutes: 30 }]
+    const sessions: StudySession[] = [{ id: 's', startedAt: '2026-01-01T23:50:00', endedAt: '2026-01-02T00:20:00', minutes: 30, activeIntervals: [{ startedAt: '2026-01-01T23:50:00', endedAt: '2026-01-02T00:20:00' }] }]
     const map = minutesByDate(sessions)
     expect(Object.values(map).reduce((a, b) => a + b, 0)).toBeCloseTo(30)
     expect(Object.keys(map).length).toBe(2)
@@ -24,13 +24,16 @@ describe('IELTS Optimizer learning domain', () => {
   })
   it('uses measured active minutes instead of paused wall-clock time', () => {
     const map = minutesByDate([{ id: 'paused', startedAt: '2026-01-01T10:00:00Z', endedAt: '2026-01-01T12:00:00Z', minutes: 10 }])
-    expect(Object.values(map).reduce((a, b) => a + b, 0)).toBeCloseTo(10)
+    expect(Object.values(map).reduce((a, b) => a + b, 0)).toBe(0)
   })
   it('splits recorded active intervals across local dates without counting the pause gap', () => {
     const firstStart = new Date(2026, 0, 1, 23, 59), firstEnd = new Date(2026, 0, 2, 0, 1), secondStart = new Date(2026, 0, 2, 0, 30), secondEnd = new Date(2026, 0, 2, 0, 39)
     const map = minutesByDate([{ id: 'intervals', startedAt: firstStart.toISOString(), endedAt: secondEnd.toISOString(), minutes: 11, activeIntervals: [{ startedAt: firstStart.toISOString(), endedAt: firstEnd.toISOString() }, { startedAt: secondStart.toISOString(), endedAt: secondEnd.toISOString() }] }])
     expect(map[localDate(firstStart.toISOString())]).toBeCloseTo(1)
     expect(map[localDate(secondStart.toISOString())]).toBeCloseTo(10)
+  })
+  it('counts only measured intervals, never legacy estimated minutes', () => {
+    expect(measuredMinutes({ id: 'legacy', startedAt: 'x', endedAt: 'y', minutes: 30 })).toBe(0)
   })
   it('snapshots active time into non-overlapping intervals', () => {
     const session: ActiveSession = { id: 'timer', startedAt: '2026-01-01T10:00:00Z', lastResumedAt: '2026-01-01T10:00:00Z', accumulatedSeconds: 0, paused: false }

@@ -7,11 +7,18 @@ const memoryStorage: Storage = { getItem: key => data.get(key) ?? null, setItem:
 beforeEach(() => { data.clear(); globalThis.localStorage = memoryStorage })
 
 describe('storage migration and deletion', () => {
-  it('reads legacy history and writes it to the current key', () => {
+  it('reads legacy history without rewriting storage during load', () => {
     data.set('optistudy-store-v1', JSON.stringify({ version: 1, attempts: [{ id: 'old' }], profile: { priority: 'Reading', daysOff: [] } }))
     const store = loadStore()
     expect(store.attempts[0].id).toBe('old')
-    expect(data.has('ielts-optimizer-store-v1')).toBe(true)
+    expect(data.has('ielts-optimizer-store-v1')).toBe(false)
+  })
+  it('preserves corrupt raw data and does not autosave an empty replacement', () => {
+    data.set('ielts-optimizer-store-v1', '{broken')
+    const store = loadStore()
+    expect(store.attempts).toEqual([])
+    expect(store.recoveryState?.raw).toBe('{broken')
+    expect(data.get('ielts-optimizer-store-v1')).toBe('{broken')
   })
   it('clears both current and legacy keys', () => {
     data.set('ielts-optimizer-store-v1', '{}'); data.set('optistudy-store-v1', '{}')
