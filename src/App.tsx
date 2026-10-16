@@ -152,24 +152,13 @@ const DAILY_CYCLES: Record<Skill, string[]> = {
   Grammar: ['Ngày 1 · Diagnostic: articles/agreement (25 phút)', 'Ngày 2 · Sentence combining (25 phút)', 'Ngày 3 · Relative/conditional clauses (30 phút)', 'Ngày 4 · Contrast/causal connectors (25 phút)', 'Ngày 5 · Edit một đoạn Writing (30 phút)', 'Ngày 6 · Speaking reformulation (20 phút)', 'Ngày 7 · Grammar checkpoint: editing + production/35 phút']
 }
 
-const TEST_BLUEPRINTS: Record<Skill, string[]> = {
-  Reading: ['Academic: 3 passages, 40 questions, 60 minutes', 'Question mix: multiple choice, T/F/NG, headings, matching, completion', 'Difficulty ramp: factual retrieval → paraphrase inference → dense academic synthesis'],
-  Listening: ['4 parts, 40 questions, about 30 minutes; recording played once', 'Question mix: form/note/table/flow-chart, map, matching, multiple choice', 'Difficulty ramp: everyday dialogue → education discussion → academic monologue'],
-  Writing: ['Task 1: 150+ words/20 minutes; Task 2: 250+ words/40 minutes', 'Rubric: task response/achievement, coherence, lexical resource, grammar accuracy', 'Difficulty ramp: guided outline → independent response → unseen timed prompt'],
-  Speaking: ['Part 1 interview, Part 2 cue card with 1 minute prep, Part 3 discussion', 'Rubric: fluency/coherence, lexical resource, grammar, pronunciation', 'Difficulty ramp: personal facts → narrative detail → abstract evaluation'],
-  Vocabulary: ['Recall, recognition, cloze, paraphrase and production—not translation only', 'Scoring: accuracy + collocation fit + register + delayed recall', 'Difficulty ramp: meaning → context → transfer into a timed response'],
-  Grammar: ['Error correction, transformation, editing and controlled production', 'Scoring: form, meaning, punctuation and appropriacy in context', 'Difficulty ramp: isolated accuracy → paragraph editing → Writing/Speaking transfer']
-}
-
 function SkillRoadmap({ skill }: { skill: Skill }) {
   const steps = ROADMAPS[skill]
   return (
     <section className="panel roadmap-panel">
       <div className="panel-title">
-        <div><span className="eyebrow">DEEP LEARNING PATH · {skill.toUpperCase()}</span><h3>Lộ trình chuyên sâu theo năng lực</h3></div>
-        <span className="date-pill">3 phases · lesson → test → transfer</span>
+        <h3>Lộ trình học {skill}</h3>
       </div>
-      <p className="muted">Mỗi phase gồm bài học ngắn, bài luyện đa dạng, một checkpoint và một lần chuyển giao vào bài thi.</p>
       <div className="roadmap-grid">
         {steps.map(step => (
           <article className="roadmap-step" key={step.phase}>
@@ -180,14 +169,9 @@ function SkillRoadmap({ skill }: { skill: Skill }) {
         ))}
       </div>
       <div className="daily-plan-block">
-        <div className="panel-title"><h3>Chu kỳ học 7 ngày</h3><span className="date-pill">lặp lại với topic mới</span></div>
+        <div className="panel-title"><h3>Lịch học 7 ngày</h3></div>
         <div className="daily-plan-grid">{DAILY_CYCLES[skill].map((day, index) => <div className={`daily-plan-day ${index === 6 ? 'mock-day' : ''}`} key={day}><b>D{index + 1}</b><span>{day.split(' · ')[1]}</span></div>)}</div>
       </div>
-      <div className="test-blueprint">
-        <h3>Blueprint bài test chuẩn hoá</h3>
-        {TEST_BLUEPRINTS[skill].map(line => <p key={line}>✓ {line}</p>)}
-      </div>
-      <p className="roadmap-source">Khung dạng bài tham chiếu: <a href="https://www.ielts.org/take-a-test/preparation-resources/sample-test-questions/academic-test" target="_blank" rel="noreferrer">IELTS official sample tasks</a> · <a href="https://takeielts.britishcouncil.org/prepare" target="_blank" rel="noreferrer">British Council preparation</a> · <a href="https://www.cambridgeenglish.org/exams-and-tests/ielts/preparation/" target="_blank" rel="noreferrer">Cambridge English preparation</a> · <a href="https://ieltsonlinetests.com/ielts-exam-library" target="_blank" rel="noreferrer">IELTS Online Tests library</a></p>
     </section>
   )
 }
