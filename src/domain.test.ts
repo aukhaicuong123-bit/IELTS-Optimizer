@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { heatLevel, localDate, makeErrors, mergeAttemptErrors, minutesByDate, recommendations, scoreAttempt, startOfLocalWeek } from './domain'
-import type { Attempt, Profile, StudySession } from './types'
+import { heatLevel, localDate, makeErrors, mergeAttemptErrors, minutesByDate, recommendations, scoreAttempt, snapshotActiveSession, startOfLocalWeek } from './domain'
+import type { ActiveSession, Attempt, Profile, StudySession } from './types'
 
 const profile: Profile = { daysOff: [], priority: 'Reading', dailyGoalMinutes: 30 }
 const attempt: Attempt = { id: 'a1', passageId: 'p', skill: 'Reading', answers: { q1: 'right', q2: 'wrong' }, score: 1, total: 2, kind: 'practice', createdAt: '2026-01-01T10:00:00Z', objectiveIds: ['main', 'detail'] }
@@ -31,6 +31,19 @@ describe('IELTS Optimizer learning domain', () => {
     const map = minutesByDate([{ id: 'intervals', startedAt: firstStart.toISOString(), endedAt: secondEnd.toISOString(), minutes: 11, activeIntervals: [{ startedAt: firstStart.toISOString(), endedAt: firstEnd.toISOString() }, { startedAt: secondStart.toISOString(), endedAt: secondEnd.toISOString() }] }])
     expect(map[localDate(firstStart.toISOString())]).toBeCloseTo(1)
     expect(map[localDate(secondStart.toISOString())]).toBeCloseTo(10)
+  })
+  it('snapshots active time into non-overlapping intervals', () => {
+    const session: ActiveSession = { id: 'timer', startedAt: '2026-01-01T10:00:00Z', lastResumedAt: '2026-01-01T10:00:00Z', accumulatedSeconds: 0, paused: false }
+    const first = snapshotActiveSession(session, '2026-01-01T10:00:05Z')
+    const second = snapshotActiveSession(first, '2026-01-01T10:00:10Z')
+    expect(second.accumulatedSeconds).toBe(10)
+    expect(second.activeIntervals).toEqual([{ startedAt: '2026-01-01T10:00:00Z', endedAt: '2026-01-01T10:00:05Z' }, { startedAt: '2026-01-01T10:00:05Z', endedAt: '2026-01-01T10:00:10Z' }])
+  })
+  it('does not add time to a paused session or duplicate an invalid checkpoint', () => {
+    const paused: ActiveSession = { id: 'timer', startedAt: '2026-01-01T10:00:00Z', lastResumedAt: '2026-01-01T10:00:00Z', accumulatedSeconds: 10, paused: true }
+    expect(snapshotActiveSession(paused, '2026-01-01T11:00:00Z')).toBe(paused)
+    const running: ActiveSession = { ...paused, paused: false }
+    expect(snapshotActiveSession(running, 'invalid')).toBe(running)
   })
   it('aligns heatmap weeks to Sunday for every month boundary', () => {
     const start = startOfLocalWeek(new Date(2026, 2, 1))
