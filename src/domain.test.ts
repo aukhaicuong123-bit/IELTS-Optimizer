@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { heatLevel, localDate, makeErrors, mergeAttemptErrors, measuredMinutes, minutesByDate, recommendations, scoreAttempt, snapshotActiveSession, startOfLocalWeek } from './domain'
+import { heatLevel, linkedErrorsForSkill, localDate, makeErrors, mergeAttemptErrors, measuredMinutes, minutesByDate, recommendations, scoreAttempt, simulatorScope, snapshotActiveSession, startOfLocalWeek, writingWordTarget } from './domain'
+import { passages } from './content'
 import type { ActiveSession, Attempt, Profile, StudySession } from './types'
 
 const profile: Profile = { daysOff: [], priority: 'Reading', dailyGoalMinutes: 30 }
@@ -63,8 +64,29 @@ describe('IELTS Optimizer learning domain', () => {
   it('recommends open Error Memory before a generic activity', () => {
     const error = { id: 'e', questionId: 'q2', attemptId: 'a1', passageId: 'p', type: 'multiple-choice' as const, objective: 'detail', learnerAnswer: 'wrong', correctAnswer: 'right', explanation: 'x', createdAt: '2026-01-01T10:00:00Z', reviewCount: 0, retestAttemptIds: [] }
     const state = { difficultyId: 'reading:legacy-error:e', status: 'open' as const, occurrences: [], chronology: 'reliable' as const, durableMastery: 'not-demonstrated' as const }
-    expect(recommendations(profile, [attempt], [error], [], { 'reading:legacy-error:e': state }).page).toBe('errors')
+    const linkedError = { ...error, passageId: passages[0].id, questionId: passages[0].questions[0].id, type: passages[0].questions[0].type, objective: passages[0].questions[0].objective }
+    expect(recommendations(profile, [attempt], [linkedError], [], { 'reading:legacy-error:e': state }, passages).page).toBe('errors')
     expect(recommendations(profile, [], [], [], {}).page).toBe('practice')
+  })
+  it('does not recommend a Retest without a different equivalent passage', () => {
+    const error = { id: 'e', questionId: 'unknown', attemptId: 'a1', passageId: 'unknown', type: 'multiple-choice' as const, objective: 'detail', learnerAnswer: 'wrong', correctAnswer: 'right', explanation: 'x', createdAt: '2026-01-01T10:00:00Z', reviewCount: 0, retestAttemptIds: [], skill: 'Reading' as const }
+    const state = { difficultyId: 'reading:legacy-error:e', status: 'open' as const, occurrences: [], chronology: 'reliable' as const, durableMastery: 'not-demonstrated' as const }
+    expect(recommendations(profile, [attempt], [error], [], { 'reading:legacy-error:e': state }, passages).title).not.toContain('Retest')
+  })
+  it('labels simulator modules by their actual mini-practice scope', () => {
+    expect(simulatorScope('Listening', 3)).toContain('3 questions')
+    expect(simulatorScope('Reading', 4)).toContain('1 passage')
+    expect(simulatorScope('Writing', 0)).toContain('Task 1 response only')
+    expect(simulatorScope('Speaking', 0)).toContain('Part 2 cue card only')
+  })
+  it('uses the selected Writing task for the mechanical word-count target', () => {
+    expect(writingWordTarget('task1')).toBe(150)
+    expect(writingWordTarget('task2')).toBe(250)
+  })
+  it('does not relabel Reading errors as Vocabulary or Grammar errors', () => {
+    const readingError = { id: 'reading-error', questionId: 'q', attemptId: 'a1', passageId: 'p', type: 'multiple-choice' as const, objective: 'detail', learnerAnswer: 'wrong', correctAnswer: 'right', explanation: 'x', createdAt: '2026-01-01T10:00:00Z', reviewCount: 0, retestAttemptIds: [], skill: 'Reading' as const }
+    expect(linkedErrorsForSkill([readingError], 'Vocabulary')).toEqual([])
+    expect(linkedErrorsForSkill([readingError], 'Grammar')).toEqual([])
   })
   it('keeps one stable error identity while recording repeated failed attempts', () => {
     const questions = [{ id: 'q2', type: 'multiple-choice' as const, prompt: 'detail?', options: ['right', 'wrong'], answer: 'right', explanation: 'x', objective: 'detail' }]

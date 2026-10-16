@@ -39,16 +39,20 @@ import {
 import { passages } from './content'
 import {
   heatLevel,
+  hasEquivalentReadingPassage,
+  linkedErrorsForSkill,
   localDate,
   mergeAttemptErrors,
   minutesByDate,
   measuredMinutes,
   recommendations,
   scoreAttempt,
-  snapshotActiveSession
+  snapshotActiveSession,
+  simulatorScope,
+  writingWordTarget
 } from './domain'
 import { deriveReadingStates, readingDifficultyId, targetFor } from './readingEngine'
-import { clearStore, loadStore } from './storage'
+import { clearStore, loadStore, saveStore } from './storage'
 import { TOPICS, type TopicId, type TopicDefinition, type VocabItem, type GrammarRule } from './topicData'
 import type {
   ActiveSession,
@@ -198,7 +202,7 @@ export default function App() {
   const [headerNow, setHeaderNow] = useState(Date.now())
 
   useEffect(() => {
-    if (!store.recoveryState) localStorage.setItem('ielts-optimizer-store-v1', JSON.stringify(store))
+    if (!store.recoveryState && !saveStore(store)) note('Không thể lưu dữ liệu học tập. Dữ liệu hiện tại vẫn còn trong phiên này; hãy thử lại trước khi đóng trang.')
   }, [store])
 
   useEffect(() => {
@@ -1214,11 +1218,11 @@ function IELTSSimulation({ s, setS, note }: { s: Store; setS: (store: Store) => 
   const [skill, setSkill] = useState<SimulationSkill>('Listening')
   const [started, setStarted] = useState(false)
   const [submitted, setSubmitted] = useState(false)
-  const [seconds, setSeconds] = useState(30 * 60)
+  const [seconds, setSeconds] = useState(10 * 60)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [response, setResponse] = useState('')
   const questions = SIMULATION_QUESTIONS[skill === 'Reading' ? 'Reading' : 'Listening']
-  const timeLimit = skill === 'Reading' ? 60 * 60 : skill === 'Writing' ? 60 * 60 : skill === 'Speaking' ? 14 * 60 : 30 * 60
+  const timeLimit = skill === 'Speaking' ? 3 * 60 : 10 * 60
 
   useEffect(() => {
     if (!started || submitted || seconds <= 0) return
@@ -1227,7 +1231,7 @@ function IELTSSimulation({ s, setS, note }: { s: Store; setS: (store: Store) => 
   }, [started, submitted, seconds])
 
   const selectSkill = (next: SimulationSkill) => {
-    setSkill(next); setStarted(false); setSubmitted(false); setSeconds(next === 'Reading' ? 3600 : next === 'Writing' ? 3600 : next === 'Speaking' ? 840 : 1800); setAnswers({}); setResponse('')
+    setSkill(next); setStarted(false); setSubmitted(false); setSeconds(next === 'Speaking' ? 3 * 60 : 10 * 60); setAnswers({}); setResponse('')
   }
   const start = () => { setStarted(true); setSubmitted(false); setSeconds(timeLimit); setAnswers({}); setResponse('') }
   const score = questions.filter(q => answers[q.id] === q.answer).length
@@ -1244,21 +1248,21 @@ function IELTSSimulation({ s, setS, note }: { s: Store; setS: (store: Store) => 
 
   return <section className="stack">
     <section className="panel simulator-hero">
-      <span className="eyebrow">IELTS COMPUTER-STYLE SIMULATION</span><h2>Phòng thi mô phỏng</h2>
+      <span className="eyebrow">IELTS MINI-PRACTICE</span><h2>Bài luyện mini</h2>
       <p className="muted">Nội dung tự biên soạn theo format IELTS: timer, media, câu hỏi, nộp bài và review. Đề gốc bên ngoài không được sao chép vào ứng dụng.</p>
       <div className="study-modes">{(['Listening', 'Reading', 'Writing', 'Speaking'] as SimulationSkill[]).map(item => <button key={item} className={`mode-tab ${skill === item ? 'active' : ''}`} onClick={() => selectSkill(item)}>{item}</button>)}</div>
     </section>
     {!started ? <section className="panel simulator-start">
-      <div className="simulator-spec"><b>{skill}</b><span>{skill === 'Listening' ? '4 parts · 40 questions · 30 minutes' : skill === 'Reading' ? '3 passages · 40 questions · 60 minutes' : skill === 'Writing' ? 'Task 1 + Task 2 · 60 minutes' : 'Part 1 + Part 2 + Part 3 · 11–14 minutes'}</span></div>
-      <p className="muted">Bản demo hiện dùng một module nội bộ có media và câu hỏi thật trong app. Các module tiếp theo sẽ nối vào cùng test runner này.</p><button className="primary" onClick={start}>Bắt đầu simulation</button>
+      <div className="simulator-spec"><b>{skill}</b><span>{simulatorScope(skill, questions.length)}</span></div>
+      <p className="muted">Đây là mini-practice demo, không phải full IELTS mock. Timer chỉ giúp bạn luyện tập; không đại diện thời lượng bài thi chính thức.</p><button className="primary" onClick={start}>Bắt đầu mini-practice</button>
     </section> : <section className="panel simulator-shell">
       <div className="simulator-toolbar"><span className="badge">{skill} · {submitted ? 'Review' : 'In progress'}</span><strong className={seconds < 60 ? 'status' : ''}>⏱ {minutes}:{secs}</strong>{!submitted && <button className="danger" onClick={submit}>Nộp bài</button>}</div>
       {skill === 'Listening' && <div className="media-stage"><h3>Part 1 · Everyday conversation</h3><p className="muted">Nghe một lần như phòng thi. Không hiện transcript cho đến khi nộp.</p><button className="primary" onClick={playAudio}>▶ Play audio</button><details><summary>Transcript sau khi nộp</summary><p className="callout">{submitted ? TOPICS[0].listening.audioText : 'Transcript sẽ mở sau khi nộp bài.'}</p></details></div>}
-      {skill === 'Reading' && <div className="reading-stage"><h3>{passages[0].title}</h3>{passages[0].text.split('\n\n').slice(0, 2).map(p => <p key={p}>{p}</p>)}</div>}
-      {skill === 'Writing' && <div className="writing-stage"><h3>Task 1 · Academic report</h3><p className="callout">The chart below compares participation in three university clubs in 2005 and 2025. Summarise the information by selecting and reporting the main features.</p><svg viewBox="0 0 420 180" role="img" aria-label="Bar chart comparing university club participation"><line x1="45" y1="145" x2="390" y2="145" stroke="currentColor"/><rect x="80" y="65" width="34" height="80" fill="#92dcaa"/><rect x="120" y="42" width="34" height="103" fill="#f4c878"/><rect x="210" y="88" width="34" height="57" fill="#92dcaa"/><rect x="250" y="72" width="34" height="73" fill="#f4c878"/><rect x="340" y="105" width="34" height="40" fill="#92dcaa"/><rect x="380" y="55" width="34" height="90" fill="#f4c878"/><text x="74" y="165" fill="currentColor">Science</text><text x="205" y="165" fill="currentColor">Arts</text><text x="335" y="165" fill="currentColor">Sports</text></svg></div>}
+      {skill === 'Reading' && <div className="reading-stage"><h3>{passages[0].title}</h3>{passages[0].text.split('\n\n').map(p => <p key={p}>{p}</p>)}</div>}
+      {skill === 'Writing' && <div className="writing-stage"><h3>Task 1 · Academic report</h3><p className="callout">The chart below compares participation in three university clubs in 2005 and 2025. Summarise the information by selecting and reporting the main features.</p><svg viewBox="0 0 420 180" role="img" aria-label="Bar chart comparing university club participation"><line x1="45" y1="145" x2="390" y2="145" stroke="currentColor"/><rect x="80" y="65" width="34" height="80" fill="#92dcaa"/><rect x="120" y="42" width="34" height="103" fill="#f4c878"/><rect x="210" y="88" width="34" height="57" fill="#92dcaa"/><rect x="250" y="72" width="34" height="73" fill="#f4c878"/><rect x="340" y="105" width="34" height="40" fill="#92dcaa"/><rect x="380" y="55" width="34" height="90" fill="#f4c878"/><text x="74" y="165" fill="currentColor">Science</text><text x="205" y="165" fill="currentColor">Arts</text><text x="335" y="165" fill="currentColor">Sports</text></svg><p className="muted">Data shown: Science 50%→65%, Arts 35%→45%, Sports 25%→55% (2005→2025).</p></div>}
       {skill === 'Speaking' && <div className="speaking-stage"><h3>Part 2 · Cue card</h3><p className="callout">Describe a skill you learned that was useful in your studies or work. You should say what it was, how you learned it, and explain why it was useful.</p><p className="muted">Use the response box as a transcript or outline, then record yourself separately if your browser supports a microphone.</p></div>}
       {(skill === 'Listening' || skill === 'Reading') && <div className="simulation-questions">{questions.map((q, index) => <div className="question" key={q.id}><h3>{index + 1}. {q.prompt}</h3><div className="options">{q.options.map(option => <label key={option} className={answers[q.id] === option ? 'chosen' : ''}><input type="radio" name={q.id} checked={answers[q.id] === option} onChange={() => setAnswers({ ...answers, [q.id]: option })} disabled={submitted}/><span>{option}</span></label>)}</div>{submitted && <div className="feedback"><b>{answers[q.id] === q.answer ? '✓ Correct' : '✗ Review'}</b><small>{q.explanation}</small></div>}</div>)}</div>}
-      {(skill === 'Writing' || skill === 'Speaking') && <textarea className="skill-response simulator-response" value={response} onChange={event => setResponse(event.target.value)} disabled={submitted} placeholder={skill === 'Writing' ? 'Viết câu trả lời Task 1/Task 2 tại đây…' : 'Dán transcript hoặc ghi chú câu trả lời…'} />}
+      {(skill === 'Writing' || skill === 'Speaking') && <textarea className="skill-response simulator-response" value={response} onChange={event => setResponse(event.target.value)} disabled={submitted} placeholder={skill === 'Writing' ? 'Viết câu trả lời Task 1 tại đây…' : 'Dán transcript hoặc ghi chú cho cue card Part 2…'} />}
       {submitted && <div className="result"><h3>{skill === 'Listening' || skill === 'Reading' ? `Score: ${score}/${questions.length}` : 'Bài đã nộp — chuyển sang self-review'}</h3><button className="secondary" onClick={() => selectSkill(skill)}>Làm lại module</button></div>}
     </section>}
   </section>
@@ -1424,18 +1428,11 @@ function SkillPractice({
   const feedback =
     skill === 'Writing'
       ? [
-          wordCount >= 140
-            ? 'Task coverage: response length meets standard practice targets.'
-            : 'Task coverage: expand the response toward the 150-word (Task 1) or 250-word (Task 2) target.',
-          /however|therefore|consequently|furthermore|in contrast|nevertheless/i.test(response)
-            ? 'Coherence: linking transitions identified.'
-            : 'Coherence: incorporate clear transitions between argumentative points.',
-          /\b(the|a|an)\b/i.test(response)
-            ? 'Grammar: articles present; verify accuracy in complex noun phrases.'
-            : 'Grammar: check article usage.',
-          new RegExp(currentTopic.vocab.map(v => v.term.split(' ')[0]).join('|'), 'i').test(response)
-            ? 'Lexical Resource: topic vocabulary collocations detected!'
-            : `Lexical Resource: incorporate collocations from the ${currentTopic.titleEn} lexicon bank below.`
+          wordCount >= writingWordTarget(writingTaskType)
+            ? `Word count: ${wordCount}/${writingWordTarget(writingTaskType)} words — mechanical check passed.`
+            : `Word count: ${wordCount}/${writingWordTarget(writingTaskType)} words — aim for at least ${writingWordTarget(writingTaskType)} words for this task.`,
+          `Self-review: check whether the ${writingTaskType === 'task1' ? 'overview and key comparisons' : 'position, reasons and examples'} are clearly covered.`,
+          'Self-review: check paragraphing, linking, vocabulary choice and grammar manually. This is not an IELTS score.'
         ]
       : []
 
@@ -1878,8 +1875,13 @@ function VocabularyHub({
 
   const markKnown = (wordId: string, isKnown: boolean) => {
     const next = { ...knownWords, [wordId]: isKnown }
+    try {
+      localStorage.setItem('ielts-optimizer-vocab-known', JSON.stringify(next))
+    } catch {
+      note('Không thể lưu tiến độ từ vựng. Dữ liệu hiện tại chưa được thay đổi; hãy thử lại.')
+      return
+    }
     setKnownWords(next)
-    localStorage.setItem('ielts-optimizer-vocab-known', JSON.stringify(next))
     if (isKnown) {
       note(`Đã ghi nhớ: "${currentWord.term}"`)
     }
@@ -2201,7 +2203,6 @@ function VocabularyHub({
           setS={setS}
           note={note}
           title="Vocabulary"
-          filter={selectedTopicId}
         />
       )}
     </section>
@@ -2325,17 +2326,15 @@ function ErrorDrill({
   s,
   setS,
   note,
-  title,
-  filter
+  title
 }: {
   s: Store
   setS: (store: Store) => void
   note: (message: string) => void
   title: string
-  filter: string
 }) {
   const [reflection, setReflection] = useState('')
-  const linked = s.errors.filter(error => `${error.objective} ${error.explanation}`.toLowerCase().includes(filter.toLowerCase()))
+  const linked = linkedErrorsForSkill(s.errors, title)
   const items = linked
 
   const review = (error: Store['errors'][number]) => {
@@ -2372,7 +2371,7 @@ function ErrorDrill({
       {items.length ? (
         items.map(error => (
           <section className="panel error-card" key={error.id}>
-            <span className="badge">{linked.includes(error) ? 'Linked match' : 'Available Reading error'}</span>
+            <span className="badge">Linked {title} error</span>
             <h3>{error.objective}</h3>
             <p>{error.explanation}</p>
             <p className="question-copy">
@@ -2428,12 +2427,13 @@ function Errors({
         s.errors.map(error => {
           const state = projection.statesByDifficulty[readingDifficultyId(error)]
           const target = targetFor(error)
+          const equivalentPassageAvailable = hasEquivalentReadingPassage(error, passages)
           return (
             <section className="panel error-card" key={error.id}>
               <div className="error-head">
                 <span className="badge">{error.type}</span>
                 <span className={`status ${state?.status === 'resolved' ? 'good' : ''}`}>
-                  {state?.status === 'resolved' ? 'Resolved by retest' : 'Open'}
+                  {state?.status === 'resolved' ? 'Retest passed once · not mastery' : 'Open'}
                 </span>
               </div>
               <h3>{error.objective}</h3>
@@ -2445,7 +2445,7 @@ function Errors({
               </div>
               <div className="error-actions">
                 <small>Reviewed {error.reviewCount} times</small>
-                {state?.status === 'open' && target && (
+                {state?.status === 'open' && target?.occurrenceId && equivalentPassageAvailable && (
                   <button className="primary" onClick={() => openRetest(target)}>
                     Retest now
                   </button>
@@ -2490,7 +2490,7 @@ function Plan({
   note: (message: string) => void
 }) {
   const projection = deriveReadingStates(s.errors, s.attempts, passages)
-  const suggestion = recommendations(s.profile, s.attempts, s.errors, s.plan, projection.statesByDifficulty)
+  const suggestion = recommendations(s.profile, s.attempts, s.errors, s.plan, projection.statesByDifficulty, passages)
 
   const add = (source: 'manual' | 'recommended') => {
     const date = localDate(new Date().toISOString())
@@ -2807,7 +2807,7 @@ function Profile({
     if (confirm('Clear all learner attempts, errors, and history?')) {
       const cleared = clearStore()
       setS(loadStore())
-      note(cleared ? 'All learner data reset.' : 'Warning: some learner-progress keys could not be removed.')
+      note(cleared.ok ? 'All learner data reset.' : `Reset incomplete. Could not remove: ${cleared.failedKeys.join(', ')}`)
     }
   }
 

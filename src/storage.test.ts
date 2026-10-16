@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { clearStore, loadStore } from './storage'
+import { clearStore, loadStore, saveStore } from './storage'
 
 const data = new Map<string, string>()
 const memoryStorage: Storage = { getItem: key => data.get(key) ?? null, setItem: (key, value) => data.set(key, value), removeItem: key => data.delete(key), clear: () => data.clear(), key: index => [...data.keys()][index] ?? null, get length() { return data.size } }
@@ -21,9 +21,14 @@ describe('storage migration and deletion', () => {
     expect(data.get('ielts-optimizer-store-v1')).toBe('{broken')
   })
   it('clears both current and legacy keys', () => {
-    data.set('ielts-optimizer-store-v1', '{}'); data.set('optistudy-store-v1', '{}')
-    clearStore()
+    data.set('ielts-optimizer-store-v1', '{}'); data.set('optistudy-store-v1', '{}'); data.set('ielts-optimizer-vocab-known', '{}')
+    expect(clearStore()).toEqual({ ok: true, failedKeys: [] })
     expect(data.size).toBe(0)
+  })
+  it('reports storage write failures without hiding them', () => {
+    const failingStorage = { ...memoryStorage, setItem: () => { throw new Error('quota') } } as Storage
+    globalThis.localStorage = failingStorage
+    expect(saveStore({ version: 1, profile: { daysOff: [], priority: 'Reading' }, attempts: [], errors: [], sessions: [], plan: [] })).toBe(false)
   })
   it('pauses a recovered timer instead of counting closed-tab time', () => {
     data.set('ielts-optimizer-store-v1', JSON.stringify({ version: 1, activeSession: { id: 's', startedAt: '2026-01-01T10:00:00Z', lastResumedAt: '2026-01-01T10:00:00Z', accumulatedSeconds: 30, paused: false } }))
