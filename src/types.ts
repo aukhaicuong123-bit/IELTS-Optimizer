@@ -1,6 +1,6 @@
 export type Skill = 'Reading' | 'Listening' | 'Writing' | 'Speaking' | 'Vocabulary' | 'Grammar'
 export type QuestionType = 'multiple-choice' | 'true-false-not-given'
-export type Page = 'dashboard' | 'plan' | 'practice' | 'errors' | 'record' | 'network' | 'design' | 'profile' | 'listening' | 'writing' | 'speaking' | 'vocabulary' | 'grammar'
+export type Page = 'dashboard' | 'plan' | 'practice' | 'errors' | 'record' | 'network' | 'design' | 'profile' | 'listening' | 'writing' | 'speaking' | 'vocabulary' | 'grammar' | 'simulator'
 export type Profile = { targetBand?: number; currentLevel?: string; examDate?: string; dailyGoalMinutes?: number; daysOff: string[]; priority: Skill }
 export type Question = { id: string; type: QuestionType; prompt: string; options: string[]; answer: string; explanation: string; objective: string; equivalenceKey?: string }
 export type Passage = { id: string; title: string; level: string; minutes: number; text: string; questions: Question[]; topicId?: string; topicTitle?: string }

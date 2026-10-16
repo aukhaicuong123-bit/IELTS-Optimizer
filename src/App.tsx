@@ -60,6 +60,7 @@ import type {
   Profile,
   Question,
   ReadingOccurrenceTarget,
+  Skill,
   Store,
   StudyDestination
 } from './types'
@@ -73,6 +74,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
       ['dashboard', 'Bảng tổng quan', Home],
       ['plan', 'Kế hoạch học tập', CalendarDays],
       ['record', 'Bấm giờ & Nhật ký', Clock3]
+      ,['simulator', 'IELTS Test Simulator', Target]
     ]
   },
   {
@@ -106,6 +108,89 @@ const navGroups: { label: string; items: NavItem[] }[] = [
 ]
 
 const nav = navGroups.flatMap(group => group.items)
+
+type RoadmapStep = { phase: string; title: string; outcome: string; activities: string[]; test: string }
+const ROADMAPS: Record<Skill, RoadmapStep[]> = {
+  Reading: [
+    { phase: '01 · Chẩn đoán', title: 'Đọc hiểu và định vị thông tin', outcome: 'Xác định main idea, keywords và paraphrase trong văn bản học thuật.', activities: ['Skim 3 đoạn văn theo tiêu đề', 'Scan tên riêng, số liệu và mốc thời gian', 'Ghi lại paraphrase gây nhiễu'], test: 'Mini test: matching headings + True/False/Not Given' },
+    { phase: '02 · Xây chiến thuật', title: 'Làm chủ dạng câu hỏi', outcome: 'Chọn chiến thuật theo dạng bài thay vì đoán đáp án.', activities: ['Matching information', 'Sentence endings và summary completion', 'Table/flow-chart completion'], test: 'Mixed set 20 câu, giới hạn 25 phút' },
+    { phase: '03 · Chuyển giao', title: 'Timed passage và retest', outcome: 'Duy trì độ chính xác khi tăng độ khó và áp lực thời gian.', activities: ['Passage mới cùng objective', 'Error Memory theo từng occurrence', 'Retest một lỗi duy nhất bằng nội dung tương đương'], test: 'Full Reading simulation 60 phút' }
+  ],
+  Listening: [
+    { phase: '01 · Chẩn đoán', title: 'Nghe ý chính và dự đoán', outcome: 'Dự đoán loại từ, bối cảnh và distractor trước khi nghe.', activities: ['Form/note completion', 'Nghe số, tên riêng, spelling', 'Shadowing câu ngắn'], test: 'Part 1–2: form completion + map labelling' },
+    { phase: '02 · Phân biệt thông tin', title: 'Paraphrase và distractors', outcome: 'Theo dõi chuyển ý, sửa đáp án và nhận diện cách diễn đạt khác.', activities: ['Multiple choice', 'Matching speakers/opinions', 'Table và flow-chart completion'], test: 'Part 3: 15 câu nghe một lần' },
+    { phase: '03 · Tốc độ thi', title: 'Bốn part liên tục', outcome: 'Giữ tập trung, ghi chú có chọn lọc và tự kiểm transcript.', activities: ['Part 4 academic lecture', 'Accent rotation', 'Review transcript theo lỗi'], test: 'Full Listening simulation 30 phút' }
+  ],
+  Writing: [
+    { phase: '01 · Chẩn đoán', title: 'Task response và cấu trúc', outcome: 'Trả lời đủ đề, lập thesis và bố cục đoạn rõ ràng.', activities: ['Phân tích đề opinion/discussion/problem', 'Lập outline 5 phút', 'Viết topic sentence'], test: 'One-paragraph response + self checklist' },
+    { phase: '02 · Phát triển band', title: 'Coherence, vocabulary, grammar', outcome: 'Phát triển ý bằng nguyên nhân, ví dụ và hệ quả; tránh học thuộc.', activities: ['Task 1 overview và grouping data', 'Task 2 argument/counterargument', 'Sửa lỗi câu phức và collocation'], test: 'Task 1 hoặc Task 2 timed draft' },
+    { phase: '03 · Chuẩn hoá', title: 'Feedback và timed writing', outcome: 'Hoàn thành đúng thời lượng và tự sửa theo 4 tiêu chí chấm.', activities: ['Rewrite sau feedback', 'So sánh model answer hợp pháp', 'Kiểm tra word count và lỗi lặp'], test: 'Academic Writing 60 phút: Task 1 + Task 2' }
+  ],
+  Speaking: [
+    { phase: '01 · Chẩn đoán', title: 'Fluency và phát âm', outcome: 'Trả lời tự nhiên, rõ ý và không phụ thuộc script.', activities: ['Part 1: personal topics', 'Chunking và intonation', 'Ghi âm 60 giây rồi tự nghe lại'], test: 'Part 1 rotation: 10 câu, không chuẩn bị' },
+    { phase: '02 · Mở rộng ý', title: 'Cue card và follow-up', outcome: 'Nói đủ 2 phút với ví dụ, chi tiết và liên kết mạch lạc.', activities: ['Part 2: 1 phút chuẩn bị', 'Story spine: who/what/why/result', 'Part 3: compare, evaluate, speculate'], test: 'Cue card recording + 4 câu follow-up' },
+    { phase: '03 · Mô phỏng', title: 'Mock interview', outcome: 'Duy trì độ chính xác và tương tác dưới áp lực thi.', activities: ['Random topic draw', 'Pronunciation repair list', 'So sánh bản ghi trước/sau'], test: 'Speaking mock 11–14 phút' }
+  ],
+  Vocabulary: [
+    { phase: '01 · Nền tảng', title: 'Lexical chunks theo chủ đề', outcome: 'Nhớ collocation và word family trong ngữ cảnh, không học từ rời.', activities: ['Flashcard hai chiều', 'Pronunciation + word family', 'Tự đặt câu theo topic'], test: 'Recall quiz: nghĩa, collocation, dùng câu' },
+    { phase: '02 · Sử dụng', title: 'Paraphrase và register', outcome: 'Chọn từ chính xác theo sắc thái Academic/Formal và tránh lặp.', activities: ['Synonym ladder', 'Cloze passage', 'Paraphrase câu Reading/Writing'], test: 'Mixed quiz 20 câu + short production' },
+    { phase: '03 · Ghi nhớ dài hạn', title: 'Spaced review và transfer', outcome: 'Đưa từ đã học vào bài nói/viết và theo dõi từ hay quên.', activities: ['Review 1–3–7–14 ngày', 'Error Memory theo topic', 'Dùng 5 chunks trong một response'], test: 'Cumulative vocabulary checkpoint' }
+  ],
+  Grammar: [
+    { phase: '01 · Chẩn đoán', title: 'Accuracy nền tảng', outcome: 'Nhận diện lỗi ảnh hưởng band: subject–verb, articles, tense, agreement.', activities: ['Error correction', 'Sentence combining', 'Mini dictation'], test: 'Diagnostic 25 câu theo lỗi' },
+    { phase: '02 · Kiểm soát câu phức', title: 'Complexity có kiểm soát', outcome: 'Dùng relative clauses, conditionals và concessive clauses đúng mục đích.', activities: ['Rewrite simple → complex', 'Contrast/causal connectors', 'Grammar in context'], test: 'Editing passage + 8 câu production' },
+    { phase: '03 · Transfer', title: 'Grammar trong bài thi', outcome: 'Giữ accuracy khi viết/nói thật, không nhồi cấu trúc rủi ro.', activities: ['Sửa một đoạn Writing', 'Speaking reformulation', 'Personal error log'], test: 'Timed response + targeted recheck sau 7 ngày' }
+  ]
+}
+
+const DAILY_CYCLES: Record<Skill, string[]> = {
+  Reading: ['Ngày 1 · Skim + main idea (25 phút)', 'Ngày 2 · Matching headings/information (35 phút)', 'Ngày 3 · T/F/NG + evidence log (35 phút)', 'Ngày 4 · Completion + paraphrase (40 phút)', 'Ngày 5 · Passage timed (20 phút)', 'Ngày 6 · Chữa lỗi và retest occurrence (30 phút)', 'Ngày 7 · Full Reading mock: 3 passages/60 phút'],
+  Listening: ['Ngày 1 · Part 1 form completion (20 phút)', 'Ngày 2 · Part 2 map/matching (25 phút)', 'Ngày 3 · Part 3 multiple choice (30 phút)', 'Ngày 4 · Part 4 lecture/note completion (30 phút)', 'Ngày 5 · Dictation + shadowing (20 phút)', 'Ngày 6 · Transcript error review (25 phút)', 'Ngày 7 · Full Listening mock: 4 parts/30 phút'],
+  Writing: ['Ngày 1 · Phân tích đề + thesis (25 phút)', 'Ngày 2 · Task 1 overview + grouping (35 phút)', 'Ngày 3 · Task 2 body paragraph (40 phút)', 'Ngày 4 · Cohesion + grammar editing (30 phút)', 'Ngày 5 · Task 1 timed: 20 phút', 'Ngày 6 · Task 2 timed: 40 phút', 'Ngày 7 · Full Writing mock: Task 1 + Task 2/60 phút'],
+  Speaking: ['Ngày 1 · Part 1 fluency recording (15 phút)', 'Ngày 2 · Pronunciation: chunking + stress (20 phút)', 'Ngày 3 · Cue card: 1 phút chuẩn bị/2 phút nói', 'Ngày 4 · Part 3 compare/evaluate (25 phút)', 'Ngày 5 · Retell cùng ý bằng từ khác (20 phút)', 'Ngày 6 · Self-review theo 4 tiêu chí (20 phút)', 'Ngày 7 · Mock Speaking: Part 1–3/11–14 phút'],
+  Vocabulary: ['Ngày 1 · Học 8 lexical chunks theo topic (20 phút)', 'Ngày 2 · Recall hai chiều + pronunciation (20 phút)', 'Ngày 3 · Collocation cloze (25 phút)', 'Ngày 4 · Paraphrase 10 câu (25 phút)', 'Ngày 5 · Dùng chunks trong Writing/Speaking (30 phút)', 'Ngày 6 · Ôn từ sai theo spaced review (20 phút)', 'Ngày 7 · Cumulative quiz + production checkpoint (30 phút)'],
+  Grammar: ['Ngày 1 · Diagnostic: articles/agreement (25 phút)', 'Ngày 2 · Sentence combining (25 phút)', 'Ngày 3 · Relative/conditional clauses (30 phút)', 'Ngày 4 · Contrast/causal connectors (25 phút)', 'Ngày 5 · Edit một đoạn Writing (30 phút)', 'Ngày 6 · Speaking reformulation (20 phút)', 'Ngày 7 · Grammar checkpoint: editing + production/35 phút']
+}
+
+const TEST_BLUEPRINTS: Record<Skill, string[]> = {
+  Reading: ['Academic: 3 passages, 40 questions, 60 minutes', 'Question mix: multiple choice, T/F/NG, headings, matching, completion', 'Difficulty ramp: factual retrieval → paraphrase inference → dense academic synthesis'],
+  Listening: ['4 parts, 40 questions, about 30 minutes; recording played once', 'Question mix: form/note/table/flow-chart, map, matching, multiple choice', 'Difficulty ramp: everyday dialogue → education discussion → academic monologue'],
+  Writing: ['Task 1: 150+ words/20 minutes; Task 2: 250+ words/40 minutes', 'Rubric: task response/achievement, coherence, lexical resource, grammar accuracy', 'Difficulty ramp: guided outline → independent response → unseen timed prompt'],
+  Speaking: ['Part 1 interview, Part 2 cue card with 1 minute prep, Part 3 discussion', 'Rubric: fluency/coherence, lexical resource, grammar, pronunciation', 'Difficulty ramp: personal facts → narrative detail → abstract evaluation'],
+  Vocabulary: ['Recall, recognition, cloze, paraphrase and production—not translation only', 'Scoring: accuracy + collocation fit + register + delayed recall', 'Difficulty ramp: meaning → context → transfer into a timed response'],
+  Grammar: ['Error correction, transformation, editing and controlled production', 'Scoring: form, meaning, punctuation and appropriacy in context', 'Difficulty ramp: isolated accuracy → paragraph editing → Writing/Speaking transfer']
+}
+
+function SkillRoadmap({ skill }: { skill: Skill }) {
+  const steps = ROADMAPS[skill]
+  return (
+    <section className="panel roadmap-panel">
+      <div className="panel-title">
+        <div><span className="eyebrow">DEEP LEARNING PATH · {skill.toUpperCase()}</span><h3>Lộ trình chuyên sâu theo năng lực</h3></div>
+        <span className="date-pill">3 phases · lesson → test → transfer</span>
+      </div>
+      <p className="muted">Mỗi phase gồm bài học ngắn, bài luyện đa dạng, một checkpoint và một lần chuyển giao vào bài thi.</p>
+      <div className="roadmap-grid">
+        {steps.map(step => (
+          <article className="roadmap-step" key={step.phase}>
+            <span className="badge">{step.phase}</span><h3>{step.title}</h3><p className="muted">{step.outcome}</p>
+            <ul>{step.activities.map(activity => <li key={activity}>{activity}</li>)}</ul>
+            <div className="callout"><b>Checkpoint:</b> {step.test}</div>
+          </article>
+        ))}
+      </div>
+      <div className="daily-plan-block">
+        <div className="panel-title"><h3>Chu kỳ học 7 ngày</h3><span className="date-pill">lặp lại với topic mới</span></div>
+        <div className="daily-plan-grid">{DAILY_CYCLES[skill].map((day, index) => <div className={`daily-plan-day ${index === 6 ? 'mock-day' : ''}`} key={day}><b>D{index + 1}</b><span>{day.split(' · ')[1]}</span></div>)}</div>
+      </div>
+      <div className="test-blueprint">
+        <h3>Blueprint bài test chuẩn hoá</h3>
+        {TEST_BLUEPRINTS[skill].map(line => <p key={line}>✓ {line}</p>)}
+      </div>
+      <p className="roadmap-source">Khung dạng bài tham chiếu: <a href="https://www.ielts.org/take-a-test/preparation-resources/sample-test-questions/academic-test" target="_blank" rel="noreferrer">IELTS official sample tasks</a> · <a href="https://takeielts.britishcouncil.org/prepare" target="_blank" rel="noreferrer">British Council preparation</a> · <a href="https://www.cambridgeenglish.org/exams-and-tests/ielts/preparation/" target="_blank" rel="noreferrer">Cambridge English preparation</a> · <a href="https://ieltsonlinetests.com/ielts-exam-library" target="_blank" rel="noreferrer">IELTS Online Tests library</a></p>
+    </section>
+  )
+}
 const uid = (prefix: string) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
 const stableOccurrenceId = (errorId: string, occurrenceId: string) => `reading:occurrence:${errorId}:${occurrenceId}`
 
@@ -354,6 +439,7 @@ export default function App() {
         {page === 'dashboard' && <Dashboard s={store} go={setPage} setS={setStore} note={note} />}
         {page === 'plan' && <Plan s={store} setS={setStore} note={note} />}
         {page === 'practice' && <Practice s={store} setS={setStore} note={note} targets={retestTargets} />}
+        {page === 'simulator' && <IELTSSimulation s={store} setS={setStore} note={note} />}
         {page === 'errors' && <Errors s={store} setS={setStore} openRetest={openRetest} note={note} go={setPage} />}
         {page === 'record' && <Record s={store} setS={setStore} note={note} />}
         {page === 'listening' && <SkillPractice s={store} setS={setStore} note={note} skill="Listening" />}
@@ -1132,6 +1218,68 @@ function Practice({
   )
 }
 
+type SimulationSkill = 'Listening' | 'Reading' | 'Writing' | 'Speaking'
+type SimulationQuestion = { id: string; prompt: string; options: string[]; answer: string; explanation: string }
+
+const SIMULATION_QUESTIONS: Record<'Listening' | 'Reading', SimulationQuestion[]> = {
+  Listening: TOPICS[0].listening.questions.map(q => ({ id: q.id, prompt: q.prompt, options: q.options, answer: q.answer, explanation: q.explanation })),
+  Reading: passages[0].questions.map(q => ({ id: q.id, prompt: q.prompt, options: q.options, answer: q.answer, explanation: q.explanation }))
+}
+
+function IELTSSimulation({ s, setS, note }: { s: Store; setS: (store: Store) => void; note: (message: string) => void }) {
+  const [skill, setSkill] = useState<SimulationSkill>('Listening')
+  const [started, setStarted] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [seconds, setSeconds] = useState(30 * 60)
+  const [answers, setAnswers] = useState<Record<string, string>>({})
+  const [response, setResponse] = useState('')
+  const questions = SIMULATION_QUESTIONS[skill === 'Reading' ? 'Reading' : 'Listening']
+  const timeLimit = skill === 'Reading' ? 60 * 60 : skill === 'Writing' ? 60 * 60 : skill === 'Speaking' ? 14 * 60 : 30 * 60
+
+  useEffect(() => {
+    if (!started || submitted || seconds <= 0) return
+    const timer = window.setInterval(() => setSeconds(value => Math.max(0, value - 1)), 1000)
+    return () => window.clearInterval(timer)
+  }, [started, submitted, seconds])
+
+  const selectSkill = (next: SimulationSkill) => {
+    setSkill(next); setStarted(false); setSubmitted(false); setSeconds(next === 'Reading' ? 3600 : next === 'Writing' ? 3600 : next === 'Speaking' ? 840 : 1800); setAnswers({}); setResponse('')
+  }
+  const start = () => { setStarted(true); setSubmitted(false); setSeconds(timeLimit); setAnswers({}); setResponse('') }
+  const score = questions.filter(q => answers[q.id] === q.answer).length
+  const submit = () => {
+    setSubmitted(true)
+    const now = new Date().toISOString()
+    const evidence = skill === 'Reading' || skill === 'Listening' ? `${skill} simulation: ${score}/${questions.length}` : `${skill} simulation: self-review submitted`
+    setS({ ...s, submissions: [...(s.submissions || []), { id: uid('submission'), skill, activityId: `simulation-${skill.toLowerCase()}`, response: response || evidence, createdAt: now, feedbackMode: skill === 'Listening' ? 'transcript-fallback' : 'self-review', completed: true }] })
+    note('Simulation đã được lưu vào Learning Record.')
+  }
+  const playAudio = () => { if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(TOPICS[0].listening.audioText); u.lang = 'en-US'; window.speechSynthesis.speak(u) } }
+  const minutes = Math.floor(seconds / 60).toString().padStart(2, '0')
+  const secs = (seconds % 60).toString().padStart(2, '0')
+
+  return <section className="stack">
+    <section className="panel simulator-hero">
+      <span className="eyebrow">IELTS COMPUTER-STYLE SIMULATION</span><h2>Phòng thi mô phỏng</h2>
+      <p className="muted">Nội dung tự biên soạn theo format IELTS: timer, media, câu hỏi, nộp bài và review. Đề gốc bên ngoài không được sao chép vào ứng dụng.</p>
+      <div className="study-modes">{(['Listening', 'Reading', 'Writing', 'Speaking'] as SimulationSkill[]).map(item => <button key={item} className={`mode-tab ${skill === item ? 'active' : ''}`} onClick={() => selectSkill(item)}>{item}</button>)}</div>
+    </section>
+    {!started ? <section className="panel simulator-start">
+      <div className="simulator-spec"><b>{skill}</b><span>{skill === 'Listening' ? '4 parts · 40 questions · 30 minutes' : skill === 'Reading' ? '3 passages · 40 questions · 60 minutes' : skill === 'Writing' ? 'Task 1 + Task 2 · 60 minutes' : 'Part 1 + Part 2 + Part 3 · 11–14 minutes'}</span></div>
+      <p className="muted">Bản demo hiện dùng một module nội bộ có media và câu hỏi thật trong app. Các module tiếp theo sẽ nối vào cùng test runner này.</p><button className="primary" onClick={start}>Bắt đầu simulation</button>
+    </section> : <section className="panel simulator-shell">
+      <div className="simulator-toolbar"><span className="badge">{skill} · {submitted ? 'Review' : 'In progress'}</span><strong className={seconds < 60 ? 'status' : ''}>⏱ {minutes}:{secs}</strong>{!submitted && <button className="danger" onClick={submit}>Nộp bài</button>}</div>
+      {skill === 'Listening' && <div className="media-stage"><h3>Part 1 · Everyday conversation</h3><p className="muted">Nghe một lần như phòng thi. Không hiện transcript cho đến khi nộp.</p><button className="primary" onClick={playAudio}>▶ Play audio</button><details><summary>Transcript sau khi nộp</summary><p className="callout">{submitted ? TOPICS[0].listening.audioText : 'Transcript sẽ mở sau khi nộp bài.'}</p></details></div>}
+      {skill === 'Reading' && <div className="reading-stage"><h3>{passages[0].title}</h3>{passages[0].text.split('\n\n').slice(0, 2).map(p => <p key={p}>{p}</p>)}</div>}
+      {skill === 'Writing' && <div className="writing-stage"><h3>Task 1 · Academic report</h3><p className="callout">The chart below compares participation in three university clubs in 2005 and 2025. Summarise the information by selecting and reporting the main features.</p><svg viewBox="0 0 420 180" role="img" aria-label="Bar chart comparing university club participation"><line x1="45" y1="145" x2="390" y2="145" stroke="currentColor"/><rect x="80" y="65" width="34" height="80" fill="#92dcaa"/><rect x="120" y="42" width="34" height="103" fill="#f4c878"/><rect x="210" y="88" width="34" height="57" fill="#92dcaa"/><rect x="250" y="72" width="34" height="73" fill="#f4c878"/><rect x="340" y="105" width="34" height="40" fill="#92dcaa"/><rect x="380" y="55" width="34" height="90" fill="#f4c878"/><text x="74" y="165" fill="currentColor">Science</text><text x="205" y="165" fill="currentColor">Arts</text><text x="335" y="165" fill="currentColor">Sports</text></svg></div>}
+      {skill === 'Speaking' && <div className="speaking-stage"><h3>Part 2 · Cue card</h3><p className="callout">Describe a skill you learned that was useful in your studies or work. You should say what it was, how you learned it, and explain why it was useful.</p><p className="muted">Use the response box as a transcript or outline, then record yourself separately if your browser supports a microphone.</p></div>}
+      {(skill === 'Listening' || skill === 'Reading') && <div className="simulation-questions">{questions.map((q, index) => <div className="question" key={q.id}><h3>{index + 1}. {q.prompt}</h3><div className="options">{q.options.map(option => <label key={option} className={answers[q.id] === option ? 'chosen' : ''}><input type="radio" name={q.id} checked={answers[q.id] === option} onChange={() => setAnswers({ ...answers, [q.id]: option })} disabled={submitted}/><span>{option}</span></label>)}</div>{submitted && <div className="feedback"><b>{answers[q.id] === q.answer ? '✓ Correct' : '✗ Review'}</b><small>{q.explanation}</small></div>}</div>)}</div>}
+      {(skill === 'Writing' || skill === 'Speaking') && <textarea className="skill-response simulator-response" value={response} onChange={event => setResponse(event.target.value)} disabled={submitted} placeholder={skill === 'Writing' ? 'Viết câu trả lời Task 1/Task 2 tại đây…' : 'Dán transcript hoặc ghi chú câu trả lời…'} />}
+      {submitted && <div className="result"><h3>{skill === 'Listening' || skill === 'Reading' ? `Score: ${score}/${questions.length}` : 'Bài đã nộp — chuyển sang self-review'}</h3><button className="secondary" onClick={() => selectSkill(skill)}>Làm lại module</button></div>}
+    </section>}
+  </section>
+}
+
 /**
  * Listening, Writing, and Speaking with Topic-organized Units
  */
@@ -1166,6 +1314,7 @@ function SkillPractice({
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0)
   const [recording, setRecording] = useState(false)
   const [audioUrl, setAudioUrl] = useState('')
+  const [uploadedAudioUrl, setUploadedAudioUrl] = useState('')
   const [recordingError, setRecordingError] = useState('')
   const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({})
   const [showQuizResult, setShowQuizResult] = useState(false)
@@ -1219,7 +1368,12 @@ function SkillPractice({
     window.speechSynthesis.cancel()
     const utterance = new SpeechSynthesisUtterance(currentTopic.listening.audioText)
     utterance.lang = 'en-US'
-    utterance.rate = playbackSpeed
+    utterance.rate = Math.min(1.05, playbackSpeed * 0.94)
+    utterance.pitch = 0.98
+    const preferredVoice = window.speechSynthesis.getVoices().find(voice =>
+      /^en(-|_)/i.test(voice.lang) && /Google|Microsoft|Samantha|Alex|Daniel|Karen/i.test(voice.name)
+    ) || window.speechSynthesis.getVoices().find(voice => /^en(-|_)/i.test(voice.lang))
+    if (preferredVoice) utterance.voice = preferredVoice
     utterance.onstart = () => {
       setIsPlaying(true)
       setProgress(0)
@@ -1342,6 +1496,8 @@ function SkillPractice({
         <TopicHeader topic={currentTopic} />
       </section>
 
+      <SkillRoadmap skill={skill} />
+
       {/* LISTENING SPECIFIC VIEW */}
       {skill === 'Listening' && (
         <section className="panel">
@@ -1355,8 +1511,9 @@ function SkillPractice({
 
           <div className="audio-controls">
             <button className="secondary" onClick={playGeneratedAudio}>
-              <Play size={14} /> Play / Replay
+              <Play size={14} /> Play fallback voice
             </button>
+            <a className="secondary audio-source-link" href="https://takeielts.britishcouncil.org/prepare/ielts-free-practice-mock-tests/academic/listening" target="_blank" rel="noreferrer">Mở official natural recording ↗</a>
             <button className="secondary" onClick={pauseGeneratedAudio}>
               <Pause size={14} /> Pause
             </button>
@@ -1375,6 +1532,14 @@ function SkillPractice({
               <option value="1.15">1.15x Fast</option>
             </select>
             {isPlaying && <span className="muted">Playing audio…</span>}
+          </div>
+          <div className="audio-upload-box">
+            <label htmlFor="listening-audio-upload"><b>Audio tự nhiên</b><span> Ưu tiên recording người thật từ nguồn official hoặc file luyện tập của bạn.</span></label>
+            <input id="listening-audio-upload" type="file" accept="audio/*" onChange={event => {
+              const file = event.target.files?.[0]
+              if (file) setUploadedAudioUrl(URL.createObjectURL(file))
+            }} />
+            {uploadedAudioUrl && <audio controls src={uploadedAudioUrl} aria-label="Uploaded natural listening audio" />}
           </div>
 
           <details style={{ margin: '14px 0' }}>
@@ -1461,6 +1626,15 @@ function SkillPractice({
               <span className="badge">{currentTopic.writing.task1.chartType}</span>
               <h3>{currentTopic.writing.task1.title}</h3>
               <p className="callout">{currentTopic.writing.task1.prompt}</p>
+              <div className="writing-chart-card">
+                <svg viewBox="0 0 520 230" role="img" aria-label="Bar chart for Academic Writing Task 1 practice">
+                  <line x1="58" y1="185" x2="490" y2="185" stroke="currentColor" />
+                  <line x1="58" y1="25" x2="58" y2="185" stroke="currentColor" />
+                  {[0, 25, 50, 75, 100].map(value => <g key={value}><line x1="53" y1={185 - value * 1.6} x2="58" y2={185 - value * 1.6} stroke="currentColor" /><text x="20" y={189 - value * 1.6} fill="currentColor">{value}</text></g>)}
+                  {[['Science', 54, 84], ['Arts', 38, 59], ['Sports', 27, 68]].map(([label, oldValue, newValue], index) => <g key={label}><rect x={100 + index * 125} y={185 - Number(oldValue) * 1.6} width="36" height={Number(oldValue) * 1.6} fill="#92dcaa" /><rect x={140 + index * 125} y={185 - Number(newValue) * 1.6} width="36" height={Number(newValue) * 1.6} fill="#f4c878" /><text x={98 + index * 125} y="208" fill="currentColor">{label}</text></g>)}
+                </svg>
+                <div className="chart-legend"><span><i className="legend-swatch old" />2005</span><span><i className="legend-swatch recent" />2025</span></div>
+              </div>
             </div>
           ) : (
             <div>
@@ -1808,6 +1982,8 @@ function VocabularyHub({
         </div>
       </section>
 
+      <SkillRoadmap skill="Vocabulary" />
+
       {/* MODE 1: FLASHCARD (Inspired by ForumFlash) */}
       {mode === 'flashcard' && currentWord && (
         <div className="flashcard-stage">
@@ -2103,6 +2279,8 @@ function GrammarHub({
         <TopicBar selected={selectedTopicId} onSelect={id => id !== 'all' && setSelectedTopicId(id)} />
         <TopicHeader topic={currentTopic} />
       </section>
+
+      <SkillRoadmap skill="Grammar" />
 
       <div className="grammar-grid">
         {currentTopic.grammar.map(rule => (
