@@ -20,7 +20,15 @@ describe('storage migration and deletion', () => {
   })
   it('pauses a recovered timer instead of counting closed-tab time', () => {
     data.set('ielts-optimizer-store-v1', JSON.stringify({ version: 1, activeSession: { id: 's', startedAt: '2026-01-01T10:00:00Z', lastResumedAt: '2026-01-01T10:00:00Z', accumulatedSeconds: 30, paused: false } }))
-    expect(loadStore().activeSession?.paused).toBe(true)
+    const store = loadStore()
+    expect(store.activeSession?.paused).toBe(true)
+    expect(store.activeSession?.accumulatedSeconds).toBe(30)
+  })
+  it('preserves learner-added study destinations during recovery', () => {
+    data.set('ielts-optimizer-store-v1', JSON.stringify({ version: 1, studyDestinations: [{ id: 'd1', name: 'British Council', kind: 'website' }], activeSession: { id: 's', startedAt: '2026-01-01T10:00:00Z', lastResumedAt: '2026-01-01T10:00:00Z', accumulatedSeconds: 90, paused: false, destinationId: 'd1' } }))
+    const store = loadStore()
+    expect(store.studyDestinations?.[0].name).toBe('British Council')
+    expect(store.activeSession?.destinationId).toBe('d1')
   })
   it('recovers drafts and submissions without dropping older history', () => {
     data.set('ielts-optimizer-store-v1', JSON.stringify({ version: 1, attempts: [{ id: 'old' }], drafts: [{ id: 'd1', skill: 'Writing', activityId: 'writing-academic-task-2', content: 'draft', updatedAt: '2026-01-01T10:00:00Z' }], submissions: [{ id: 'sub1', skill: 'Writing', activityId: 'writing-academic-task-2', response: 'saved', createdAt: '2026-01-01T10:00:00Z', feedbackMode: 'self-review', completed: true }] }))
