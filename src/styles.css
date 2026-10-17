@@ -51,10 +51,10 @@
 .mobile-menu-toggle:hover{background:#2e3d37}
 .mobile-menu-close{position:absolute;top:16px;right:16px;background:#1d2925;border:1px solid var(--line);color:#e9f0ec;width:36px;height:36px;border-radius:8px;display:grid;place-items:center;cursor:pointer;z-index:100}
 .mobile-overlay{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.4)}
-.nav-mobile-closed{display:none}
 @media(max-width:900px){
   aside{position:fixed;top:0;left:0;bottom:0;width:260px;z-index:95;transform:translateX(-100%);transition:transform .25s ease}
   aside.nav-mobile-open{transform:translateX(0)}
+  aside:not(.nav-mobile-open){display:none}
   .mobile-menu-toggle{display:block}
   main{padding-left:12px;padding-right:12px}
   .toast-container{width:280px;left:12px;right:12px}
