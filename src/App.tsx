@@ -72,7 +72,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
     label: 'Tổng quan (Overview)',
     items: [
       ['dashboard', 'Bảng tổng quan', Home],
-      ['record', 'Bấm giờ & Nhật ký', Clock3]
+      ['record', 'Nhật ký', Clock3]
       ,['simulator', 'IELTS Test Simulator', Target]
     ]
   },
@@ -304,7 +304,7 @@ export default function App() {
               <div
                 className="timer-live-badge"
                 onClick={() => go('record')}
-                title="Nhấp để xem nhật ký bấm giờ"
+                title="Nhấp để xem nhật ký"
                 role="button"
                 tabIndex={0}
               >
@@ -406,7 +406,7 @@ export default function App() {
               className={`skill-quick-btn ${page === 'record' ? 'active' : ''}`}
               onClick={() => go('record')}
             >
-              <Clock3 size={15} /> <span>Bấm giờ & Nhật ký (Record)</span>
+              <Clock3 size={15} /> <span>Nhật ký</span>
             </button>
           </div>
         )}
