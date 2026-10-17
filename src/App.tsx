@@ -72,7 +72,6 @@ const navGroups: { label: string; items: NavItem[] }[] = [
     label: 'Tổng quan (Overview)',
     items: [
       ['dashboard', 'Bảng tổng quan', Home],
-      ['plan', 'Kế hoạch học tập', CalendarDays],
       ['record', 'Bấm giờ & Nhật ký', Clock3]
       ,['simulator', 'IELTS Test Simulator', Target]
     ]
@@ -391,7 +390,7 @@ export default function App() {
           </div>
         )}
 
-        {['dashboard', 'plan', 'record'].includes(page) && (
+        {['dashboard', 'record'].includes(page) && (
           <div className="skill-quick-bar" role="tablist" aria-label="Tổng quan học tập">
             <button
               role="tab"
@@ -400,14 +399,6 @@ export default function App() {
               onClick={() => go('dashboard')}
             >
               <Home size={15} /> <span>Bảng tổng quan (Dashboard)</span>
-            </button>
-            <button
-              role="tab"
-              aria-selected={page === 'plan'}
-              className={`skill-quick-btn ${page === 'plan' ? 'active' : ''}`}
-              onClick={() => go('plan')}
-            >
-              <CalendarDays size={15} /> <span>Kế hoạch học tập (Plan)</span>
             </button>
             <button
               role="tab"
@@ -421,7 +412,6 @@ export default function App() {
         )}
 
         {page === 'dashboard' && <Dashboard s={store} go={setPage} setS={setStore} note={note} />}
-        {page === 'plan' && <Plan s={store} setS={setStore} note={note} />}
         {page === 'practice' && <Practice s={store} setS={setStore} note={note} targets={retestTargets} />}
         {page === 'simulator' && <IELTSSimulation s={store} setS={setStore} note={note} />}
         {page === 'errors' && <Errors s={store} setS={setStore} openRetest={openRetest} note={note} go={setPage} />}
