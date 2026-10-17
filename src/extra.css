@@ -542,6 +542,62 @@ main {
   cursor: not-allowed;
 }
 
+.flashcard-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto 14px;
+  text-align: center;
+}
+
+.flashcard-progress {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #c9d8cf;
+}
+
+.flashcard-progress span + span {
+  color: var(--muted);
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.flip-btn {
+  background: #1e3027;
+  border: 1px solid #364e40;
+  border-radius: 10px;
+  color: var(--mint);
+  font: 600 13px "DM Sans";
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.flip-btn:hover {
+  background: #2a4437;
+  border-color: #4a6c5a;
+  color: #fff;
+}
+
+.card-bottom-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding-top: 8px;
+  border-top: 1px solid #2c4436;
+}
+
 .again-button {
   background: #301f1e;
   border: 1px solid #63322d;

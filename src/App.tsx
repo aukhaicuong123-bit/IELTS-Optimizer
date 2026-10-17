@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+﻿import { useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   BookOpen,
   CalendarDays,
@@ -69,39 +69,39 @@ type NavItem = [Page, string, any]
 
 const navGroups: { label: string; items: NavItem[] }[] = [
   {
-    label: 'Tổng quan (Overview)',
+    label: 'Tá»•ng quan (Overview)',
     items: [
-      ['dashboard', 'Bảng tổng quan', Home],
-      ['record', 'Bấm giờ & Nhật ký', Clock3]
+      ['dashboard', 'Báº£ng tá»•ng quan', Home],
+      ['record', 'Báº¥m giá» & Nháº­t kÃ½', Clock3]
       ,['simulator', 'IELTS Test Simulator', Target]
     ]
   },
   {
-    label: '4 Kỹ năng IELTS (Skills)',
+    label: '4 Ká»¹ nÄƒng IELTS (Skills)',
     items: [
-      ['practice', 'Reading (Đọc hiểu)', BookOpen],
-      ['listening', 'Listening (Nghe hiểu)', Volume2],
-      ['writing', 'Writing (Viết luận)', Palette],
-      ['speaking', 'Speaking (Luyện nói)', Compass]
+      ['practice', 'Reading (Äá»c hiá»ƒu)', BookOpen],
+      ['listening', 'Listening (Nghe hiá»ƒu)', Volume2],
+      ['writing', 'Writing (Viáº¿t luáº­n)', Palette],
+      ['speaking', 'Speaking (Luyá»‡n nÃ³i)', Compass]
     ]
   },
   {
-    label: 'Nền tảng chủ đề (Thematic)',
+    label: 'Ná»n táº£ng chá»§ Ä‘á» (Thematic)',
     items: [
-      ['vocabulary', 'Từ vựng (Flashcards)', Layers],
-      ['grammar', 'Ngữ pháp ứng dụng', ListChecks]
+      ['vocabulary', 'Tá»« vá»±ng (Flashcards)', Layers],
+      ['grammar', 'Ngá»¯ phÃ¡p á»©ng dá»¥ng', ListChecks]
     ]
   },
   {
-    label: 'Bằng chứng & Lỗi sai',
-    items: [['errors', 'Bộ nhớ lỗi & Retest', RotateCcw]]
+    label: 'Báº±ng chá»©ng & Lá»—i sai',
+    items: [['errors', 'Bá»™ nhá»› lá»—i & Retest', RotateCcw]]
   },
   {
-    label: 'Khám phá & Hồ sơ',
+    label: 'KhÃ¡m phÃ¡ & Há»“ sÆ¡',
     items: [
-      ['network', 'Tài liệu ôn luyện', Network],
-      ['design', 'Thiết kế hệ thống', Palette],
-      ['profile', 'Mục tiêu & Hồ sơ', Settings]
+      ['network', 'TÃ i liá»‡u Ã´n luyá»‡n', Network],
+      ['design', 'Thiáº¿t káº¿ há»‡ thá»‘ng', Palette],
+      ['profile', 'Má»¥c tiÃªu & Há»“ sÆ¡', Settings]
     ]
   }
 ]
@@ -111,44 +111,44 @@ const nav = navGroups.flatMap(group => group.items)
 type RoadmapStep = { phase: string; title: string; outcome: string; activities: string[]; test: string }
 const ROADMAPS: Record<Skill, RoadmapStep[]> = {
   Reading: [
-    { phase: '01 · Chẩn đoán', title: 'Đọc hiểu và định vị thông tin', outcome: 'Xác định main idea, keywords và paraphrase trong văn bản học thuật.', activities: ['Skim 3 đoạn văn theo tiêu đề', 'Scan tên riêng, số liệu và mốc thời gian', 'Ghi lại paraphrase gây nhiễu'], test: 'Mini test: matching headings + True/False/Not Given' },
-    { phase: '02 · Xây chiến thuật', title: 'Làm chủ dạng câu hỏi', outcome: 'Chọn chiến thuật theo dạng bài thay vì đoán đáp án.', activities: ['Matching information', 'Sentence endings và summary completion', 'Table/flow-chart completion'], test: 'Mixed set 20 câu, giới hạn 25 phút' },
-    { phase: '03 · Chuyển giao', title: 'Timed passage và retest', outcome: 'Duy trì độ chính xác khi tăng độ khó và áp lực thời gian.', activities: ['Passage mới cùng objective', 'Error Memory theo từng occurrence', 'Retest một lỗi duy nhất bằng nội dung tương đương'], test: 'Full Reading simulation 60 phút' }
+    { phase: '01 Â· Cháº©n Ä‘oÃ¡n', title: 'Äá»c hiá»ƒu vÃ  Ä‘á»‹nh vá»‹ thÃ´ng tin', outcome: 'XÃ¡c Ä‘á»‹nh main idea, keywords vÃ  paraphrase trong vÄƒn báº£n há»c thuáº­t.', activities: ['Skim 3 Ä‘oáº¡n vÄƒn theo tiÃªu Ä‘á»', 'Scan tÃªn riÃªng, sá»‘ liá»‡u vÃ  má»‘c thá»i gian', 'Ghi láº¡i paraphrase gÃ¢y nhiá»…u'], test: 'Mini test: matching headings + True/False/Not Given' },
+    { phase: '02 Â· XÃ¢y chiáº¿n thuáº­t', title: 'LÃ m chá»§ dáº¡ng cÃ¢u há»i', outcome: 'Chá»n chiáº¿n thuáº­t theo dáº¡ng bÃ i thay vÃ¬ Ä‘oÃ¡n Ä‘Ã¡p Ã¡n.', activities: ['Matching information', 'Sentence endings vÃ  summary completion', 'Table/flow-chart completion'], test: 'Mixed set 20 cÃ¢u, giá»›i háº¡n 25 phÃºt' },
+    { phase: '03 Â· Chuyá»ƒn giao', title: 'Timed passage vÃ  retest', outcome: 'Duy trÃ¬ Ä‘á»™ chÃ­nh xÃ¡c khi tÄƒng Ä‘á»™ khÃ³ vÃ  Ã¡p lá»±c thá»i gian.', activities: ['Passage má»›i cÃ¹ng objective', 'Error Memory theo tá»«ng occurrence', 'Retest má»™t lá»—i duy nháº¥t báº±ng ná»™i dung tÆ°Æ¡ng Ä‘Æ°Æ¡ng'], test: 'Full Reading simulation 60 phÃºt' }
   ],
   Listening: [
-    { phase: '01 · Chẩn đoán', title: 'Nghe ý chính và dự đoán', outcome: 'Dự đoán loại từ, bối cảnh và distractor trước khi nghe.', activities: ['Form/note completion', 'Nghe số, tên riêng, spelling', 'Shadowing câu ngắn'], test: 'Part 1–2: form completion + map labelling' },
-    { phase: '02 · Phân biệt thông tin', title: 'Paraphrase và distractors', outcome: 'Theo dõi chuyển ý, sửa đáp án và nhận diện cách diễn đạt khác.', activities: ['Multiple choice', 'Matching speakers/opinions', 'Table và flow-chart completion'], test: 'Part 3: 15 câu nghe một lần' },
-    { phase: '03 · Tốc độ thi', title: 'Bốn part liên tục', outcome: 'Giữ tập trung, ghi chú có chọn lọc và tự kiểm transcript.', activities: ['Part 4 academic lecture', 'Accent rotation', 'Review transcript theo lỗi'], test: 'Full Listening simulation 30 phút' }
+    { phase: '01 Â· Cháº©n Ä‘oÃ¡n', title: 'Nghe Ã½ chÃ­nh vÃ  dá»± Ä‘oÃ¡n', outcome: 'Dá»± Ä‘oÃ¡n loáº¡i tá»«, bá»‘i cáº£nh vÃ  distractor trÆ°á»›c khi nghe.', activities: ['Form/note completion', 'Nghe sá»‘, tÃªn riÃªng, spelling', 'Shadowing cÃ¢u ngáº¯n'], test: 'Part 1â€“2: form completion + map labelling' },
+    { phase: '02 Â· PhÃ¢n biá»‡t thÃ´ng tin', title: 'Paraphrase vÃ  distractors', outcome: 'Theo dÃµi chuyá»ƒn Ã½, sá»­a Ä‘Ã¡p Ã¡n vÃ  nháº­n diá»‡n cÃ¡ch diá»…n Ä‘áº¡t khÃ¡c.', activities: ['Multiple choice', 'Matching speakers/opinions', 'Table vÃ  flow-chart completion'], test: 'Part 3: 15 cÃ¢u nghe má»™t láº§n' },
+    { phase: '03 Â· Tá»‘c Ä‘á»™ thi', title: 'Bá»‘n part liÃªn tá»¥c', outcome: 'Giá»¯ táº­p trung, ghi chÃº cÃ³ chá»n lá»c vÃ  tá»± kiá»ƒm transcript.', activities: ['Part 4 academic lecture', 'Accent rotation', 'Review transcript theo lá»—i'], test: 'Full Listening simulation 30 phÃºt' }
   ],
   Writing: [
-    { phase: '01 · Chẩn đoán', title: 'Task response và cấu trúc', outcome: 'Trả lời đủ đề, lập thesis và bố cục đoạn rõ ràng.', activities: ['Phân tích đề opinion/discussion/problem', 'Lập outline 5 phút', 'Viết topic sentence'], test: 'One-paragraph response + self checklist' },
-    { phase: '02 · Phát triển band', title: 'Coherence, vocabulary, grammar', outcome: 'Phát triển ý bằng nguyên nhân, ví dụ và hệ quả; tránh học thuộc.', activities: ['Task 1 overview và grouping data', 'Task 2 argument/counterargument', 'Sửa lỗi câu phức và collocation'], test: 'Task 1 hoặc Task 2 timed draft' },
-    { phase: '03 · Chuẩn hoá', title: 'Feedback và timed writing', outcome: 'Hoàn thành đúng thời lượng và tự sửa theo 4 tiêu chí chấm.', activities: ['Rewrite sau feedback', 'So sánh model answer hợp pháp', 'Kiểm tra word count và lỗi lặp'], test: 'Academic Writing 60 phút: Task 1 + Task 2' }
+    { phase: '01 Â· Cháº©n Ä‘oÃ¡n', title: 'Task response vÃ  cáº¥u trÃºc', outcome: 'Tráº£ lá»i Ä‘á»§ Ä‘á», láº­p thesis vÃ  bá»‘ cá»¥c Ä‘oáº¡n rÃµ rÃ ng.', activities: ['PhÃ¢n tÃ­ch Ä‘á» opinion/discussion/problem', 'Láº­p outline 5 phÃºt', 'Viáº¿t topic sentence'], test: 'One-paragraph response + self checklist' },
+    { phase: '02 Â· PhÃ¡t triá»ƒn band', title: 'Coherence, vocabulary, grammar', outcome: 'PhÃ¡t triá»ƒn Ã½ báº±ng nguyÃªn nhÃ¢n, vÃ­ dá»¥ vÃ  há»‡ quáº£; trÃ¡nh há»c thuá»™c.', activities: ['Task 1 overview vÃ  grouping data', 'Task 2 argument/counterargument', 'Sá»­a lá»—i cÃ¢u phá»©c vÃ  collocation'], test: 'Task 1 hoáº·c Task 2 timed draft' },
+    { phase: '03 Â· Chuáº©n hoÃ¡', title: 'Feedback vÃ  timed writing', outcome: 'HoÃ n thÃ nh Ä‘Ãºng thá»i lÆ°á»£ng vÃ  tá»± sá»­a theo 4 tiÃªu chÃ­ cháº¥m.', activities: ['Rewrite sau feedback', 'So sÃ¡nh model answer há»£p phÃ¡p', 'Kiá»ƒm tra word count vÃ  lá»—i láº·p'], test: 'Academic Writing 60 phÃºt: Task 1 + Task 2' }
   ],
   Speaking: [
-    { phase: '01 · Chẩn đoán', title: 'Fluency và phát âm', outcome: 'Trả lời tự nhiên, rõ ý và không phụ thuộc script.', activities: ['Part 1: personal topics', 'Chunking và intonation', 'Ghi âm 60 giây rồi tự nghe lại'], test: 'Part 1 rotation: 10 câu, không chuẩn bị' },
-    { phase: '02 · Mở rộng ý', title: 'Cue card và follow-up', outcome: 'Nói đủ 2 phút với ví dụ, chi tiết và liên kết mạch lạc.', activities: ['Part 2: 1 phút chuẩn bị', 'Story spine: who/what/why/result', 'Part 3: compare, evaluate, speculate'], test: 'Cue card recording + 4 câu follow-up' },
-    { phase: '03 · Mô phỏng', title: 'Mock interview', outcome: 'Duy trì độ chính xác và tương tác dưới áp lực thi.', activities: ['Random topic draw', 'Pronunciation repair list', 'So sánh bản ghi trước/sau'], test: 'Speaking mock 11–14 phút' }
+    { phase: '01 Â· Cháº©n Ä‘oÃ¡n', title: 'Fluency vÃ  phÃ¡t Ã¢m', outcome: 'Tráº£ lá»i tá»± nhiÃªn, rÃµ Ã½ vÃ  khÃ´ng phá»¥ thuá»™c script.', activities: ['Part 1: personal topics', 'Chunking vÃ  intonation', 'Ghi Ã¢m 60 giÃ¢y rá»“i tá»± nghe láº¡i'], test: 'Part 1 rotation: 10 cÃ¢u, khÃ´ng chuáº©n bá»‹' },
+    { phase: '02 Â· Má»Ÿ rá»™ng Ã½', title: 'Cue card vÃ  follow-up', outcome: 'NÃ³i Ä‘á»§ 2 phÃºt vá»›i vÃ­ dá»¥, chi tiáº¿t vÃ  liÃªn káº¿t máº¡ch láº¡c.', activities: ['Part 2: 1 phÃºt chuáº©n bá»‹', 'Story spine: who/what/why/result', 'Part 3: compare, evaluate, speculate'], test: 'Cue card recording + 4 cÃ¢u follow-up' },
+    { phase: '03 Â· MÃ´ phá»ng', title: 'Mock interview', outcome: 'Duy trÃ¬ Ä‘á»™ chÃ­nh xÃ¡c vÃ  tÆ°Æ¡ng tÃ¡c dÆ°á»›i Ã¡p lá»±c thi.', activities: ['Random topic draw', 'Pronunciation repair list', 'So sÃ¡nh báº£n ghi trÆ°á»›c/sau'], test: 'Speaking mock 11â€“14 phÃºt' }
   ],
   Vocabulary: [
-    { phase: '01 · Nền tảng', title: 'Lexical chunks theo chủ đề', outcome: 'Nhớ collocation và word family trong ngữ cảnh, không học từ rời.', activities: ['Flashcard hai chiều', 'Pronunciation + word family', 'Tự đặt câu theo topic'], test: 'Recall quiz: nghĩa, collocation, dùng câu' },
-    { phase: '02 · Sử dụng', title: 'Paraphrase và register', outcome: 'Chọn từ chính xác theo sắc thái Academic/Formal và tránh lặp.', activities: ['Synonym ladder', 'Cloze passage', 'Paraphrase câu Reading/Writing'], test: 'Mixed quiz 20 câu + short production' },
-    { phase: '03 · Ghi nhớ dài hạn', title: 'Spaced review và transfer', outcome: 'Đưa từ đã học vào bài nói/viết và theo dõi từ hay quên.', activities: ['Review 1–3–7–14 ngày', 'Error Memory theo topic', 'Dùng 5 chunks trong một response'], test: 'Cumulative vocabulary checkpoint' }
+    { phase: '01 Â· Ná»n táº£ng', title: 'Lexical chunks theo chá»§ Ä‘á»', outcome: 'Nhá»› collocation vÃ  word family trong ngá»¯ cáº£nh, khÃ´ng há»c tá»« rá»i.', activities: ['Flashcard hai chiá»u', 'Pronunciation + word family', 'Tá»± Ä‘áº·t cÃ¢u theo topic'], test: 'Recall quiz: nghÄ©a, collocation, dÃ¹ng cÃ¢u' },
+    { phase: '02 Â· Sá»­ dá»¥ng', title: 'Paraphrase vÃ  register', outcome: 'Chá»n tá»« chÃ­nh xÃ¡c theo sáº¯c thÃ¡i Academic/Formal vÃ  trÃ¡nh láº·p.', activities: ['Synonym ladder', 'Cloze passage', 'Paraphrase cÃ¢u Reading/Writing'], test: 'Mixed quiz 20 cÃ¢u + short production' },
+    { phase: '03 Â· Ghi nhá»› dÃ i háº¡n', title: 'Spaced review vÃ  transfer', outcome: 'ÄÆ°a tá»« Ä‘Ã£ há»c vÃ o bÃ i nÃ³i/viáº¿t vÃ  theo dÃµi tá»« hay quÃªn.', activities: ['Review 1â€“3â€“7â€“14 ngÃ y', 'Error Memory theo topic', 'DÃ¹ng 5 chunks trong má»™t response'], test: 'Cumulative vocabulary checkpoint' }
   ],
   Grammar: [
-    { phase: '01 · Chẩn đoán', title: 'Accuracy nền tảng', outcome: 'Nhận diện lỗi ảnh hưởng band: subject–verb, articles, tense, agreement.', activities: ['Error correction', 'Sentence combining', 'Mini dictation'], test: 'Diagnostic 25 câu theo lỗi' },
-    { phase: '02 · Kiểm soát câu phức', title: 'Complexity có kiểm soát', outcome: 'Dùng relative clauses, conditionals và concessive clauses đúng mục đích.', activities: ['Rewrite simple → complex', 'Contrast/causal connectors', 'Grammar in context'], test: 'Editing passage + 8 câu production' },
-    { phase: '03 · Transfer', title: 'Grammar trong bài thi', outcome: 'Giữ accuracy khi viết/nói thật, không nhồi cấu trúc rủi ro.', activities: ['Sửa một đoạn Writing', 'Speaking reformulation', 'Personal error log'], test: 'Timed response + targeted recheck sau 7 ngày' }
+    { phase: '01 Â· Cháº©n Ä‘oÃ¡n', title: 'Accuracy ná»n táº£ng', outcome: 'Nháº­n diá»‡n lá»—i áº£nh hÆ°á»Ÿng band: subjectâ€“verb, articles, tense, agreement.', activities: ['Error correction', 'Sentence combining', 'Mini dictation'], test: 'Diagnostic 25 cÃ¢u theo lá»—i' },
+    { phase: '02 Â· Kiá»ƒm soÃ¡t cÃ¢u phá»©c', title: 'Complexity cÃ³ kiá»ƒm soÃ¡t', outcome: 'DÃ¹ng relative clauses, conditionals vÃ  concessive clauses Ä‘Ãºng má»¥c Ä‘Ã­ch.', activities: ['Rewrite simple â†’ complex', 'Contrast/causal connectors', 'Grammar in context'], test: 'Editing passage + 8 cÃ¢u production' },
+    { phase: '03 Â· Transfer', title: 'Grammar trong bÃ i thi', outcome: 'Giá»¯ accuracy khi viáº¿t/nÃ³i tháº­t, khÃ´ng nhá»“i cáº¥u trÃºc rá»§i ro.', activities: ['Sá»­a má»™t Ä‘oáº¡n Writing', 'Speaking reformulation', 'Personal error log'], test: 'Timed response + targeted recheck sau 7 ngÃ y' }
   ]
 }
 
 const DAILY_CYCLES: Record<Skill, string[]> = {
-  Reading: ['Ngày 1 · Skim + main idea (25 phút)', 'Ngày 2 · Matching headings/information (35 phút)', 'Ngày 3 · T/F/NG + evidence log (35 phút)', 'Ngày 4 · Completion + paraphrase (40 phút)', 'Ngày 5 · Passage timed (20 phút)', 'Ngày 6 · Chữa lỗi và retest occurrence (30 phút)', 'Ngày 7 · Full Reading mock: 3 passages/60 phút'],
-  Listening: ['Ngày 1 · Part 1 form completion (20 phút)', 'Ngày 2 · Part 2 map/matching (25 phút)', 'Ngày 3 · Part 3 multiple choice (30 phút)', 'Ngày 4 · Part 4 lecture/note completion (30 phút)', 'Ngày 5 · Dictation + shadowing (20 phút)', 'Ngày 6 · Transcript error review (25 phút)', 'Ngày 7 · Full Listening mock: 4 parts/30 phút'],
-  Writing: ['Ngày 1 · Phân tích đề + thesis (25 phút)', 'Ngày 2 · Task 1 overview + grouping (35 phút)', 'Ngày 3 · Task 2 body paragraph (40 phút)', 'Ngày 4 · Cohesion + grammar editing (30 phút)', 'Ngày 5 · Task 1 timed: 20 phút', 'Ngày 6 · Task 2 timed: 40 phút', 'Ngày 7 · Full Writing mock: Task 1 + Task 2/60 phút'],
-  Speaking: ['Ngày 1 · Part 1 fluency recording (15 phút)', 'Ngày 2 · Pronunciation: chunking + stress (20 phút)', 'Ngày 3 · Cue card: 1 phút chuẩn bị/2 phút nói', 'Ngày 4 · Part 3 compare/evaluate (25 phút)', 'Ngày 5 · Retell cùng ý bằng từ khác (20 phút)', 'Ngày 6 · Self-review theo 4 tiêu chí (20 phút)', 'Ngày 7 · Mock Speaking: Part 1–3/11–14 phút'],
-  Vocabulary: ['Ngày 1 · Học 8 lexical chunks theo topic (20 phút)', 'Ngày 2 · Recall hai chiều + pronunciation (20 phút)', 'Ngày 3 · Collocation cloze (25 phút)', 'Ngày 4 · Paraphrase 10 câu (25 phút)', 'Ngày 5 · Dùng chunks trong Writing/Speaking (30 phút)', 'Ngày 6 · Ôn từ sai theo spaced review (20 phút)', 'Ngày 7 · Cumulative quiz + production checkpoint (30 phút)'],
-  Grammar: ['Ngày 1 · Diagnostic: articles/agreement (25 phút)', 'Ngày 2 · Sentence combining (25 phút)', 'Ngày 3 · Relative/conditional clauses (30 phút)', 'Ngày 4 · Contrast/causal connectors (25 phút)', 'Ngày 5 · Edit một đoạn Writing (30 phút)', 'Ngày 6 · Speaking reformulation (20 phút)', 'Ngày 7 · Grammar checkpoint: editing + production/35 phút']
+  Reading: ['NgÃ y 1 Â· Skim + main idea (25 phÃºt)', 'NgÃ y 2 Â· Matching headings/information (35 phÃºt)', 'NgÃ y 3 Â· T/F/NG + evidence log (35 phÃºt)', 'NgÃ y 4 Â· Completion + paraphrase (40 phÃºt)', 'NgÃ y 5 Â· Passage timed (20 phÃºt)', 'NgÃ y 6 Â· Chá»¯a lá»—i vÃ  retest occurrence (30 phÃºt)', 'NgÃ y 7 Â· Full Reading mock: 3 passages/60 phÃºt'],
+  Listening: ['NgÃ y 1 Â· Part 1 form completion (20 phÃºt)', 'NgÃ y 2 Â· Part 2 map/matching (25 phÃºt)', 'NgÃ y 3 Â· Part 3 multiple choice (30 phÃºt)', 'NgÃ y 4 Â· Part 4 lecture/note completion (30 phÃºt)', 'NgÃ y 5 Â· Dictation + shadowing (20 phÃºt)', 'NgÃ y 6 Â· Transcript error review (25 phÃºt)', 'NgÃ y 7 Â· Full Listening mock: 4 parts/30 phÃºt'],
+  Writing: ['NgÃ y 1 Â· PhÃ¢n tÃ­ch Ä‘á» + thesis (25 phÃºt)', 'NgÃ y 2 Â· Task 1 overview + grouping (35 phÃºt)', 'NgÃ y 3 Â· Task 2 body paragraph (40 phÃºt)', 'NgÃ y 4 Â· Cohesion + grammar editing (30 phÃºt)', 'NgÃ y 5 Â· Task 1 timed: 20 phÃºt', 'NgÃ y 6 Â· Task 2 timed: 40 phÃºt', 'NgÃ y 7 Â· Full Writing mock: Task 1 + Task 2/60 phÃºt'],
+  Speaking: ['NgÃ y 1 Â· Part 1 fluency recording (15 phÃºt)', 'NgÃ y 2 Â· Pronunciation: chunking + stress (20 phÃºt)', 'NgÃ y 3 Â· Cue card: 1 phÃºt chuáº©n bá»‹/2 phÃºt nÃ³i', 'NgÃ y 4 Â· Part 3 compare/evaluate (25 phÃºt)', 'NgÃ y 5 Â· Retell cÃ¹ng Ã½ báº±ng tá»« khÃ¡c (20 phÃºt)', 'NgÃ y 6 Â· Self-review theo 4 tiÃªu chÃ­ (20 phÃºt)', 'NgÃ y 7 Â· Mock Speaking: Part 1â€“3/11â€“14 phÃºt'],
+  Vocabulary: ['NgÃ y 1 Â· Há»c 8 lexical chunks theo topic (20 phÃºt)', 'NgÃ y 2 Â· Recall hai chiá»u + pronunciation (20 phÃºt)', 'NgÃ y 3 Â· Collocation cloze (25 phÃºt)', 'NgÃ y 4 Â· Paraphrase 10 cÃ¢u (25 phÃºt)', 'NgÃ y 5 Â· DÃ¹ng chunks trong Writing/Speaking (30 phÃºt)', 'NgÃ y 6 Â· Ã”n tá»« sai theo spaced review (20 phÃºt)', 'NgÃ y 7 Â· Cumulative quiz + production checkpoint (30 phÃºt)'],
+  Grammar: ['NgÃ y 1 Â· Diagnostic: articles/agreement (25 phÃºt)', 'NgÃ y 2 Â· Sentence combining (25 phÃºt)', 'NgÃ y 3 Â· Relative/conditional clauses (30 phÃºt)', 'NgÃ y 4 Â· Contrast/causal connectors (25 phÃºt)', 'NgÃ y 5 Â· Edit má»™t Ä‘oáº¡n Writing (30 phÃºt)', 'NgÃ y 6 Â· Speaking reformulation (20 phÃºt)', 'NgÃ y 7 Â· Grammar checkpoint: editing + production/35 phÃºt']
 }
 
 function SkillRoadmap({ skill }: { skill: Skill }) {
@@ -156,7 +156,7 @@ function SkillRoadmap({ skill }: { skill: Skill }) {
   return (
     <section className="panel roadmap-panel">
       <div className="panel-title">
-        <h3>Lộ trình học {skill}</h3>
+        <h3>Lá»™ trÃ¬nh há»c {skill}</h3>
       </div>
       <div className="roadmap-grid">
         {steps.map(step => (
@@ -168,8 +168,8 @@ function SkillRoadmap({ skill }: { skill: Skill }) {
         ))}
       </div>
       <div className="daily-plan-block">
-        <div className="panel-title"><h3>Lịch học 7 ngày</h3></div>
-        <div className="daily-plan-grid">{DAILY_CYCLES[skill].map((day, index) => <div className={`daily-plan-day ${index === 6 ? 'mock-day' : ''}`} key={day}><b>D{index + 1}</b><span>{day.split(' · ')[1]}</span></div>)}</div>
+        <div className="panel-title"><h3>Lá»‹ch há»c 7 ngÃ y</h3></div>
+        <div className="daily-plan-grid">{DAILY_CYCLES[skill].map((day, index) => <div className={`daily-plan-day ${index === 6 ? 'mock-day' : ''}`} key={day}><b>D{index + 1}</b><span>{day.split(' Â· ')[1]}</span></div>)}</div>
       </div>
     </section>
   )
@@ -235,7 +235,7 @@ export default function App() {
     setPage('practice')
   }
 
-  const title = nav.find(item => item[0] === page)?.[1] || 'Bảng tổng quan'
+  const title = nav.find(item => item[0] === page)?.[1] || 'Báº£ng tá»•ng quan'
   const openErrors = store.errors.filter(
     e => deriveReadingStates(store.errors, store.attempts, passages).statesByDifficulty[readingDifficultyId(e)]?.status === 'open'
   )
@@ -268,7 +268,7 @@ export default function App() {
                   <Icon size={18} />
                   <span>{label}</span>
                   {id === 'errors' && openErrors.length > 0 && (
-                    <span className="nav-count" title={`${openErrors.length} lỗi chưa sửa`}>
+                    <span className="nav-count" title={`${openErrors.length} lá»—i chÆ°a sá»­a`}>
                       {openErrors.length}
                     </span>
                   )}
@@ -279,8 +279,8 @@ export default function App() {
         </nav>
         <div className="sidebar-note">
           <Target size={17} />
-          <b>Bằng chứng trước kết luận.</b>
-          <span>Dữ liệu học tập là minh chứng thực tế, không bịa điểm số.</span>
+          <b>Báº±ng chá»©ng trÆ°á»›c káº¿t luáº­n.</b>
+          <span>Dá»¯ liá»‡u há»c táº­p lÃ  minh chá»©ng thá»±c táº¿, khÃ´ng bá»‹a Ä‘iá»ƒm sá»‘.</span>
         </div>
       </aside>
 
@@ -295,7 +295,7 @@ export default function App() {
         <header>
           <div>
             <div className="section-kicker">
-              <span>IELTS OPTIMIZER</span> · {nav.find(item => item[0] === page)?.[1]}
+              <span>IELTS OPTIMIZER</span> Â· {nav.find(item => item[0] === page)?.[1]}
             </div>
             <h1>{title}</h1>
           </div>
@@ -304,19 +304,19 @@ export default function App() {
               <div
                 className="timer-live-badge"
                 onClick={() => go('record')}
-                title="Nhấp để xem nhật ký bấm giờ"
+                title="Nháº¥p Ä‘á»ƒ xem nháº­t kÃ½ báº¥m giá»"
                 role="button"
                 tabIndex={0}
               >
                 <span className="timer-pulse-dot" />
                 <span>
-                  {store.activeSession.paused ? 'Tạm dừng: ' : 'Đang học: '}
+                  {store.activeSession.paused ? 'Táº¡m dá»«ng: ' : 'Äang há»c: '}
                   {Math.floor(activeSec / 60).toString().padStart(2, '0')}:
                   {Math.floor(activeSec % 60).toString().padStart(2, '0')}
                 </span>
               </div>
             )}
-            <button aria-label="Cài đặt mục tiêu hồ sơ" className="icon-button" onClick={() => go('profile')}>
+            <button aria-label="CÃ i Ä‘áº·t má»¥c tiÃªu há»“ sÆ¡" className="icon-button" onClick={() => go('profile')}>
               <Settings size={18} />
             </button>
           </div>
@@ -324,14 +324,14 @@ export default function App() {
 
         {/* Quick Navigation Bar across related views */}
         {['practice', 'listening', 'writing', 'speaking'].includes(page) && (
-          <div className="skill-quick-bar" role="tablist" aria-label="4 Kỹ năng">
+          <div className="skill-quick-bar" role="tablist" aria-label="4 Ká»¹ nÄƒng">
             <button
               role="tab"
               aria-selected={page === 'practice'}
               className={`skill-quick-btn ${page === 'practice' ? 'active' : ''}`}
               onClick={() => go('practice')}
             >
-              <BookOpen size={15} /> <span>Reading (Đọc hiểu)</span>
+              <BookOpen size={15} /> <span>Reading (Äá»c hiá»ƒu)</span>
             </button>
             <button
               role="tab"
@@ -339,7 +339,7 @@ export default function App() {
               className={`skill-quick-btn ${page === 'listening' ? 'active' : ''}`}
               onClick={() => go('listening')}
             >
-              <Volume2 size={15} /> <span>Listening (Nghe hiểu)</span>
+              <Volume2 size={15} /> <span>Listening (Nghe hiá»ƒu)</span>
             </button>
             <button
               role="tab"
@@ -347,7 +347,7 @@ export default function App() {
               className={`skill-quick-btn ${page === 'writing' ? 'active' : ''}`}
               onClick={() => go('writing')}
             >
-              <Palette size={15} /> <span>Writing (Viết luận)</span>
+              <Palette size={15} /> <span>Writing (Viáº¿t luáº­n)</span>
             </button>
             <button
               role="tab"
@@ -355,20 +355,20 @@ export default function App() {
               className={`skill-quick-btn ${page === 'speaking' ? 'active' : ''}`}
               onClick={() => go('speaking')}
             >
-              <Compass size={15} /> <span>Speaking (Luyện nói)</span>
+              <Compass size={15} /> <span>Speaking (Luyá»‡n nÃ³i)</span>
             </button>
           </div>
         )}
 
         {['vocabulary', 'grammar', 'errors'].includes(page) && (
-          <div className="skill-quick-bar" role="tablist" aria-label="Nền tảng & Lỗi sai">
+          <div className="skill-quick-bar" role="tablist" aria-label="Ná»n táº£ng & Lá»—i sai">
             <button
               role="tab"
               aria-selected={page === 'vocabulary'}
               className={`skill-quick-btn ${page === 'vocabulary' ? 'active' : ''}`}
               onClick={() => go('vocabulary')}
             >
-              <Layers size={15} /> <span>Từ vựng theo chủ đề (Flashcards)</span>
+              <Layers size={15} /> <span>Tá»« vá»±ng theo chá»§ Ä‘á» (Flashcards)</span>
             </button>
             <button
               role="tab"
@@ -376,7 +376,7 @@ export default function App() {
               className={`skill-quick-btn ${page === 'grammar' ? 'active' : ''}`}
               onClick={() => go('grammar')}
             >
-              <ListChecks size={15} /> <span>Ngữ pháp ứng dụng</span>
+              <ListChecks size={15} /> <span>Ngá»¯ phÃ¡p á»©ng dá»¥ng</span>
             </button>
             <button
               role="tab"
@@ -385,20 +385,20 @@ export default function App() {
               onClick={() => go('errors')}
             >
               <RotateCcw size={15} />{' '}
-              <span>Bộ nhớ lỗi & Retest {openErrors.length > 0 ? `(${openErrors.length})` : ''}</span>
+              <span>Bá»™ nhá»› lá»—i & Retest {openErrors.length > 0 ? `(${openErrors.length})` : ''}</span>
             </button>
           </div>
         )}
 
         {['dashboard', 'record'].includes(page) && (
-          <div className="skill-quick-bar" role="tablist" aria-label="Tổng quan học tập">
+          <div className="skill-quick-bar" role="tablist" aria-label="Tá»•ng quan há»c táº­p">
             <button
               role="tab"
               aria-selected={page === 'dashboard'}
               className={`skill-quick-btn ${page === 'dashboard' ? 'active' : ''}`}
               onClick={() => go('dashboard')}
             >
-              <Home size={15} /> <span>Bảng tổng quan (Dashboard)</span>
+              <Home size={15} /> <span>Báº£ng tá»•ng quan (Dashboard)</span>
             </button>
             <button
               role="tab"
@@ -406,7 +406,7 @@ export default function App() {
               className={`skill-quick-btn ${page === 'record' ? 'active' : ''}`}
               onClick={() => go('record')}
             >
-              <Clock3 size={15} /> <span>Bấm giờ & Nhật ký (Record)</span>
+              <Clock3 size={15} /> <span>Báº¥m giá» & Nháº­t kÃ½ (Record)</span>
             </button>
           </div>
         )}
@@ -460,7 +460,7 @@ function TopicBar({
           className="topic-toggle-btn"
           aria-expanded={expanded}
         >
-          {expanded ? '🙈 Ẩn chủ đề' : '🔍 Chọn chủ đề'}
+          {expanded ? 'ðŸ™ˆ áº¨n chá»§ Ä‘á»' : 'ðŸ” Chá»n chá»§ Ä‘á»'}
         </button>
       )}
       {expanded && (
@@ -476,7 +476,7 @@ function TopicBar({
               <div className="topic-card-indicator" style={{ backgroundColor: '#92dcaa' }} />
               <Filter size={15} className="topic-card-icon" style={{ color: '#92dcaa' }} />
               <div className="topic-card-text">
-                <span className="topic-en">Tất cả chủ đề</span>
+                <span className="topic-en">Táº¥t cáº£ chá»§ Ä‘á»</span>
                 <small className="topic-vi">All 8 Topics</small>
               </div>
             </button>
@@ -526,20 +526,20 @@ function TopicHeader({ topic, extraBadge }: { topic: TopicDefinition; extraBadge
         <div className="topic-header-title">
           <div className="topic-kicker-row">
             <span className="eyebrow" style={{ color: topic.accent, margin: 0 }}>
-              CHỦ ĐỀ ÔN TẬP IELTS · {topic.titleEn.toUpperCase()}
+              CHá»¦ Äá»€ Ã”N Táº¬P IELTS Â· {topic.titleEn.toUpperCase()}
             </span>
-            <span className="topic-band-target">Band 6.5 – 8.5</span>
+            <span className="topic-band-target">Band 6.5 â€“ 8.5</span>
           </div>
           <h2>
-            {topic.titleEn} — {topic.titleVi}
+            {topic.titleEn} â€” {topic.titleVi}
           </h2>
           <p>{topic.descriptionVi}</p>
         </div>
       </div>
       <div className="topic-header-meta">
         <div className="topic-stat-pills">
-          <span className="stat-pill"><b>{topic.vocab.length}</b> từ vựng</span>
-          <span className="stat-pill"><b>{topic.grammar.length}</b> ngữ pháp</span>
+          <span className="stat-pill"><b>{topic.vocab.length}</b> tá»« vá»±ng</span>
+          <span className="stat-pill"><b>{topic.grammar.length}</b> ngá»¯ phÃ¡p</span>
           <span className="stat-pill"><b>Task 1 & 2</b></span>
           <span className="stat-pill"><b>Speaking</b></span>
         </div>
@@ -576,7 +576,7 @@ function Dashboard({
           <h2>{rec.title}</h2>
           <p>{rec.reason}</p>
           <button className="primary" onClick={() => go(rec.page)}>
-            Open action →
+            Open action â†’
           </button>
         </div>
       </section>
@@ -621,16 +621,16 @@ function MotivationPanel() {
       <div className="motivation-art" aria-hidden="true">
         <div className="motivation-orbit orbit-one" />
         <div className="motivation-orbit orbit-two" />
-        <div className="motivation-star">✦</div>
+        <div className="motivation-star">âœ¦</div>
         <div className="motivation-spark spark-one">+</div>
-        <div className="motivation-spark spark-two">·</div>
+        <div className="motivation-spark spark-two">Â·</div>
       </div>
       <div className="motivation-copy">
         <span className="eyebrow">
           <Sparkles size={12} /> KEEP GOING
         </span>
         <Quote size={18} />
-        <blockquote>“{quote}”</blockquote>
+        <blockquote>â€œ{quote}â€</blockquote>
         <p>Review your evidence, choose one focused task and return tomorrow.</p>
       </div>
     </section>
@@ -727,7 +727,7 @@ function DashboardRecord({
           endedAt: end,
           minutes: Math.max(0, Math.round(measured / 60)),
           activeIntervals: intervals.length ? intervals : undefined,
-          activity: destination ? `Study · ${destination.name}` : 'Dashboard study session',
+          activity: destination ? `Study Â· ${destination.name}` : 'Dashboard study session',
           skill: 'Reading'
         }
       ]
@@ -769,7 +769,7 @@ function DashboardRecord({
           <option value="">General study</option>
           {destinations.map(item => (
             <option value={item.id} key={item.id}>
-              {item.name} · {item.kind}
+              {item.name} Â· {item.kind}
             </option>
           ))}
         </select>
@@ -800,7 +800,7 @@ function DashboardRecord({
             {Math.floor(seconds % 60).toString().padStart(2, '0')}
           </b>
           <span>
-            {active ? (active.paused ? 'Paused — resume when ready' : 'Session in progress') : 'Start a measured session from Dashboard'}
+            {active ? (active.paused ? 'Paused â€” resume when ready' : 'Session in progress') : 'Start a measured session from Dashboard'}
           </span>
         </div>
         {!active ? (
@@ -836,7 +836,7 @@ function DashboardRecord({
               <div>
                 <b>{item.kind === 'retest' ? 'Reading Retest' : 'Reading Practice'}</b>
                 <small>
-                  {new Date(item.createdAt).toLocaleString()} · {item.score}/{item.total}
+                  {new Date(item.createdAt).toLocaleString()} Â· {item.score}/{item.total}
                 </small>
               </div>
               <strong>{item.total ? `${Math.round((item.score / item.total) * 100)}%` : 'Saved'}</strong>
@@ -848,7 +848,7 @@ function DashboardRecord({
               <div>
                 <b>{item.skill} evidence</b>
                 <small>
-                  {new Date(item.createdAt).toLocaleString()} ·{' '}
+                  {new Date(item.createdAt).toLocaleString()} Â·{' '}
                   {item.feedbackMode === 'self-review' ? 'Self-review' : 'Transcript fallback'}
                 </small>
               </div>
@@ -965,9 +965,9 @@ function Heatmap({ s }: { s: Store }) {
       <div className="heatmap-detail">
         <b>{selected}</b>
         <span>
-          {Math.round(minutes)} active minutes{goal ? ` · ${Math.round((minutes / goal) * 100)}% of ${goal}-minute goal` : ''}
+          {Math.round(minutes)} active minutes{goal ? ` Â· ${Math.round((minutes / goal) * 100)}% of ${goal}-minute goal` : ''}
         </span>
-        <span>{completed ? `${completed} completed activities · ${skills.join(', ')}` : 'No recorded activities'}</span>
+        <span>{completed ? `${completed} completed activities Â· ${skills.join(', ')}` : 'No recorded activities'}</span>
         <span>{s.profile.daysOff.includes(selected) ? 'Planned rest day' : ''}</span>
       </div>
     </section>
@@ -1079,7 +1079,7 @@ function Practice({
           minutes: 0,
           activeIntervals: [],
           skill: 'Reading',
-          activity: `${isRetestMode ? 'Retest' : 'Reading'} · ${passage.title}`
+          activity: `${isRetestMode ? 'Retest' : 'Reading'} Â· ${passage.title}`
         }
       ]
     })
@@ -1093,10 +1093,10 @@ function Practice({
         <section className="panel">
           <div className="panel-title">
             <div>
-              <span className="eyebrow">CHỦ ĐỀ ĐỌC HIỂU (READING BY TOPIC)</span>
-              <h2>Chọn bài đọc theo chủ đề</h2>
+              <span className="eyebrow">CHá»¦ Äá»€ Äá»ŒC HIá»‚U (READING BY TOPIC)</span>
+              <h2>Chá»n bÃ i Ä‘á»c theo chá»§ Ä‘á»</h2>
             </div>
-            <span className="badge">{filteredPassages.length} bài luyện tập</span>
+            <span className="badge">{filteredPassages.length} bÃ i luyá»‡n táº­p</span>
           </div>
           <TopicBar selected={topicFilter} onSelect={setTopicFilter} showAll={true} collapsible />
           <div className="passage-chips">
@@ -1109,13 +1109,13 @@ function Practice({
               >
                 <div className="passage-chip-top">
                   <span className="passage-chip-level">{p.level}</span>
-                  <span className="date-pill" style={{ padding: '2px 8px', fontSize: '10px' }}>{p.minutes} phút</span>
+                  <span className="date-pill" style={{ padding: '2px 8px', fontSize: '10px' }}>{p.minutes} phÃºt</span>
                 </div>
                 <span className="passage-chip-title">{p.title}</span>
                 <div className="passage-chip-meta">
                   <span>{p.topicTitle || 'General'}</span>
-                  <span>•</span>
-                  <span>{p.questions.length} câu hỏi</span>
+                  <span>â€¢</span>
+                  <span>{p.questions.length} cÃ¢u há»i</span>
                 </div>
               </button>
             ))}
@@ -1132,7 +1132,7 @@ function Practice({
       <div className="practice-layout">
         <section className="panel passage">
           <div className="panel-title">
-            <span className="eyebrow">{passage.topicTitle ? passage.topicTitle.toUpperCase() : 'READING'} · {passage.level}</span>
+            <span className="eyebrow">{passage.topicTitle ? passage.topicTitle.toUpperCase() : 'READING'} Â· {passage.level}</span>
             <span className="date-pill">{passage.minutes} min target</span>
           </div>
           <h2>{passage.title}</h2>
@@ -1147,7 +1147,7 @@ function Practice({
             <div className="question" key={q.id}>
               <div className="question-top">
                 <b>{index + 1}</b>
-                <span>{q.type.toUpperCase()} · {q.objective}</span>
+                <span>{q.type.toUpperCase()} Â· {q.objective}</span>
               </div>
               <h3>{q.prompt}</h3>
               <div className="options">
@@ -1166,7 +1166,7 @@ function Practice({
               </div>
               {submitted && (
                 <div className={`feedback ${answers[q.id] === q.answer ? 'correct' : 'incorrect'}`}>
-                  <b>{answers[q.id] === q.answer ? '✓ Correct' : '✗ Incorrect'}</b>
+                  <b>{answers[q.id] === q.answer ? 'âœ“ Correct' : 'âœ— Incorrect'}</b>
                   <span>Correct answer: {q.answer}</span>
                   <small>{q.explanation}</small>
                 </div>
@@ -1241,7 +1241,7 @@ function IELTSSimulation({ s, setS, note }: { s: Store; setS: (store: Store) => 
     const now = new Date().toISOString()
     const evidence = skill === 'Reading' || skill === 'Listening' ? `${skill} simulation: ${score}/${questions.length}` : `${skill} simulation: self-review submitted`
     setS({ ...s, submissions: [...(s.submissions || []), { id: uid('submission'), skill, activityId: `simulation-${skill.toLowerCase()}`, response: response || evidence, createdAt: now, feedbackMode: skill === 'Listening' ? 'transcript-fallback' : 'self-review', completed: true }] })
-    note('Simulation đã được lưu vào Learning Record.')
+    note('Simulation Ä‘Ã£ Ä‘Æ°á»£c lÆ°u vÃ o Learning Record.')
   }
   const playAudio = () => { if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(TOPICS[0].listening.audioText); u.lang = 'en-US'; window.speechSynthesis.speak(u) } }
   const minutes = Math.floor(seconds / 60).toString().padStart(2, '0')
@@ -1249,22 +1249,22 @@ function IELTSSimulation({ s, setS, note }: { s: Store; setS: (store: Store) => 
 
   return <section className="stack">
     <section className="panel simulator-hero">
-      <span className="eyebrow">IELTS COMPUTER-STYLE SIMULATION</span><h2>Phòng thi mô phỏng</h2>
-      <p className="muted">Nội dung tự biên soạn theo format IELTS: timer, media, câu hỏi, nộp bài và review. Đề gốc bên ngoài không được sao chép vào ứng dụng.</p>
+      <span className="eyebrow">IELTS COMPUTER-STYLE SIMULATION</span><h2>PhÃ²ng thi mÃ´ phá»ng</h2>
+      <p className="muted">Ná»™i dung tá»± biÃªn soáº¡n theo format IELTS: timer, media, cÃ¢u há»i, ná»™p bÃ i vÃ  review. Äá» gá»‘c bÃªn ngoÃ i khÃ´ng Ä‘Æ°á»£c sao chÃ©p vÃ o á»©ng dá»¥ng.</p>
       <div className="study-modes">{(['Listening', 'Reading', 'Writing', 'Speaking'] as SimulationSkill[]).map(item => <button key={item} className={`mode-tab ${skill === item ? 'active' : ''}`} onClick={() => selectSkill(item)}>{item}</button>)}</div>
     </section>
     {!started ? <section className="panel simulator-start">
-      <div className="simulator-spec"><b>{skill}</b><span>{skill === 'Listening' ? '4 parts · 40 questions · 30 minutes' : skill === 'Reading' ? '3 passages · 40 questions · 60 minutes' : skill === 'Writing' ? 'Task 1 + Task 2 · 60 minutes' : 'Part 1 + Part 2 + Part 3 · 11–14 minutes'}</span></div>
-      <p className="muted">Bản demo hiện dùng một module nội bộ có media và câu hỏi thật trong app. Các module tiếp theo sẽ nối vào cùng test runner này.</p><button className="primary" onClick={start}>Bắt đầu simulation</button>
+      <div className="simulator-spec"><b>{skill}</b><span>{skill === 'Listening' ? '4 parts Â· 40 questions Â· 30 minutes' : skill === 'Reading' ? '3 passages Â· 40 questions Â· 60 minutes' : skill === 'Writing' ? 'Task 1 + Task 2 Â· 60 minutes' : 'Part 1 + Part 2 + Part 3 Â· 11â€“14 minutes'}</span></div>
+      <p className="muted">Báº£n demo hiá»‡n dÃ¹ng má»™t module ná»™i bá»™ cÃ³ media vÃ  cÃ¢u há»i tháº­t trong app. CÃ¡c module tiáº¿p theo sáº½ ná»‘i vÃ o cÃ¹ng test runner nÃ y.</p><button className="primary" onClick={start}>Báº¯t Ä‘áº§u simulation</button>
     </section> : <section className="panel simulator-shell">
-      <div className="simulator-toolbar"><span className="badge">{skill} · {submitted ? 'Review' : 'In progress'}</span><strong className={seconds < 60 ? 'status' : ''}>⏱ {minutes}:{secs}</strong>{!submitted && <button className="danger" onClick={submit}>Nộp bài</button>}</div>
-      {skill === 'Listening' && <div className="media-stage"><h3>Part 1 · Everyday conversation</h3><p className="muted">Nghe một lần như phòng thi. Không hiện transcript cho đến khi nộp.</p><button className="primary" onClick={playAudio}>▶ Play audio</button><details><summary>Transcript sau khi nộp</summary><p className="callout">{submitted ? TOPICS[0].listening.audioText : 'Transcript sẽ mở sau khi nộp bài.'}</p></details></div>}
+      <div className="simulator-toolbar"><span className="badge">{skill} Â· {submitted ? 'Review' : 'In progress'}</span><strong className={seconds < 60 ? 'status' : ''}>â± {minutes}:{secs}</strong>{!submitted && <button className="danger" onClick={submit}>Ná»™p bÃ i</button>}</div>
+      {skill === 'Listening' && <div className="media-stage"><h3>Part 1 Â· Everyday conversation</h3><p className="muted">Nghe má»™t láº§n nhÆ° phÃ²ng thi. KhÃ´ng hiá»‡n transcript cho Ä‘áº¿n khi ná»™p.</p><button className="primary" onClick={playAudio}>â–¶ Play audio</button><details><summary>Transcript sau khi ná»™p</summary><p className="callout">{submitted ? TOPICS[0].listening.audioText : 'Transcript sáº½ má»Ÿ sau khi ná»™p bÃ i.'}</p></details></div>}
       {skill === 'Reading' && <div className="reading-stage"><h3>{passages[0].title}</h3>{passages[0].text.split('\n\n').slice(0, 2).map(p => <p key={p}>{p}</p>)}</div>}
-      {skill === 'Writing' && <div className="writing-stage"><h3>Task 1 · Academic report</h3><p className="callout">The chart below compares participation in three university clubs in 2005 and 2025. Summarise the information by selecting and reporting the main features.</p><svg viewBox="0 0 420 180" role="img" aria-label="Bar chart comparing university club participation"><line x1="45" y1="145" x2="390" y2="145" stroke="currentColor"/><rect x="80" y="65" width="34" height="80" fill="#92dcaa"/><rect x="120" y="42" width="34" height="103" fill="#f4c878"/><rect x="210" y="88" width="34" height="57" fill="#92dcaa"/><rect x="250" y="72" width="34" height="73" fill="#f4c878"/><rect x="340" y="105" width="34" height="40" fill="#92dcaa"/><rect x="380" y="55" width="34" height="90" fill="#f4c878"/><text x="74" y="165" fill="currentColor">Science</text><text x="205" y="165" fill="currentColor">Arts</text><text x="335" y="165" fill="currentColor">Sports</text></svg></div>}
-      {skill === 'Speaking' && <div className="speaking-stage"><h3>Part 2 · Cue card</h3><p className="callout">Describe a skill you learned that was useful in your studies or work. You should say what it was, how you learned it, and explain why it was useful.</p><p className="muted">Use the response box as a transcript or outline, then record yourself separately if your browser supports a microphone.</p></div>}
-      {(skill === 'Listening' || skill === 'Reading') && <div className="simulation-questions">{questions.map((q, index) => <div className="question" key={q.id}><h3>{index + 1}. {q.prompt}</h3><div className="options">{q.options.map(option => <label key={option} className={answers[q.id] === option ? 'chosen' : ''}><input type="radio" name={q.id} checked={answers[q.id] === option} onChange={() => setAnswers({ ...answers, [q.id]: option })} disabled={submitted}/><span>{option}</span></label>)}</div>{submitted && <div className="feedback"><b>{answers[q.id] === q.answer ? '✓ Correct' : '✗ Review'}</b><small>{q.explanation}</small></div>}</div>)}</div>}
-      {(skill === 'Writing' || skill === 'Speaking') && <textarea className="skill-response simulator-response" value={response} onChange={event => setResponse(event.target.value)} disabled={submitted} placeholder={skill === 'Writing' ? 'Viết câu trả lời Task 1/Task 2 tại đây…' : 'Dán transcript hoặc ghi chú câu trả lời…'} />}
-      {submitted && <div className="result"><h3>{skill === 'Listening' || skill === 'Reading' ? `Score: ${score}/${questions.length}` : 'Bài đã nộp — chuyển sang self-review'}</h3><button className="secondary" onClick={() => selectSkill(skill)}>Làm lại module</button></div>}
+      {skill === 'Writing' && <div className="writing-stage"><h3>Task 1 Â· Academic report</h3><p className="callout">The chart below compares participation in three university clubs in 2005 and 2025. Summarise the information by selecting and reporting the main features.</p><svg viewBox="0 0 420 180" role="img" aria-label="Bar chart comparing university club participation"><line x1="45" y1="145" x2="390" y2="145" stroke="currentColor"/><rect x="80" y="65" width="34" height="80" fill="#92dcaa"/><rect x="120" y="42" width="34" height="103" fill="#f4c878"/><rect x="210" y="88" width="34" height="57" fill="#92dcaa"/><rect x="250" y="72" width="34" height="73" fill="#f4c878"/><rect x="340" y="105" width="34" height="40" fill="#92dcaa"/><rect x="380" y="55" width="34" height="90" fill="#f4c878"/><text x="74" y="165" fill="currentColor">Science</text><text x="205" y="165" fill="currentColor">Arts</text><text x="335" y="165" fill="currentColor">Sports</text></svg></div>}
+      {skill === 'Speaking' && <div className="speaking-stage"><h3>Part 2 Â· Cue card</h3><p className="callout">Describe a skill you learned that was useful in your studies or work. You should say what it was, how you learned it, and explain why it was useful.</p><p className="muted">Use the response box as a transcript or outline, then record yourself separately if your browser supports a microphone.</p></div>}
+      {(skill === 'Listening' || skill === 'Reading') && <div className="simulation-questions">{questions.map((q, index) => <div className="question" key={q.id}><h3>{index + 1}. {q.prompt}</h3><div className="options">{q.options.map(option => <label key={option} className={answers[q.id] === option ? 'chosen' : ''}><input type="radio" name={q.id} checked={answers[q.id] === option} onChange={() => setAnswers({ ...answers, [q.id]: option })} disabled={submitted}/><span>{option}</span></label>)}</div>{submitted && <div className="feedback"><b>{answers[q.id] === q.answer ? 'âœ“ Correct' : 'âœ— Review'}</b><small>{q.explanation}</small></div>}</div>)}</div>}
+      {(skill === 'Writing' || skill === 'Speaking') && <textarea className="skill-response simulator-response" value={response} onChange={event => setResponse(event.target.value)} disabled={submitted} placeholder={skill === 'Writing' ? 'Viáº¿t cÃ¢u tráº£ lá»i Task 1/Task 2 táº¡i Ä‘Ã¢yâ€¦' : 'DÃ¡n transcript hoáº·c ghi chÃº cÃ¢u tráº£ lá»iâ€¦'} />}
+      {submitted && <div className="result"><h3>{skill === 'Listening' || skill === 'Reading' ? `Score: ${score}/${questions.length}` : 'BÃ i Ä‘Ã£ ná»™p â€” chuyá»ƒn sang self-review'}</h3><button className="secondary" onClick={() => selectSkill(skill)}>LÃ m láº¡i module</button></div>}
     </section>}
   </section>
 }
@@ -1467,7 +1467,7 @@ function SkillPractice({
           endedAt: new Date().toISOString(),
           minutes: 15,
           skill,
-          activity: `${skill} · ${currentTopic.titleEn}`
+          activity: `${skill} Â· ${currentTopic.titleEn}`
         }
       ]
     })
@@ -1479,8 +1479,8 @@ function SkillPractice({
   return (
     <section className="stack">
       <section className="panel">
-        <span className="eyebrow">{skill.toUpperCase()} · THEMATIC STUDY UNITS</span>
-        <h2>Chọn chủ đề ôn tập ({skill})</h2>
+        <span className="eyebrow">{skill.toUpperCase()} Â· THEMATIC STUDY UNITS</span>
+        <h2>Chá»n chá»§ Ä‘á» Ã´n táº­p ({skill})</h2>
         <TopicBar selected={selectedTopicId} onSelect={id => id !== 'all' && setSelectedTopicId(id)} collapsible />
         <TopicHeader topic={currentTopic} />
       </section>
@@ -1500,7 +1500,7 @@ function SkillPractice({
             <button className="secondary" onClick={playGeneratedAudio}>
               <Play size={14} /> Play fallback voice
             </button>
-            <a className="secondary audio-source-link" href="https://takeielts.britishcouncil.org/prepare/ielts-free-practice-mock-tests/academic/listening" target="_blank" rel="noreferrer">Mở official natural recording ↗</a>
+            <a className="secondary audio-source-link" href="https://takeielts.britishcouncil.org/prepare/ielts-free-practice-mock-tests/academic/listening" target="_blank" rel="noreferrer">Má»Ÿ official natural recording â†—</a>
             <button className="secondary" onClick={pauseGeneratedAudio}>
               <Pause size={14} /> Pause
             </button>
@@ -1518,10 +1518,10 @@ function SkillPractice({
               <option value="1.0">1.0x Normal</option>
               <option value="1.15">1.15x Fast</option>
             </select>
-            {isPlaying && <span className="muted">Playing audio…</span>}
+            {isPlaying && <span className="muted">Playing audioâ€¦</span>}
           </div>
           <div className="audio-upload-box">
-            <label htmlFor="listening-audio-upload"><b>Audio tự nhiên</b><span> Ưu tiên recording người thật từ nguồn official hoặc file luyện tập của bạn.</span></label>
+            <label htmlFor="listening-audio-upload"><b>Audio tá»± nhiÃªn</b><span> Æ¯u tiÃªn recording ngÆ°á»i tháº­t tá»« nguá»“n official hoáº·c file luyá»‡n táº­p cá»§a báº¡n.</span></label>
             <input id="listening-audio-upload" type="file" accept="audio/*" onChange={event => {
               const file = event.target.files?.[0]
               if (file) setUploadedAudioUrl(URL.createObjectURL(file))
@@ -1531,7 +1531,7 @@ function SkillPractice({
 
           <details style={{ margin: '14px 0' }}>
             <summary style={{ cursor: 'pointer', color: 'var(--mint)', fontWeight: 600 }}>
-              Hiện phụ đề bài nghe (Transcript fallback)
+              Hiá»‡n phá»¥ Ä‘á» bÃ i nghe (Transcript fallback)
             </summary>
             <p className="callout" style={{ marginTop: '8px' }}>
               {currentTopic.listening.audioText}
@@ -1540,7 +1540,7 @@ function SkillPractice({
 
           {/* Listening Comprehension Check */}
           <div style={{ marginTop: '20px', borderTop: '1px solid #2e3d37', paddingTop: '16px' }}>
-            <h4>Kiểm tra mức độ nghe hiểu ({currentTopic.listening.questions.length} câu)</h4>
+            <h4>Kiá»ƒm tra má»©c Ä‘á»™ nghe hiá»ƒu ({currentTopic.listening.questions.length} cÃ¢u)</h4>
             {currentTopic.listening.questions.map((q, qIndex) => (
               <div key={q.id} style={{ margin: '12px 0', padding: '12px', background: '#131f1a', borderRadius: '8px' }}>
                 <p style={{ margin: '0 0 8px', fontWeight: 600 }}>
@@ -1561,30 +1561,30 @@ function SkillPractice({
                 </div>
                 {showQuizResult && (
                   <div className={`feedback ${quizAnswers[q.id] === q.answer ? 'correct' : 'incorrect'}`} style={{ marginTop: '8px' }}>
-                    <b>{quizAnswers[q.id] === q.answer ? '✓ Đúng' : '✗ Chưa đúng'}</b>
-                    <span>Đáp án: {q.answer}</span>
+                    <b>{quizAnswers[q.id] === q.answer ? 'âœ“ ÄÃºng' : 'âœ— ChÆ°a Ä‘Ãºng'}</b>
+                    <span>ÄÃ¡p Ã¡n: {q.answer}</span>
                     <small>{q.explanation}</small>
                   </div>
                 )}
               </div>
             ))}
             <button className="secondary" onClick={() => setShowQuizResult(true)}>
-              Kiểm tra đáp án nghe hiểu
+              Kiá»ƒm tra Ä‘Ã¡p Ã¡n nghe hiá»ƒu
             </button>
           </div>
 
           <div style={{ marginTop: '20px' }}>
-            <h4>Ghi chú & Tóm tắt ý bài nghe</h4>
+            <h4>Ghi chÃº & TÃ³m táº¯t Ã½ bÃ i nghe</h4>
             <textarea
               className="skill-response"
               aria-label="Listening notes"
               value={response}
               onChange={event => updateResponse(event.target.value)}
-              placeholder="Ghi chú các ý chính, từ vựng và chi tiết nghe được vào đây..."
+              placeholder="Ghi chÃº cÃ¡c Ã½ chÃ­nh, tá»« vá»±ng vÃ  chi tiáº¿t nghe Ä‘Æ°á»£c vÃ o Ä‘Ã¢y..."
             />
-            <p className="muted">{wordCount} từ đã nhập · Bản nháp tự động lưu trên trình duyệt</p>
+            <p className="muted">{wordCount} tá»« Ä‘Ã£ nháº­p Â· Báº£n nhÃ¡p tá»± Ä‘á»™ng lÆ°u trÃªn trÃ¬nh duyá»‡t</p>
             <button className="primary" onClick={submit}>
-              Lưu minh chứng vào Learning Record
+              LÆ°u minh chá»©ng vÃ o Learning Record
             </button>
           </div>
         </section>
@@ -1598,13 +1598,13 @@ function SkillPractice({
               className={`mode-tab ${writingTaskType === 'task1' ? 'active' : ''}`}
               onClick={() => setWritingTaskType('task1')}
             >
-              Task 1 (Báo cáo số liệu / Biểu đồ)
+              Task 1 (BÃ¡o cÃ¡o sá»‘ liá»‡u / Biá»ƒu Ä‘á»“)
             </button>
             <button
               className={`mode-tab ${writingTaskType === 'task2' ? 'active' : ''}`}
               onClick={() => setWritingTaskType('task2')}
             >
-              Task 2 (Bài luận quan điểm / Thảo luận)
+              Task 2 (BÃ i luáº­n quan Ä‘iá»ƒm / Tháº£o luáº­n)
             </button>
           </div>
 
@@ -1629,9 +1629,9 @@ function SkillPractice({
               <h3>{currentTopic.writing.task2.title}</h3>
               <p className="callout">{currentTopic.writing.task2.prompt}</p>
               <div style={{ margin: '12px 0' }}>
-                <b>Gợi ý dàn bài (Outline suggestions):</b>
+                <b>Gá»£i Ã½ dÃ n bÃ i (Outline suggestions):</b>
                 {currentTopic.writing.task2.outlineIdeas.map((idea, i) => (
-                  <p key={i} className="muted" style={{ margin: '4px 0' }}>• {idea}</p>
+                  <p key={i} className="muted" style={{ margin: '4px 0' }}>â€¢ {idea}</p>
                 ))}
               </div>
             </div>
@@ -1640,15 +1640,15 @@ function SkillPractice({
           {/* Lexicon bank drawer inspired by ForumFlash */}
           <div className="topic-lexicon-helper">
             <div className="topic-lexicon-title">
-              <span>BỘ TỪ & COLLOCATION GỢI Ý (THEMATIC LEXICON)</span>
-              <small>Nhấp để tham khảo hoặc thêm vào bài viết</small>
+              <span>Bá»˜ Tá»ª & COLLOCATION Gá»¢I Ã (THEMATIC LEXICON)</span>
+              <small>Nháº¥p Ä‘á»ƒ tham kháº£o hoáº·c thÃªm vÃ o bÃ i viáº¿t</small>
             </div>
             <div className="lexicon-chip-cloud">
               {currentTopic.vocab.map(item => (
                 <span
                   key={item.id}
                   className="lexicon-chip"
-                  title={`${item.ipa} — ${item.meaningVi}`}
+                  title={`${item.ipa} â€” ${item.meaningVi}`}
                   onClick={() => updateResponse(response ? `${response} ${item.term}` : item.term)}
                 >
                   + {item.term} ({item.meaningVi})
@@ -1663,15 +1663,15 @@ function SkillPractice({
             style={{ minHeight: '220px' }}
             value={response}
             onChange={event => updateResponse(event.target.value)}
-            placeholder="Viết bài luận của bạn tại đây..."
+            placeholder="Viáº¿t bÃ i luáº­n cá»§a báº¡n táº¡i Ä‘Ã¢y..."
           />
           <p className="muted">
-            {wordCount} từ · {response.split('\n\n').filter(Boolean).length} đoạn văn · Tự động lưu nháp
+            {wordCount} tá»« Â· {response.split('\n\n').filter(Boolean).length} Ä‘oáº¡n vÄƒn Â· Tá»± Ä‘á»™ng lÆ°u nhÃ¡p
           </p>
 
           {feedback.length > 0 && (
             <div className="callout" style={{ margin: '12px 0' }}>
-              <b>Chỉ dẫn tự rà soát (Revision Cues):</b>
+              <b>Chá»‰ dáº«n tá»± rÃ  soÃ¡t (Revision Cues):</b>
               {feedback.map((line, i) => (
                 <span className="feedback-line" key={i}>{line}</span>
               ))}
@@ -1679,7 +1679,7 @@ function SkillPractice({
           )}
 
           <button className="primary" onClick={submit}>
-            Lưu bài viết vào Learning Record
+            LÆ°u bÃ i viáº¿t vÃ o Learning Record
           </button>
         </section>
       )}
@@ -1692,28 +1692,28 @@ function SkillPractice({
               className={`mode-tab ${speakingPart === 'part1' ? 'active' : ''}`}
               onClick={() => setSpeakingPart('part1')}
             >
-              Part 1 (Phỏng vấn ngắn)
+              Part 1 (Phá»ng váº¥n ngáº¯n)
             </button>
             <button
               className={`mode-tab ${speakingPart === 'part2' ? 'active' : ''}`}
               onClick={() => setSpeakingPart('part2')}
             >
-              Part 2 (Cue Card & Nói 2 phút)
+              Part 2 (Cue Card & NÃ³i 2 phÃºt)
             </button>
             <button
               className={`mode-tab ${speakingPart === 'part3' ? 'active' : ''}`}
               onClick={() => setSpeakingPart('part3')}
             >
-              Part 3 (Thảo luận chuyên sâu)
+              Part 3 (Tháº£o luáº­n chuyÃªn sÃ¢u)
             </button>
           </div>
 
           {speakingPart === 'part1' && (
             <div>
-              <h3>Part 1 Questions — {currentTopic.titleEn}</h3>
+              <h3>Part 1 Questions â€” {currentTopic.titleEn}</h3>
               {currentTopic.speaking.part1.map((question, i) => (
                 <div key={i} className="callout" style={{ margin: '8px 0' }}>
-                  <b>Câu hỏi {i + 1}:</b> {question}
+                  <b>CÃ¢u há»i {i + 1}:</b> {question}
                 </div>
               ))}
             </div>
@@ -1721,7 +1721,7 @@ function SkillPractice({
 
           {speakingPart === 'part2' && (
             <div>
-              <h3>Part 2 Cue Card — {currentTopic.titleEn}</h3>
+              <h3>Part 2 Cue Card â€” {currentTopic.titleEn}</h3>
               <div className="panel" style={{ background: '#121e18', border: '1px solid #365342' }}>
                 <p style={{ fontStyle: 'italic', color: 'var(--mint)', fontWeight: 600 }}>
                   {currentTopic.speaking.part2.cueCard}
@@ -1745,7 +1745,7 @@ function SkillPractice({
                     if (prepSeconds === 0) setPrepSeconds(60)
                   }}
                 >
-                  {prepActive ? 'Tạm dừng chuẩn bị' : prepSeconds === 60 ? 'Bắt đầu 1 phút chuẩn bị' : 'Tiếp tục'}
+                  {prepActive ? 'Táº¡m dá»«ng chuáº©n bá»‹' : prepSeconds === 60 ? 'Báº¯t Ä‘áº§u 1 phÃºt chuáº©n bá»‹' : 'Tiáº¿p tá»¥c'}
                 </button>
               </div>
             </div>
@@ -1753,10 +1753,10 @@ function SkillPractice({
 
           {speakingPart === 'part3' && (
             <div>
-              <h3>Part 3 Two-way Discussion — {currentTopic.titleEn}</h3>
+              <h3>Part 3 Two-way Discussion â€” {currentTopic.titleEn}</h3>
               {currentTopic.speaking.part3.map((q, i) => (
                 <div key={i} className="callout" style={{ margin: '8px 0' }}>
-                  <b>Thảo luận {i + 1}:</b> {q}
+                  <b>Tháº£o luáº­n {i + 1}:</b> {q}
                 </div>
               ))}
             </div>
@@ -1765,7 +1765,7 @@ function SkillPractice({
           {/* Useful Collocations for Speaking */}
           <div className="topic-lexicon-helper">
             <div className="topic-lexicon-title">
-              <span>CỤM TỪ & COLLOCATION NÓI NÊN DÙNG</span>
+              <span>Cá»¤M Tá»ª & COLLOCATION NÃ“I NÃŠN DÃ™NG</span>
             </div>
             <div className="lexicon-chip-cloud">
               {currentTopic.speaking.collocations.map((colloc, i) => (
@@ -1780,7 +1780,7 @@ function SkillPractice({
           <div style={{ margin: '18px 0', borderTop: '1px solid #2e3d37', paddingTop: '16px' }}>
             <div className="error-actions">
               <button className={recording ? 'danger' : 'secondary'} onClick={recording ? stopRecording : startRecording}>
-                {recording ? 'Dừng ghi âm' : 'Bật ghi âm luyện nói (Mic)'}
+                {recording ? 'Dá»«ng ghi Ã¢m' : 'Báº­t ghi Ã¢m luyá»‡n nÃ³i (Mic)'}
               </button>
               {audioUrl && <audio controls src={audioUrl} aria-label="Recorded speaking response" />}
             </div>
@@ -1792,29 +1792,29 @@ function SkillPractice({
             aria-label="Speaking transcript or notes"
             value={response}
             onChange={event => updateResponse(event.target.value)}
-            placeholder="Dán bản gõ lời nói (transcript) hoặc dàn ý trả lời của bạn vào đây..."
+            placeholder="DÃ¡n báº£n gÃµ lá»i nÃ³i (transcript) hoáº·c dÃ n Ã½ tráº£ lá»i cá»§a báº¡n vÃ o Ä‘Ã¢y..."
           />
           <button className="primary" onClick={submit}>
-            Lưu minh chứng luyện nói
+            LÆ°u minh chá»©ng luyá»‡n nÃ³i
           </button>
         </section>
       )}
 
       {/* History */}
       <section className="panel">
-        <h3>Minh chứng đã lưu ({skill} · {currentTopic.titleEn})</h3>
+        <h3>Minh chá»©ng Ä‘Ã£ lÆ°u ({skill} Â· {currentTopic.titleEn})</h3>
         {history.length ? (
           history.map(item => (
             <details className="list-row" key={item.id}>
               <summary>
                 <b>{new Date(item.createdAt).toLocaleString()}</b>
-                <span>{item.feedbackMode === 'transcript-fallback' ? 'Audio · Ghi chú' : 'Minh chứng tự luyện'}</span>
+                <span>{item.feedbackMode === 'transcript-fallback' ? 'Audio Â· Ghi chÃº' : 'Minh chá»©ng tá»± luyá»‡n'}</span>
               </summary>
               <p style={{ marginTop: '8px', color: '#c5d3ca' }}>{item.response}</p>
             </details>
           ))
         ) : (
-          <p className="muted">Chưa có bài lưu nào cho chủ đề này.</p>
+          <p className="muted">ChÆ°a cÃ³ bÃ i lÆ°u nÃ o cho chá»§ Ä‘á» nÃ y.</p>
         )}
       </section>
     </section>
@@ -1875,7 +1875,7 @@ function VocabularyHub({
       u.lang = 'en-US'
       window.speechSynthesis.speak(u)
     } else {
-      note('Phát âm không được hỗ trợ trên trình duyệt này.')
+      note('PhÃ¡t Ã¢m khÃ´ng Ä‘Æ°á»£c há»— trá»£ trÃªn trÃ¬nh duyá»‡t nÃ y.')
     }
   }
 
@@ -1884,7 +1884,7 @@ function VocabularyHub({
     setKnownWords(next)
     localStorage.setItem('ielts-optimizer-vocab-known', JSON.stringify(next))
     if (isKnown) {
-      note(`Đã ghi nhớ: "${currentWord.term}"`)
+      note(`ÄÃ£ ghi nhá»›: "${currentWord.term}"`)
     }
     // Advance to next card
     if (cardIndex < vocabList.length - 1) {
@@ -1929,14 +1929,14 @@ function VocabularyHub({
     <section className="stack">
       <section className="panel">
         <span className="eyebrow">IELTS VOCABULARY ACCELERATOR (THEMATIC STUDY)</span>
-        <h2>Từ vựng IELTS theo 8 chủ đề chuẩn</h2>
+        <h2>Tá»« vá»±ng IELTS theo 8 chá»§ Ä‘á» chuáº©n</h2>
         <TopicBar selected={selectedTopicId} onSelect={id => id !== 'all' && setSelectedTopicId(id)} collapsible />
         <TopicHeader
           topic={currentTopic}
           extraBadge={
             <div className="topic-progress-badge">
-              <span>Tiến độ chủ đề:</span>
-              <b>{knownCountInTopic} / {vocabList.length} từ ({progressPercent}%)</b>
+              <span>Tiáº¿n Ä‘á»™ chá»§ Ä‘á»:</span>
+              <b>{knownCountInTopic} / {vocabList.length} tá»« ({progressPercent}%)</b>
             </div>
           }
         />
@@ -1946,25 +1946,25 @@ function VocabularyHub({
             className={`mode-tab ${mode === 'flashcard' ? 'active' : ''}`}
             onClick={() => setMode('flashcard')}
           >
-            🎴 Lật thẻ (Flashcard)
+            ðŸŽ´ Láº­t tháº» (Flashcard)
           </button>
           <button
             className={`mode-tab ${mode === 'learn' ? 'active' : ''}`}
             onClick={() => setMode('learn')}
           >
-            📖 Học từ & Đánh giá (Learn)
+            ðŸ“– Há»c tá»« & ÄÃ¡nh giÃ¡ (Learn)
           </button>
           <button
             className={`mode-tab ${mode === 'quiz' ? 'active' : ''}`}
             onClick={() => setMode('quiz')}
           >
-            🎯 Trắc nghiệm (Quiz)
+            ðŸŽ¯ Tráº¯c nghiá»‡m (Quiz)
           </button>
           <button
             className={`mode-tab ${mode === 'errors' ? 'active' : ''}`}
             onClick={() => setMode('errors')}
           >
-            ⚠️ Bộ nhớ lỗi liên kết (Error Memory)
+            âš ï¸ Bá»™ nhá»› lá»—i liÃªn káº¿t (Error Memory)
           </button>
         </div>
       </section>
@@ -1972,24 +1972,43 @@ function VocabularyHub({
       {/* MODE 1: FLASHCARD (Inspired by ForumFlash) */}
       {mode === 'flashcard' && currentWord && (
         <div className="flashcard-stage">
+          <div className="flashcard-header">
+            <span className="eyebrow">Tá»ª Vá»°NG THEO CHá»¦ Äá»€</span>
+            <div className="flashcard-progress">
+              <span>{String(cardIndex + 1).padStart(3, '0')}</span>
+              <span>/</span>
+              <span>{String(vocabList.length).padStart(3, '0')}</span>
+            </div>
+          </div>
+
           <div
             className={`flashcard-box ${flipped ? 'flipped' : ''}`}
             onClick={() => setFlipped(!flipped)}
             role="button"
             tabIndex={0}
-            aria-label="Lật thẻ từ vựng"
+            aria-label="Láº­t tháº» tá»« vá»±ng"
           >
             <div className="card-top">
               <span className="card-tag">{currentWord.type}</span>
               <button
                 className="card-speaker"
-                aria-label="Phát âm"
+                aria-label="PhÃ¡t Ã¢m"
                 onClick={e => {
                   e.stopPropagation()
                   speak(currentWord.term)
                 }}
               >
                 <Volume2 size={16} />
+              </button>
+              <button
+                className="flip-btn"
+                aria-label="Láº­t tháº»"
+                onClick={e => {
+                  e.stopPropagation()
+                  setFlipped(!flipped)
+                }}
+              >
+                â†» Láº­t tháº»
               </button>
             </div>
 
@@ -1999,13 +2018,13 @@ function VocabularyHub({
                   <h3 className="card-term">{currentWord.term}</h3>
                   <div className="card-ipa">{currentWord.ipa}</div>
                   <div className="card-hint" style={{ marginTop: '22px' }}>
-                    <RefreshCw size={13} /> Nhấp thẻ để xem nghĩa & ví dụ
+                    <RefreshCw size={13} /> Nháº¥p tháº» Ä‘á»ƒ xem nghÄ©a & vÃ­ dá»¥
                   </div>
                 </>
               ) : (
                 <>
                   <div className="card-meaning">{currentWord.meaningVi}</div>
-                  <div className="card-example">“{currentWord.example}”</div>
+                  <div className="card-example">â€œ{currentWord.example}â€</div>
                   {currentWord.collocations.length > 0 && (
                     <div className="card-collocs">
                       {currentWord.collocations.map((colloc, i) => (
@@ -2019,16 +2038,16 @@ function VocabularyHub({
               )}
             </div>
 
-            <div className="card-top">
-              <small className="muted">Thẻ {cardIndex + 1} / {vocabList.length}</small>
-              <small style={{ color: 'var(--mint)' }}>{flipped ? 'Mặt sau (Nghĩa)' : 'Mặt trước (Từ)'}</small>
+            <div className="card-top card-bottom-info">
+              <small className="muted">Tháº» {cardIndex + 1} / {vocabList.length}</small>
+              <small style={{ color: "var(--mint)" }}>{flipped ? 'Máº·t sau (NghÄ©a)' : 'Máº·t trÆ°á»›c (Tá»«)'}</small>
             </div>
           </div>
 
           <div className="learn-controls">
             <button
               className="nav-arrow"
-              aria-label="Thẻ trước"
+              aria-label="Tháº» trÆ°á»›c"
               disabled={cardIndex === 0}
               onClick={() => {
                 setCardIndex(cardIndex - 1)
@@ -2039,7 +2058,7 @@ function VocabularyHub({
             </button>
             <button
               className="nav-arrow"
-              aria-label="Thẻ tiếp theo"
+              aria-label="Tháº» tiáº¿p theo"
               disabled={cardIndex === vocabList.length - 1}
               onClick={() => {
                 setCardIndex(cardIndex + 1)
@@ -2078,13 +2097,13 @@ function VocabularyHub({
               <div className="card-meaning" style={{ marginTop: '12px' }}>
                 {currentWord.meaningVi}
               </div>
-              <div className="card-example">“{currentWord.example}”</div>
+              <div className="card-example">â€œ{currentWord.example}â€</div>
             </div>
 
             <div className="card-top">
-              <small className="muted">Từ {cardIndex + 1} / {vocabList.length}</small>
+              <small className="muted">Tá»« {cardIndex + 1} / {vocabList.length}</small>
               <small style={{ color: knownWords[currentWord.id] ? 'var(--green)' : '#ffa99c' }}>
-                {knownWords[currentWord.id] ? '✓ Đã thuộc' : '○ Chưa thuộc'}
+                {knownWords[currentWord.id] ? 'âœ“ ÄÃ£ thuá»™c' : 'â—‹ ChÆ°a thuá»™c'}
               </small>
             </div>
           </div>
@@ -2101,10 +2120,10 @@ function VocabularyHub({
               <ArrowLeft size={18} />
             </button>
             <button className="again-button" onClick={() => markKnown(currentWord.id, false)}>
-              <RotateCcw size={15} /> Chưa thuộc
+              <RotateCcw size={15} /> ChÆ°a thuá»™c
             </button>
             <button className="know-button" onClick={() => markKnown(currentWord.id, true)}>
-              <Check size={16} /> Đã học thuộc
+              <Check size={16} /> ÄÃ£ há»c thuá»™c
             </button>
             <button
               className="nav-arrow"
@@ -2126,8 +2145,8 @@ function VocabularyHub({
           {!quizFinished ? (
             <>
               <div className="quiz-header">
-                <span className="eyebrow">CÂU {quizIndex + 1} / {vocabList.length}</span>
-                <span className="date-pill">Điểm hiện tại: {quizScore}</span>
+                <span className="eyebrow">CÃ‚U {quizIndex + 1} / {vocabList.length}</span>
+                <span className="date-pill">Äiá»ƒm hiá»‡n táº¡i: {quizScore}</span>
               </div>
               <div className="quiz-term-box">
                 <span className="card-tag">{currentQuizWord.type}</span>
@@ -2138,7 +2157,7 @@ function VocabularyHub({
                   style={{ marginTop: '8px' }}
                   onClick={() => speak(currentQuizWord.term)}
                 >
-                  <Volume2 size={14} /> Nghe phát âm
+                  <Volume2 size={14} /> Nghe phÃ¡t Ã¢m
                 </button>
               </div>
 
@@ -2157,7 +2176,7 @@ function VocabularyHub({
                       onClick={() => handleQuizAnswer(opt)}
                     >
                       <span>{opt}</span>
-                      {selectedOption !== null && opt === currentQuizWord.meaningVi && <span>✓</span>}
+                      {selectedOption !== null && opt === currentQuizWord.meaningVi && <span>âœ“</span>}
                     </button>
                   )
                 })}
@@ -2166,19 +2185,19 @@ function VocabularyHub({
               {selectedOption !== null && (
                 <div style={{ textAlign: 'center', marginTop: '12px' }}>
                   <button className="primary" onClick={nextQuizQuestion}>
-                    {quizIndex < vocabList.length - 1 ? 'Câu tiếp theo →' : 'Hoàn thành bài kiểm tra'}
+                    {quizIndex < vocabList.length - 1 ? 'CÃ¢u tiáº¿p theo â†’' : 'HoÃ n thÃ nh bÃ i kiá»ƒm tra'}
                   </button>
                 </div>
               )}
             </>
           ) : (
             <div className="panel" style={{ textAlign: 'center', padding: '36px 20px' }}>
-              <h2>Kết quả kiểm tra từ vựng</h2>
+              <h2>Káº¿t quáº£ kiá»ƒm tra tá»« vá»±ng</h2>
               <div className="score-circle" style={{ margin: '20px auto' }}>
                 <b>{quizScore}/{vocabList.length}</b>
                 <span>{Math.round((quizScore / vocabList.length) * 100)}%</span>
               </div>
-              <p className="muted">Chủ đề: {currentTopic.titleEn}</p>
+              <p className="muted">Chá»§ Ä‘á»: {currentTopic.titleEn}</p>
               <button
                 className="secondary"
                 onClick={() => {
@@ -2188,7 +2207,7 @@ function VocabularyHub({
                   setQuizFinished(false)
                 }}
               >
-                Làm lại bài kiểm tra
+                LÃ m láº¡i bÃ i kiá»ƒm tra
               </button>
             </div>
           )}
@@ -2228,7 +2247,7 @@ function GrammarHub({
 
   const saveGrammarReflection = (rule: GrammarRule) => {
     const text = drillAnswers[rule.id] || ''
-    if (!text.trim()) return note('Vui lòng viết câu luyện tập trước khi lưu.')
+    if (!text.trim()) return note('Vui lÃ²ng viáº¿t cÃ¢u luyá»‡n táº­p trÆ°á»›c khi lÆ°u.')
     const submission = {
       id: uid('submission'),
       skill: 'Grammar' as const,
@@ -2249,18 +2268,18 @@ function GrammarHub({
           endedAt: new Date().toISOString(),
           minutes: 10,
           skill: 'Grammar',
-          activity: `Grammar Drill · ${rule.title}`
+          activity: `Grammar Drill Â· ${rule.title}`
         }
       ]
     })
-    note('Đã lưu bài luyện ngữ pháp vào Learning Record.')
+    note('ÄÃ£ lÆ°u bÃ i luyá»‡n ngá»¯ phÃ¡p vÃ o Learning Record.')
   }
 
   return (
     <section className="stack">
       <section className="panel">
         <span className="eyebrow">IELTS GRAMMAR MASTERY (THEMATIC STRUCTURES)</span>
-        <h2>Ngữ pháp IELTS nâng cao theo từng chủ đề</h2>
+        <h2>Ngá»¯ phÃ¡p IELTS nÃ¢ng cao theo tá»«ng chá»§ Ä‘á»</h2>
         <TopicBar selected={selectedTopicId} onSelect={id => id !== 'all' && setSelectedTopicId(id)} collapsible />
         <TopicHeader topic={currentTopic} />
       </section>
@@ -2274,25 +2293,25 @@ function GrammarHub({
             </div>
             <p className="muted" style={{ margin: 0 }}>{rule.explanationVi}</p>
             <div className="grammar-formula">
-              <strong>CÔNG THỨC:</strong> {rule.formula}
+              <strong>CÃ”NG THá»¨C:</strong> {rule.formula}
             </div>
 
             <div className="grammar-examples">
-              <b>Ví dụ mẫu trong bài thi IELTS (Band 8.0+):</b>
+              <b>VÃ­ dá»¥ máº«u trong bÃ i thi IELTS (Band 8.0+):</b>
               {rule.examples.map((ex, i) => (
                 <div key={i} className="grammar-example-item">
-                  • {ex}
+                  â€¢ {ex}
                 </div>
               ))}
             </div>
 
             <div className="grammar-drill">
-              <b>Bài tập luyện tập (Drill):</b>
+              <b>BÃ i táº­p luyá»‡n táº­p (Drill):</b>
               <p style={{ margin: 0, fontStyle: 'italic', color: '#c3d8cb' }}>{rule.drillPrompt}</p>
               <textarea
                 className="skill-response"
                 style={{ minHeight: '80px', margin: '6px 0' }}
-                placeholder="Nhập câu viết lại hoặc câu tự đặt của bạn..."
+                placeholder="Nháº­p cÃ¢u viáº¿t láº¡i hoáº·c cÃ¢u tá»± Ä‘áº·t cá»§a báº¡n..."
                 value={drillAnswers[rule.id] || ''}
                 onChange={e => setDrillAnswers({ ...drillAnswers, [rule.id]: e.target.value })}
               />
@@ -2301,15 +2320,15 @@ function GrammarHub({
                   className="secondary"
                   onClick={() => setRevealed({ ...revealed, [rule.id]: !revealed[rule.id] })}
                 >
-                  {revealed[rule.id] ? 'Ẩn đáp án mẫu' : 'Xem đáp án mẫu'}
+                  {revealed[rule.id] ? 'áº¨n Ä‘Ã¡p Ã¡n máº«u' : 'Xem Ä‘Ã¡p Ã¡n máº«u'}
                 </button>
                 <button className="primary" onClick={() => saveGrammarReflection(rule)}>
-                  Lưu bài luyện tập
+                  LÆ°u bÃ i luyá»‡n táº­p
                 </button>
               </div>
               {revealed[rule.id] && (
                 <div className="callout" style={{ marginTop: '8px' }}>
-                  <b>Đáp án gợi ý:</b> {rule.sampleTransform}
+                  <b>ÄÃ¡p Ã¡n gá»£i Ã½:</b> {rule.sampleTransform}
                 </div>
               )}
             </div>
@@ -2361,7 +2380,7 @@ function ErrorDrill({
   return (
     <section className="stack">
       <section className="panel">
-        <span className="eyebrow">{title.toUpperCase()} · LINKED ERROR SUPPORT</span>
+        <span className="eyebrow">{title.toUpperCase()} Â· LINKED ERROR SUPPORT</span>
         <h2>{title} error drills</h2>
         <p className="muted">
           This local-first drill uses real learner Error Memory. It does not invent vocabulary or grammar errors when
@@ -2527,9 +2546,9 @@ function Plan({
       {s.plan.map(item => (
         <section className="panel plan-row" key={item.id}>
           <div>
-            <span>{item.source === 'recommended' ? 'Recommended' : 'Manual'} · {item.date}</span>
+            <span>{item.source === 'recommended' ? 'Recommended' : 'Manual'} Â· {item.date}</span>
             <h3>{item.title}</h3>
-            <small>{item.skill} · {item.minutes} min · {item.reason}</small>
+            <small>{item.skill} Â· {item.minutes} min Â· {item.reason}</small>
           </div>
           <select
             value={item.status}
@@ -2674,7 +2693,7 @@ function Record({
                 <div>
                   <b>{item.activity || 'Study session'}</b>
                   <small>
-                    {new Date(item.startedAt).toLocaleString()} → {new Date(item.endedAt).toLocaleString()}
+                    {new Date(item.startedAt).toLocaleString()} â†’ {new Date(item.endedAt).toLocaleString()}
                   </small>
                 </div>
                 <strong>{measuredMinutes(item) > 0 ? `${Math.round(measuredMinutes(item))} min` : 'Not counted'}</strong>
@@ -2694,10 +2713,10 @@ function Record({
               <div className="list-row" key={attempt.id}>
                 <div>
                   <b>
-                    {attempt.kind === 'retest' ? 'Retest' : 'Reading practice'} · {attempt.score}/{attempt.total}
+                    {attempt.kind === 'retest' ? 'Retest' : 'Reading practice'} Â· {attempt.score}/{attempt.total}
                   </b>
                   <small>
-                    {new Date(attempt.createdAt).toLocaleString()} · {attempt.objectiveIds.length} objectives ·{' '}
+                    {new Date(attempt.createdAt).toLocaleString()} Â· {attempt.objectiveIds.length} objectives Â·{' '}
                     {attempt.reflection ? 'Reflection saved' : 'No reflection yet'}
                   </small>
                 </div>
@@ -2715,9 +2734,9 @@ function Record({
             .map(item => (
               <div className="list-row" key={item.id}>
                 <div>
-                  <b>{item.skill} · {item.activityId}</b>
+                  <b>{item.skill} Â· {item.activityId}</b>
                   <small>
-                    {new Date(item.createdAt).toLocaleString()} ·{' '}
+                    {new Date(item.createdAt).toLocaleString()} Â·{' '}
                     {item.feedbackMode === 'transcript-fallback' ? 'Transcript fallback' : 'Self-review only'}
                   </small>
                 </div>
@@ -2748,7 +2767,7 @@ function LearningNetwork() {
             <b>{name}</b>
             <span>{description}</span>
             <a href={url} target="_blank" rel="noopener noreferrer">
-              Open resource ↗
+              Open resource â†—
             </a>
           </div>
         ))}
@@ -2779,7 +2798,7 @@ function LearningDesign() {
       <section className="panel">
         <h3>TPACK mapping</h3>
         <p><b>Content:</b> IELTS passages, thematic vocabulary, grammar structures, and questions.</p>
-        <p><b>Pedagogy:</b> Practice → Feedback → Reflection → Thematic Retest & Spaced Drills.</p>
+        <p><b>Pedagogy:</b> Practice â†’ Feedback â†’ Reflection â†’ Thematic Retest & Spaced Drills.</p>
         <p><b>Technology:</b> Scoring, local records, Heatmap, audio synthesis, and interactive flashcards.</p>
       </section>
     </section>
@@ -2870,3 +2889,5 @@ function Profile({
     </section>
   )
 }
+
+
