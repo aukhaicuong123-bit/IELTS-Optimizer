@@ -366,35 +366,36 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 18px;
-  max-width: 680px;
+  gap: 14px;
+  max-width: 760px;
   width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
+  padding-top: 8px;
 }
 
 .flashcard-box {
   width: 100%;
-  min-height: 280px;
+  min-height: 360px;
   background: linear-gradient(145deg, #192721, #121d19);
   border: 1px solid #364e40;
-  border-radius: 16px;
-  padding: 28px 24px;
+  border-radius: 22px;
+  padding: 34px 28px;
   cursor: pointer;
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.45);
   text-align: center;
   box-sizing: border-box;
 }
 
 .flashcard-box:hover {
-  transform: translateY(-2px);
+  transform: translateY(-4px);
   border-color: #537d67;
-  box-shadow: 0 16px 36px rgba(0,0,0,0.45);
+  box-shadow: 0 24px 48px rgba(0,0,0,0.55);
 }
 
 .flashcard-box.flipped {
@@ -445,39 +446,40 @@ main {
 
 .card-term {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 32px;
-  font-weight: 700;
+  font-size: 40px;
+  font-weight: 800;
   color: #ffffff;
-  line-height: 1.2;
-  margin: 0 0 8px;
+  line-height: 1.15;
+  margin: 0 0 10px;
   word-break: break-word;
 }
 
 .card-ipa {
   font-family: 'DM Sans', sans-serif;
-  font-size: 15px;
+  font-size: 17px;
   color: #a3bfb0;
   font-style: italic;
+  margin-bottom: 4px;
 }
 
 .card-meaning {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 700;
   color: var(--accent);
   line-height: 1.4;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   word-break: break-word;
 }
 
 .card-example {
-  font-size: 14px;
+  font-size: 15px;
   color: #c9d8cf;
-  line-height: 1.6;
+  line-height: 1.7;
   font-style: italic;
   background: #14221b;
-  padding: 12px 16px;
-  border-radius: 8px;
-  border-left: 3px solid var(--mint);
+  padding: 14px 18px;
+  border-radius: 10px;
+  border-left: 4px solid var(--mint);
   text-align: left;
   margin-top: 10px;
   word-break: break-word;
@@ -485,60 +487,125 @@ main {
 
 .card-collocs {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
   justify-content: center;
-  margin-top: 12px;
+  margin-top: 14px;
 }
 
 .card-colloc-tag {
   font-size: 11px;
-  padding: 3px 8px;
-  border-radius: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
   background: #1d2d24;
   color: #92dcaa;
   border: 1px solid #2c4436;
 }
 
 .card-hint {
-  font-size: 11px;
+  font-size: 12px;
   color: #7a9486;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.card-bottom-info {
+  justify-content: center;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.flashcard-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 0 4px;
+}
+
+.flashcard-header .eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
+}
+
+.flashcard-progress {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.flashcard-progress span:nth-child(2) {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.flip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 8px 14px;
+  background: #1d2925;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--mint);
+  font: 600 13px 'DM Sans';
+  cursor: pointer;
+  transition: all 0.15s;
+  align-self: center;
+}
+
+.flip-btn:hover {
+  background: #283a33;
+  border-color: #456b53;
+  color: #fff;
 }
 
 .learn-controls {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 16px;
   width: 100%;
   flex-wrap: wrap;
-  margin-top: 6px;
+  margin-top: 10px;
 }
 
 .nav-arrow {
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
   background: #182620;
   border: 1px solid #2c4035;
   color: #d8ebe0;
   display: grid;
   place-items: center;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.18s;
+  font-size: 20px;
 }
 
 .nav-arrow:hover:not(:disabled) {
   background: #253c30;
   border-color: #4a6c5a;
+  transform: scale(1.05);
 }
 
 .nav-arrow:disabled {
-  opacity: 0.3;
+  opacity: 0.25;
   cursor: not-allowed;
 }
 

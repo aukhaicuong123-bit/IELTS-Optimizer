@@ -2054,7 +2054,7 @@ function VocabularyHub({
                 setFlipped(false)
               }}
             >
-              <ArrowLeft size={18} />
+              <ArrowLeft size={20} />
             </button>
             <button
               className="nav-arrow"
@@ -2065,7 +2065,7 @@ function VocabularyHub({
                 setFlipped(false)
               }}
             >
-              <ArrowRight size={18} />
+              <ArrowRight size={20} />
             </button>
           </div>
         </div>
@@ -2117,7 +2117,7 @@ function VocabularyHub({
                 setFlipped(false)
               }}
             >
-              <ArrowLeft size={18} />
+              <ArrowLeft size={20} />
             </button>
             <button className="again-button" onClick={() => markKnown(currentWord.id, false)}>
               <RotateCcw size={15} /> ChÆ°a thuá»™c
@@ -2133,7 +2133,7 @@ function VocabularyHub({
                 setFlipped(false)
               }}
             >
-              <ArrowRight size={18} />
+              <ArrowRight size={20} />
             </button>
           </div>
         </div>
@@ -2889,5 +2889,7 @@ function Profile({
     </section>
   )
 }
+
+
 
 
