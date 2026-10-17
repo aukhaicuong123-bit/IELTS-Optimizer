@@ -1972,6 +1972,15 @@ function VocabularyHub({
       {/* MODE 1: FLASHCARD (Inspired by ForumFlash) */}
       {mode === 'flashcard' && currentWord && (
         <div className="flashcard-stage">
+          <div className="flashcard-header">
+            <span className="eyebrow">TỪ VỰNG THEO CHỦ ĐỀ</span>
+            <div className="flashcard-progress">
+              <span>{String(cardIndex + 1).padStart(3, '0')}</span>
+              <span>/</span>
+              <span>{String(vocabList.length).padStart(3, '0')}</span>
+            </div>
+          </div>
+
           <div
             className={`flashcard-box ${flipped ? 'flipped' : ''}`}
             onClick={() => setFlipped(!flipped)}
@@ -1990,6 +1999,16 @@ function VocabularyHub({
                 }}
               >
                 <Volume2 size={16} />
+              </button>
+              <button
+                className="flip-btn"
+                aria-label="Lật thẻ"
+                onClick={e => {
+                  e.stopPropagation()
+                  setFlipped(!flipped)
+                }}
+              >
+                ↻ Lật thẻ
               </button>
             </div>
 
@@ -2019,7 +2038,7 @@ function VocabularyHub({
               )}
             </div>
 
-            <div className="card-top">
+            <div className="card-top card-bottom-info">
               <small className="muted">Thẻ {cardIndex + 1} / {vocabList.length}</small>
               <small style={{ color: 'var(--mint)' }}>{flipped ? 'Mặt sau (Nghĩa)' : 'Mặt trước (Từ)'}</small>
             </div>
@@ -2035,7 +2054,7 @@ function VocabularyHub({
                 setFlipped(false)
               }}
             >
-              <ArrowLeft size={18} />
+              <ArrowLeft size={20} />
             </button>
             <button
               className="nav-arrow"
@@ -2046,7 +2065,7 @@ function VocabularyHub({
                 setFlipped(false)
               }}
             >
-              <ArrowRight size={18} />
+              <ArrowRight size={20} />
             </button>
           </div>
         </div>
