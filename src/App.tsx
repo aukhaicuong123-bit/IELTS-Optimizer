@@ -442,53 +442,68 @@ export default function App() {
 function TopicBar({
   selected,
   onSelect,
-  showAll = false
+  showAll = false,
+  collapsible = false
 }: {
   selected: TopicId | 'all'
   onSelect: (topicId: TopicId | 'all') => void
   showAll?: boolean
+  collapsible?: boolean
 }) {
+  const [expanded, setExpanded] = useState(!collapsible)
   return (
     <div className="topic-hub-container" role="region" aria-label="IELTS Topics">
-      <div className="topic-grid" role="tablist">
-        {showAll && (
-          <button
-            type="button"
-            role="tab"
-            aria-selected={selected === 'all'}
-            className={`topic-card-btn ${selected === 'all' ? 'active' : ''}`}
-            onClick={() => onSelect('all')}
-          >
-            <div className="topic-card-indicator" style={{ backgroundColor: '#92dcaa' }} />
-            <Filter size={15} className="topic-card-icon" style={{ color: '#92dcaa' }} />
-            <div className="topic-card-text">
-              <span className="topic-en">Tất cả chủ đề</span>
-              <small className="topic-vi">All 8 Topics</small>
-            </div>
-          </button>
-        )}
-        {TOPICS.map(topic => {
-          const Icon = TOPIC_ICONS[topic.icon] || Layers
-          const isActive = selected === topic.id
-          return (
+      {collapsible && (
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          className="topic-toggle-btn"
+          aria-expanded={expanded}
+        >
+          {expanded ? '🙈 Ẩn chủ đề' : '🔍 Chọn chủ đề'}
+        </button>
+      )}
+      {expanded && (
+        <div className="topic-grid" role="tablist">
+          {showAll && (
             <button
-              key={topic.id}
               type="button"
               role="tab"
-              aria-selected={isActive}
-              className={`topic-card-btn ${isActive ? 'active' : ''}`}
-              onClick={() => onSelect(topic.id)}
+              aria-selected={selected === 'all'}
+              className={`topic-card-btn ${selected === 'all' ? 'active' : ''}`}
+              onClick={() => onSelect('all')}
             >
-              <div className="topic-card-indicator" style={{ backgroundColor: topic.accent }} />
-              <Icon size={15} className="topic-card-icon" style={{ color: isActive ? topic.accent : undefined }} />
+              <div className="topic-card-indicator" style={{ backgroundColor: '#92dcaa' }} />
+              <Filter size={15} className="topic-card-icon" style={{ color: '#92dcaa' }} />
               <div className="topic-card-text">
-                <span className="topic-en">{topic.titleEn.split(' & ')[0]}</span>
-                <small className="topic-vi">{topic.titleVi.split(' & ')[0]}</small>
+                <span className="topic-en">Tất cả chủ đề</span>
+                <small className="topic-vi">All 8 Topics</small>
               </div>
             </button>
-          )
-        })}
-      </div>
+          )}
+          {TOPICS.map(topic => {
+            const Icon = TOPIC_ICONS[topic.icon] || Layers
+            const isActive = selected === topic.id
+            return (
+              <button
+                key={topic.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                className={`topic-card-btn ${isActive ? 'active' : ''}`}
+                onClick={() => onSelect(topic.id)}
+              >
+                <div className="topic-card-indicator" style={{ backgroundColor: topic.accent }} />
+                <Icon size={15} className="topic-card-icon" style={{ color: isActive ? topic.accent : undefined }} />
+                <div className="topic-card-text">
+                  <span className="topic-en">{topic.titleEn.split(' & ')[0]}</span>
+                  <small className="topic-vi">{topic.titleVi.split(' & ')[0]}</small>
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
@@ -1083,7 +1098,7 @@ function Practice({
             </div>
             <span className="badge">{filteredPassages.length} bài luyện tập</span>
           </div>
-          <TopicBar selected={topicFilter} onSelect={setTopicFilter} showAll={true} />
+          <TopicBar selected={topicFilter} onSelect={setTopicFilter} showAll={true} collapsible />
           <div className="passage-chips">
             {filteredPassages.map(p => (
               <button
@@ -1466,7 +1481,7 @@ function SkillPractice({
       <section className="panel">
         <span className="eyebrow">{skill.toUpperCase()} · THEMATIC STUDY UNITS</span>
         <h2>Chọn chủ đề ôn tập ({skill})</h2>
-        <TopicBar selected={selectedTopicId} onSelect={id => id !== 'all' && setSelectedTopicId(id)} />
+        <TopicBar selected={selectedTopicId} onSelect={id => id !== 'all' && setSelectedTopicId(id)} collapsible />
         <TopicHeader topic={currentTopic} />
       </section>
 
@@ -1915,7 +1930,7 @@ function VocabularyHub({
       <section className="panel">
         <span className="eyebrow">IELTS VOCABULARY ACCELERATOR (THEMATIC STUDY)</span>
         <h2>Từ vựng IELTS theo 8 chủ đề chuẩn</h2>
-        <TopicBar selected={selectedTopicId} onSelect={id => id !== 'all' && setSelectedTopicId(id)} />
+        <TopicBar selected={selectedTopicId} onSelect={id => id !== 'all' && setSelectedTopicId(id)} collapsible />
         <TopicHeader
           topic={currentTopic}
           extraBadge={
@@ -2246,7 +2261,7 @@ function GrammarHub({
       <section className="panel">
         <span className="eyebrow">IELTS GRAMMAR MASTERY (THEMATIC STRUCTURES)</span>
         <h2>Ngữ pháp IELTS nâng cao theo từng chủ đề</h2>
-        <TopicBar selected={selectedTopicId} onSelect={id => id !== 'all' && setSelectedTopicId(id)} />
+        <TopicBar selected={selectedTopicId} onSelect={id => id !== 'all' && setSelectedTopicId(id)} collapsible />
         <TopicHeader topic={currentTopic} />
       </section>
 
