@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   BookOpen,
   CheckCircle2,
@@ -8,6 +8,8 @@ import {
   Compass,
   Home,
   ListChecks,
+  Menu,
+  X,
   Network,
   Palette,
   Quote,
@@ -33,7 +35,10 @@ import {
   HeartPulse,
   Briefcase,
   Building2,
-  Scale
+  Scale,
+  AlertTriangle,
+  Info,
+  CheckCircle
 } from 'lucide-react'
 import { passages } from './content'
 import {
@@ -126,7 +131,9 @@ export default function App() {
   const [store, setStore] = useState<Store>(loadStore)
   const [page, setPage] = useState<Page>('dashboard')
   const [retestTargets, setRetestTargets] = useState<ReadingOccurrenceTarget[]>([])
-  const [toast, setToast] = useState('')
+  const [toasts, setToasts] = useState<Array<{ id: string; message: string; type: 'success' | 'error' | 'info' | 'warning' }>>([])
+  const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void; onCancel?: () => void } | null>(null)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [headerNow, setHeaderNow] = useState(Date.now())
 
   useEffect(() => {
@@ -153,10 +160,19 @@ export default function App() {
     return () => document.removeEventListener('visibilitychange', pauseWhenHidden)
   }, [store])
 
-  const note = (message: string) => {
-    setToast(message)
-    setTimeout(() => setToast(''), 2400)
+  const addToast = useCallback((message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+    setToasts(prev => [...prev, { id, message, type }])
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 4000)
+  }, [])
+
+  const note = (message: string) => addToast(message, 'info')
+
+  const openConfirm = (title: string, message: string, onConfirm: () => void, onCancel?: () => void) => {
+    setConfirmDialog({ title, message, onConfirm, onCancel })
   }
+
+  const closeConfirm = () => setConfirmDialog(null)
 
   const go = (next: Page) => {
     setRetestTargets([])
@@ -177,6 +193,35 @@ export default function App() {
     ? Math.max(0, store.activeSession.accumulatedSeconds + (store.activeSession.paused ? 0 : (headerNow - new Date(store.activeSession.lastResumedAt).getTime()) / 1000))
     : 0
 
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement) return
+      if (confirmDialog && e.key === 'Escape') {
+        closeConfirm()
+        return
+      }
+      // Number keys 1-5 navigate to main pages
+      const pageMap: Record<string, Page> = {
+        '1': 'dashboard',
+        '2': 'practice',
+        '3': 'simulator',
+        '4': 'errors',
+        '5': 'record'
+      }
+      if (e.key in pageMap) {
+        e.preventDefault()
+        go(pageMap[e.key])
+      }
+      // '/' opens vocabulary (fast topic jump)
+      if (e.key === '/') {
+        e.preventDefault()
+        go('vocabulary')
+      }
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [confirmDialog, go, closeConfirm])
+
   return (
     <div className="app">
       <aside>
@@ -187,7 +232,10 @@ export default function App() {
             <small>PERSONALIZED LEARNING</small>
           </div>
         </div>
-        <nav aria-label="Main navigation">
+        <button className="mobile-menu-toggle" onClick={() => setMobileMenuOpen(true)} aria-label="Mở menu">
+          <Menu size={20} />
+        </button>
+        <nav aria-label="Main navigation" className={mobileMenuOpen ? 'nav-mobile-open' : 'nav-mobile-closed'}>
           {navGroups.map(group => (
             <div className="nav-group" key={group.label}>
               <span className="nav-group-label">{group.label}</span>
@@ -210,12 +258,20 @@ export default function App() {
             </div>
           ))}
         </nav>
+        {mobileMenuOpen && (
+          <button className="mobile-menu-close" onClick={() => setMobileMenuOpen(false)} aria-label="Đóng menu">
+            <X size={20} />
+          </button>
+        )}
         <div className="sidebar-note">
           <Target size={17} />
           <b>Bằng chứng trước kết luận.</b>
           <span>Dữ liệu học tập là minh chứng thực tế, không bịa điểm số.</span>
         </div>
       </aside>
+      {mobileMenuOpen && (
+        <div className="mobile-overlay" onClick={() => setMobileMenuOpen(false)} aria-hidden="true" />
+      )}
 
       <main>
         {store.recoveryState && (
@@ -356,18 +412,105 @@ export default function App() {
         {page === 'grammar' && <GrammarHub s={store} setS={setStore} note={note} />}
         {page === 'network' && <LearningNetwork />}
         {page === 'design' && <LearningDesign />}
-        {page === 'profile' && <Profile s={store} setS={setStore} note={note} />}
+        {page === 'profile' && <Profile s={store} setS={setStore} note={note} openConfirm={openConfirm} />}
       </main>
 
-      {toast && (
-        <div className="toast" role="status">
-          <CheckCircle2 size={18} />
-          {toast}
-        </div>
+      <ToastContainer toasts={toasts} onDismiss={id => setToasts(prev => prev.filter(t => t.id !== id))} />
+
+      {confirmDialog && (
+        <ConfirmDialog
+          {...confirmDialog}
+          onConfirm={() => {
+            confirmDialog.onConfirm()
+            closeConfirm()
+          }}
+          onCancel={() => {
+            confirmDialog.onCancel?.()
+            closeConfirm()
+          }}
+        />
       )}
+
     </div>
   )
 }
+
+/* ============================================================================
+ * UX COMPONENTS — Toast, ConfirmDialog, EmptyState, MobileMenu
+ * ============================================================================ */
+
+function ToastContainer({ toasts, onDismiss }: { toasts: Array<{ id: string; message: string; type: 'success' | 'error' | 'info' | 'warning' }>; onDismiss: (id: string) => void }) {
+  const typeIcons: Record<'success' | 'error' | 'warning' | 'info', any> = {
+    success: CheckCircle,
+    error: AlertTriangle,
+    warning: AlertTriangle,
+    info: Info
+  }
+  const typeColors: Record<'success' | 'error' | 'warning' | 'info', string> = {
+    success: '#0e7c5b',
+    error: '#c94f4f',
+    warning: '#b8860b',
+    info: '#4d94ff'
+  }
+  return (
+    <div className="toast-container">
+      {toasts.map(t => {
+        const Icon = typeIcons[t.type]
+        return (
+          <div
+            key={t.id}
+            className={`toast toast-${t.type}`}
+            role="alert"
+            aria-live="polite"
+            onClick={() => onDismiss(t.id)}
+          >
+            <Icon size={18} style={{ color: typeColors[t.type] }} />
+            <span>{t.message}</span>
+            <button className="toast-dismiss" onClick={() => onDismiss(t.id)} aria-label="Đóng thông báo">
+              <X size={14} />
+            </button>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function ConfirmDialog({ title, message, onConfirm, onCancel }: { title: string; message: string; onConfirm: () => void; onCancel?: () => void }) {
+  return (
+    <div className="modal-overlay" role="dialog" aria-modal="true" aria-label={title} onClick={onCancel}>
+      <div className="modal-panel" onClick={e => e.stopPropagation()}>
+        <div className="modal-header">
+          <AlertTriangle size={22} style={{ color: '#f4c878' }} />
+          <h3>{title}</h3>
+          {onCancel && <button className="modal-close" onClick={onCancel} aria-label="Đóng"><X size={20} /></button>}
+        </div>
+        <p className="modal-message">{message}</p>
+        <div className="modal-actions">
+          <button className="secondary" onClick={onCancel || onConfirm}>Hủy</button>
+          <button className="danger" onClick={onConfirm}>Xác nhận</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function EmptyState({ icon, title, message, actionLabel, onAction }: { icon: ReactNode; title: string; message: string; actionLabel?: string; onAction?: () => void }) {
+  return (
+    <section className="panel empty">
+      <div className="empty-icon">{icon}</div>
+      <h2>{title}</h2>
+      <p className="muted">{message}</p>
+      {actionLabel && onAction && (
+        <button className="primary" onClick={onAction}>
+          {actionLabel}
+        </button>
+      )}
+    </section>
+  )
+}
+
+/* ============================================================================ */
 
 /**
  * Shared Topic Navigation Bar (Inspired by ForumFlash #study)
@@ -2855,11 +2998,13 @@ function LearningDesign() {
 function Profile({
   s,
   setS,
-  note
+  note,
+  openConfirm
 }: {
   s: Store
   setS: (store: Store) => void
   note: (message: string) => void
+  openConfirm: (title: string, message: string, onConfirm: () => void, onCancel?: () => void) => void
 }) {
   const [profile, setLocalProfile] = useState<Profile>(s.profile)
 
@@ -2869,11 +3014,11 @@ function Profile({
   }
 
   const resetAll = () => {
-    if (confirm('Clear all learner attempts, errors, and history?')) {
+    openConfirm('Xóa toàn bộ dữ liệu học tập?', 'Hành động này sẽ xóa tất cả bài làm, lỗi, nhật ký và tiến độ. Không thể hoàn tác.', () => {
       const cleared = clearStore()
       setS(loadStore())
-      note(cleared ? 'All learner data reset.' : 'Warning: some learner-progress keys could not be removed.')
-    }
+      note(cleared ? 'Đã xóa toàn bộ dữ liệu học tập.' : 'Không thể xóa một số khóa dữ liệu.')
+    })
   }
 
   return (
