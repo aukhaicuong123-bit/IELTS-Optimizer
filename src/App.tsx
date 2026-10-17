@@ -1064,7 +1064,7 @@ function Heatmap({ s }: { s: Store }) {
   const key = (date: Date) =>
     `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   const today = new Date()
-  const [selected, setSelected] = useState(key(today))
+  const selected = key(today)
   const [month, setMonth] = useState(new Date(today.getFullYear(), today.getMonth(), 1))
   const selectedDate = new Date(`${selected}T12:00:00`)
   const minutes = map[selected] || 0
@@ -1124,17 +1124,14 @@ function Heatmap({ s }: { s: Store }) {
                 )
                 const dayCompleted = dayAttempts.length + daySubmissions.length
                 return (
-                  <button
+                  <div
                     key={dateKey}
                     aria-label={`${dateKey}: ${Math.round(value)} active minutes, ${dayCompleted} completed activities${rest ? ', planned rest day' : ''}`}
-                    className={`heat l${heatLevel(value, goal)} ${outside ? 'outside-month' : ''} ${rest ? 'rest-day' : ''} ${selected === dateKey ? 'selected-day' : ''}`}
-                    onClick={() => {
-                      setSelected(dateKey)
-                      if (outside) setMonth(new Date(date.getFullYear(), date.getMonth(), 1))
-                    }}
+                    title={`${dateKey}: ${Math.round(value)} active minutes`}
+                    className={`heat l${heatLevel(value, goal)} ${outside ? 'outside-month' : ''} ${rest ? 'rest-day' : ''}`}
                   >
                     {date.getDate()}
-                  </button>
+                  </div>
                 )
               })}
             </div>

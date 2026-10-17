@@ -53,12 +53,30 @@ describe('IELTS Optimizer learning domain', () => {
     expect(start.getDay()).toBe(0)
     expect(start.getHours()).toBe(0)
   })
-  it('maps practice intensity to a bounded heat level', () => {
+  it('maps goal-relative practice intensity to a bounded heat level', () => {
     expect(heatLevel(0, profile.dailyGoalMinutes!)).toBe(0)
     expect(heatLevel(30, profile.dailyGoalMinutes!)).toBe(5)
     expect(heatLevel(120, profile.dailyGoalMinutes!)).toBe(5)
     expect(heatLevel(7.5, profile.dailyGoalMinutes!)).toBe(1)
     expect(heatLevel(15, profile.dailyGoalMinutes!)).toBe(2)
+  })
+  it('uses deterministic minute buckets when no valid daily goal exists', () => {
+    expect(heatLevel(0, 0)).toBe(0)
+    expect(heatLevel(14.99, 0)).toBe(1)
+    expect(heatLevel(15, 0)).toBe(2)
+    expect(heatLevel(30, Number.NaN)).toBe(3)
+    expect(heatLevel(60, -10)).toBe(4)
+    expect(heatLevel(90, 0)).toBe(5)
+  })
+  it('never decreases intensity as measured minutes increase', () => {
+    for (const goal of [30, 0, Number.NaN]) {
+      let previous = heatLevel(0, goal)
+      for (const minutes of [1, 7.5, 14.99, 15, 29.99, 30, 59.99, 60, 89.99, 90, 180]) {
+        const current = heatLevel(minutes, goal)
+        expect(current).toBeGreaterThanOrEqual(previous)
+        previous = current
+      }
+    }
   })
   it('recommends open Error Memory before a generic activity', () => {
     const error = { id: 'e', questionId: 'q2', attemptId: 'a1', passageId: 'p', type: 'multiple-choice' as const, objective: 'detail', learnerAnswer: 'wrong', correctAnswer: 'right', explanation: 'x', createdAt: '2026-01-01T10:00:00Z', reviewCount: 0, retestAttemptIds: [] }
