@@ -2580,105 +2580,11 @@ function Record({
   setS: (store: Store) => void
   note: (message: string) => void
 }) {
-  const active = s.activeSession
-  const [now, setNow] = useState(Date.now())
-
-  useEffect(() => {
-    if (!active || active.paused) return
-    const timer = setInterval(() => setNow(Date.now()), 1000)
-    return () => clearInterval(timer)
-  }, [active])
-
-  const seconds = active
-    ? Math.max(0, active.accumulatedSeconds + (active.paused ? 0 : (now - new Date(active.lastResumedAt).getTime()) / 1000))
-    : 0
-
-  const start = () => {
-    const time = new Date().toISOString()
-    setNow(Date.now())
-    setS({
-      ...s,
-      activeSession: {
-        id: uid('session'),
-        startedAt: time,
-        lastResumedAt: time,
-        accumulatedSeconds: 0,
-        paused: false,
-        activeIntervals: []
-      }
-    })
-  }
-
-  const pause = () => {
-    if (!active) return
-    setS({
-      ...s,
-      activeSession: { ...snapshotActiveSession(active, new Date().toISOString()), paused: true }
-    })
-  }
-
-  const resume = () => {
-    if (active) {
-      setNow(Date.now())
-      setS({
-        ...s,
-        activeSession: { ...active, lastResumedAt: new Date().toISOString(), paused: false }
-      })
-    }
-  }
-
-  const stop = () => {
-    if (!active) return
-    const end = new Date().toISOString()
-    const completed = snapshotActiveSession(active, end)
-    const intervals = completed.activeIntervals || []
-    const measured = intervals.length
-      ? intervals.reduce((total, interval) => total + Math.max(0, Date.parse(interval.endedAt) - Date.parse(interval.startedAt)) / 1000, 0)
-      : completed.accumulatedSeconds
-    setS({
-      ...s,
-      activeSession: undefined,
-      sessions: [
-        ...s.sessions,
-        {
-          id: active.id,
-          startedAt: active.startedAt,
-          endedAt: end,
-          minutes: Math.max(0, Math.round(measured / 60)),
-          activeIntervals: intervals.length ? intervals : undefined,
-          activity: 'Timer session',
-          skill: 'Reading'
-        }
-      ]
-    })
-    note('Timer session saved as measured active intervals.')
-  }
-
   return (
     <section className="stack">
       <section className="panel">
-        <h2>{active ? (active.paused ? 'Timer paused' : 'Session in progress') : 'Learning Record'}</h2>
-        <p className="timer">
-          {Math.floor(seconds / 60).toString().padStart(2, '0')}:
-          {Math.floor(seconds % 60).toString().padStart(2, '0')}
-        </p>
-        {!active ? (
-          <button className="primary" onClick={start}>
-            Start timer
-          </button>
-        ) : (
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button className="secondary" onClick={active.paused ? resume : pause}>
-              {active.paused ? 'Resume' : 'Pause'}
-            </button>
-            <button className="danger" onClick={stop}>
-              Stop and save
-            </button>
-          </div>
-        )}
-        <p className="muted" style={{ marginTop: '12px' }}>
-          Paused intervals are excluded. Reopened sessions stay paused until you resume them.
-        </p>
+        <h2>Learning Record</h2>
+        <p className="muted">Lưu lại lịch sử các buổi học tập đã thực hiện.</p>
       </section>
       <section className="panel">
         <b>{Math.round(s.sessions.reduce((total, item) => total + measuredMinutes(item), 0))} measured minutes</b>
