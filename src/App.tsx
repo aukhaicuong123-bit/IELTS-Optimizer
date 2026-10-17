@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   BookOpen,
-  CalendarDays,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
@@ -57,7 +56,6 @@ import type {
   ErrorRecord,
   Page,
   Passage,
-  PlanItem,
   Profile,
   Question,
   ReadingOccurrenceTarget,
@@ -109,72 +107,6 @@ const navGroups: { label: string; items: NavItem[] }[] = [
 
 const nav = navGroups.flatMap(group => group.items)
 
-type RoadmapStep = { phase: string; title: string; outcome: string; activities: string[]; test: string }
-const ROADMAPS: Record<Skill, RoadmapStep[]> = {
-  Reading: [
-    { phase: '01 · Chẩn đoán', title: 'Đọc hiểu và định vị thông tin', outcome: 'Xác định main idea, keywords và paraphrase trong văn bản học thuật.', activities: ['Skim 3 đoạn văn theo tiêu đề', 'Scan tên riêng, số liệu và mốc thời gian', 'Ghi lại paraphrase gây nhiễu'], test: 'Mini test: matching headings + True/False/Not Given' },
-    { phase: '02 · Xây chiến thuật', title: 'Làm chủ dạng câu hỏi', outcome: 'Chọn chiến thuật theo dạng bài thay vì đoán đáp án.', activities: ['Matching information', 'Sentence endings và summary completion', 'Table/flow-chart completion'], test: 'Mixed set 20 câu, giới hạn 25 phút' },
-    { phase: '03 · Chuyển giao', title: 'Timed passage và retest', outcome: 'Duy trì độ chính xác khi tăng độ khó và áp lực thời gian.', activities: ['Passage mới cùng objective', 'Error Memory theo từng occurrence', 'Retest một lỗi duy nhất bằng nội dung tương đương'], test: 'Full Reading simulation 60 phút' }
-  ],
-  Listening: [
-    { phase: '01 · Chẩn đoán', title: 'Nghe ý chính và dự đoán', outcome: 'Dự đoán loại từ, bối cảnh và distractor trước khi nghe.', activities: ['Form/note completion', 'Nghe số, tên riêng, spelling', 'Shadowing câu ngắn'], test: 'Part 1–2: form completion + map labelling' },
-    { phase: '02 · Phân biệt thông tin', title: 'Paraphrase và distractors', outcome: 'Theo dõi chuyển ý, sửa đáp án và nhận diện cách diễn đạt khác.', activities: ['Multiple choice', 'Matching speakers/opinions', 'Table và flow-chart completion'], test: 'Part 3: 15 câu nghe một lần' },
-    { phase: '03 · Tốc độ thi', title: 'Bốn part liên tục', outcome: 'Giữ tập trung, ghi chú có chọn lọc và tự kiểm transcript.', activities: ['Part 4 academic lecture', 'Accent rotation', 'Review transcript theo lỗi'], test: 'Full Listening simulation 30 phút' }
-  ],
-  Writing: [
-    { phase: '01 · Chẩn đoán', title: 'Task response và cấu trúc', outcome: 'Trả lời đủ đề, lập thesis và bố cục đoạn rõ ràng.', activities: ['Phân tích đề opinion/discussion/problem', 'Lập outline 5 phút', 'Viết topic sentence'], test: 'One-paragraph response + self checklist' },
-    { phase: '02 · Phát triển band', title: 'Coherence, vocabulary, grammar', outcome: 'Phát triển ý bằng nguyên nhân, ví dụ và hệ quả; tránh học thuộc.', activities: ['Task 1 overview và grouping data', 'Task 2 argument/counterargument', 'Sửa lỗi câu phức và collocation'], test: 'Task 1 hoặc Task 2 timed draft' },
-    { phase: '03 · Chuẩn hoá', title: 'Feedback và timed writing', outcome: 'Hoàn thành đúng thời lượng và tự sửa theo 4 tiêu chí chấm.', activities: ['Rewrite sau feedback', 'So sánh model answer hợp pháp', 'Kiểm tra word count và lỗi lặp'], test: 'Academic Writing 60 phút: Task 1 + Task 2' }
-  ],
-  Speaking: [
-    { phase: '01 · Chẩn đoán', title: 'Fluency và phát âm', outcome: 'Trả lời tự nhiên, rõ ý và không phụ thuộc script.', activities: ['Part 1: personal topics', 'Chunking và intonation', 'Ghi âm 60 giây rồi tự nghe lại'], test: 'Part 1 rotation: 10 câu, không chuẩn bị' },
-    { phase: '02 · Mở rộng ý', title: 'Cue card và follow-up', outcome: 'Nói đủ 2 phút với ví dụ, chi tiết và liên kết mạch lạc.', activities: ['Part 2: 1 phút chuẩn bị', 'Story spine: who/what/why/result', 'Part 3: compare, evaluate, speculate'], test: 'Cue card recording + 4 câu follow-up' },
-    { phase: '03 · Mô phỏng', title: 'Mock interview', outcome: 'Duy trì độ chính xác và tương tác dưới áp lực thi.', activities: ['Random topic draw', 'Pronunciation repair list', 'So sánh bản ghi trước/sau'], test: 'Speaking mock 11–14 phút' }
-  ],
-  Vocabulary: [
-    { phase: '01 · Nền tảng', title: 'Lexical chunks theo chủ đề', outcome: 'Nhớ collocation và word family trong ngữ cảnh, không học từ rời.', activities: ['Flashcard hai chiều', 'Pronunciation + word family', 'Tự đặt câu theo topic'], test: 'Recall quiz: nghĩa, collocation, dùng câu' },
-    { phase: '02 · Sử dụng', title: 'Paraphrase và register', outcome: 'Chọn từ chính xác theo sắc thái Academic/Formal và tránh lặp.', activities: ['Synonym ladder', 'Cloze passage', 'Paraphrase câu Reading/Writing'], test: 'Mixed quiz 20 câu + short production' },
-    { phase: '03 · Ghi nhớ dài hạn', title: 'Spaced review và transfer', outcome: 'Đưa từ đã học vào bài nói/viết và theo dõi từ hay quên.', activities: ['Review 1–3–7–14 ngày', 'Error Memory theo topic', 'Dùng 5 chunks trong một response'], test: 'Cumulative vocabulary checkpoint' }
-  ],
-  Grammar: [
-    { phase: '01 · Chẩn đoán', title: 'Accuracy nền tảng', outcome: 'Nhận diện lỗi ảnh hưởng band: subject–verb, articles, tense, agreement.', activities: ['Error correction', 'Sentence combining', 'Mini dictation'], test: 'Diagnostic 25 câu theo lỗi' },
-    { phase: '02 · Kiểm soát câu phức', title: 'Complexity có kiểm soát', outcome: 'Dùng relative clauses, conditionals và concessive clauses đúng mục đích.', activities: ['Rewrite simple → complex', 'Contrast/causal connectors', 'Grammar in context'], test: 'Editing passage + 8 câu production' },
-    { phase: '03 · Transfer', title: 'Grammar trong bài thi', outcome: 'Giữ accuracy khi viết/nói thật, không nhồi cấu trúc rủi ro.', activities: ['Sửa một đoạn Writing', 'Speaking reformulation', 'Personal error log'], test: 'Timed response + targeted recheck sau 7 ngày' }
-  ]
-}
-
-const DAILY_CYCLES: Record<Skill, string[]> = {
-  Reading: ['Ngày 1 · Skim + main idea (25 phút)', 'Ngày 2 · Matching headings/information (35 phút)', 'Ngày 3 · T/F/NG + evidence log (35 phút)', 'Ngày 4 · Completion + paraphrase (40 phút)', 'Ngày 5 · Passage timed (20 phút)', 'Ngày 6 · Chữa lỗi và retest occurrence (30 phút)', 'Ngày 7 · Full Reading mock: 3 passages/60 phút'],
-  Listening: ['Ngày 1 · Part 1 form completion (20 phút)', 'Ngày 2 · Part 2 map/matching (25 phút)', 'Ngày 3 · Part 3 multiple choice (30 phút)', 'Ngày 4 · Part 4 lecture/note completion (30 phút)', 'Ngày 5 · Dictation + shadowing (20 phút)', 'Ngày 6 · Transcript error review (25 phút)', 'Ngày 7 · Full Listening mock: 4 parts/30 phút'],
-  Writing: ['Ngày 1 · Phân tích đề + thesis (25 phút)', 'Ngày 2 · Task 1 overview + grouping (35 phút)', 'Ngày 3 · Task 2 body paragraph (40 phút)', 'Ngày 4 · Cohesion + grammar editing (30 phút)', 'Ngày 5 · Task 1 timed: 20 phút', 'Ngày 6 · Task 2 timed: 40 phút', 'Ngày 7 · Full Writing mock: Task 1 + Task 2/60 phút'],
-  Speaking: ['Ngày 1 · Part 1 fluency recording (15 phút)', 'Ngày 2 · Pronunciation: chunking + stress (20 phút)', 'Ngày 3 · Cue card: 1 phút chuẩn bị/2 phút nói', 'Ngày 4 · Part 3 compare/evaluate (25 phút)', 'Ngày 5 · Retell cùng ý bằng từ khác (20 phút)', 'Ngày 6 · Self-review theo 4 tiêu chí (20 phút)', 'Ngày 7 · Mock Speaking: Part 1–3/11–14 phút'],
-  Vocabulary: ['Ngày 1 · Học 8 lexical chunks theo topic (20 phút)', 'Ngày 2 · Recall hai chiều + pronunciation (20 phút)', 'Ngày 3 · Collocation cloze (25 phút)', 'Ngày 4 · Paraphrase 10 câu (25 phút)', 'Ngày 5 · Dùng chunks trong Writing/Speaking (30 phút)', 'Ngày 6 · Ôn từ sai theo spaced review (20 phút)', 'Ngày 7 · Cumulative quiz + production checkpoint (30 phút)'],
-  Grammar: ['Ngày 1 · Diagnostic: articles/agreement (25 phút)', 'Ngày 2 · Sentence combining (25 phút)', 'Ngày 3 · Relative/conditional clauses (30 phút)', 'Ngày 4 · Contrast/causal connectors (25 phút)', 'Ngày 5 · Edit một đoạn Writing (30 phút)', 'Ngày 6 · Speaking reformulation (20 phút)', 'Ngày 7 · Grammar checkpoint: editing + production/35 phút']
-}
-
-function SkillRoadmap({ skill }: { skill: Skill }) {
-  const steps = ROADMAPS[skill]
-  return (
-    <section className="panel roadmap-panel">
-      <div className="panel-title">
-        <h3>Lộ trình học {skill}</h3>
-      </div>
-      <div className="roadmap-grid">
-        {steps.map(step => (
-          <article className="roadmap-step" key={step.phase}>
-            <span className="badge">{step.phase}</span><h3>{step.title}</h3><p className="muted">{step.outcome}</p>
-            <ul>{step.activities.map(activity => <li key={activity}>{activity}</li>)}</ul>
-            <div className="callout"><b>Checkpoint:</b> {step.test}</div>
-          </article>
-        ))}
-      </div>
-      <div className="daily-plan-block">
-        <div className="panel-title"><h3>Lịch học 7 ngày</h3></div>
-        <div className="daily-plan-grid">{DAILY_CYCLES[skill].map((day, index) => <div className={`daily-plan-day ${index === 6 ? 'mock-day' : ''}`} key={day}><b>D{index + 1}</b><span>{day.split(' · ')[1]}</span></div>)}</div>
-      </div>
-    </section>
-  )
-}
 const uid = (prefix: string) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
 const stableOccurrenceId = (errorId: string, occurrenceId: string) => `reading:occurrence:${errorId}:${occurrenceId}`
 
@@ -416,7 +348,7 @@ export default function App() {
         {page === 'practice' && <Practice s={store} setS={setStore} note={note} targets={retestTargets} />}
         {page === 'simulator' && <IELTSSimulation s={store} setS={setStore} note={note} />}
         {page === 'errors' && <Errors s={store} setS={setStore} openRetest={openRetest} note={note} go={setPage} />}
-        {page === 'record' && <Record s={store} setS={setStore} note={note} />}
+        {page === 'record' && <Record s={store} />}
         {page === 'listening' && <SkillPractice s={store} setS={setStore} note={note} skill="Listening" />}
         {page === 'writing' && <SkillPractice s={store} setS={setStore} note={note} skill="Writing" />}
         {page === 'speaking' && <SkillPractice s={store} setS={setStore} note={note} skill="Speaking" />}
@@ -566,9 +498,8 @@ function DailyDrillHeader({ title, subtitle }: { title: string; subtitle: string
   )
 }
 
-function DailyReadingDrill({ note }: { note: (msg: string) => void }) {
-  const today = dayOfYear()
-  const drills = dailySelection(READING_DRILLS, 2, today)
+function DailyReadingDrill() {
+  const drills = dailySelection(READING_DRILLS, 1, dayOfYear())
   const drill = drills[0]
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [showResult, setShowResult] = useState(false)
@@ -713,7 +644,7 @@ function DailySpeakingDrill() {
   )
 }
 
-function DailyGrammarDrill({ note }: { note: (msg: string) => void }) {
+function DailyGrammarDrill() {
   const drills = dailySelection(GRAMMAR_DRILLS, 3, dayOfYear())
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [showResult, setShowResult] = useState(false)
@@ -729,7 +660,7 @@ function DailyGrammarDrill({ note }: { note: (msg: string) => void }) {
             <p style={{ fontWeight: 600, marginBottom: 6 }}>
               {di + 1}. {parts[0]}
               <span style={{ color: 'var(--accent)', borderBottom: '2px solid var(--accent)', padding: '0 16px' }}>{answers[drill.id] || '____'}</span>
-              {parts[1]}
+              {parts[1] || ''}
             </p>
             <span className="badge">{drill.category} · {drill.level}</span>
             <div className="quiz-options" style={{ marginTop: 8 }}>
@@ -762,7 +693,7 @@ function DailyGrammarDrill({ note }: { note: (msg: string) => void }) {
   )
 }
 
-function DailyVocabDrill({ note }: { note: (msg: string) => void }) {
+function DailyVocabDrill() {
   const drills = dailySelection(VOCAB_DRILLS, 4, dayOfYear())
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [showResult, setShowResult] = useState(false)
@@ -1459,17 +1390,34 @@ function Practice({
         </section>
       </div>
 
-      {!isRetestMode && <DailyReadingDrill note={note} />}
+      {!isRetestMode && <DailyReadingDrill />}
     </section>
   )
 }
 
 type SimulationSkill = 'Listening' | 'Reading' | 'Writing' | 'Speaking'
-type SimulationQuestion = { id: string; prompt: string; options: string[]; answer: string; explanation: string }
+type SimulationQuestion = { id: string; prompt: string; options: string[]; answer: string; explanation: string; audioText?: string }
 
 const SIMULATION_QUESTIONS: Record<'Listening' | 'Reading', SimulationQuestion[]> = {
-  Listening: TOPICS[0].listening.questions.map(q => ({ id: q.id, prompt: q.prompt, options: q.options, answer: q.answer, explanation: q.explanation })),
-  Reading: passages[0].questions.map(q => ({ id: q.id, prompt: q.prompt, options: q.options, answer: q.answer, explanation: q.explanation }))
+  Listening: TOPICS.flatMap((topic) =>
+    topic.listening.questions.map((q) => ({
+      id: `${topic.id}-${q.id}`,
+      prompt: q.prompt,
+      options: q.options,
+      answer: q.answer,
+      explanation: q.explanation,
+      audioText: topic.listening.audioText,
+    }))
+  ),
+  Reading: passages.flatMap((passage) =>
+    passage.questions.map((q) => ({
+      id: `${passage.id}-${q.id}`,
+      prompt: q.prompt,
+      options: q.options,
+      answer: q.answer,
+      explanation: q.explanation,
+    }))
+  ),
 }
 
 function IELTSSimulation({ s, setS, note }: { s: Store; setS: (store: Store) => void; note: (message: string) => void }) {
@@ -1500,7 +1448,15 @@ function IELTSSimulation({ s, setS, note }: { s: Store; setS: (store: Store) => 
     setS({ ...s, submissions: [...(s.submissions || []), { id: uid('submission'), skill, activityId: `simulation-${skill.toLowerCase()}`, response: response || evidence, createdAt: now, feedbackMode: skill === 'Listening' ? 'transcript-fallback' : 'self-review', completed: true }] })
     note('Simulation đã được lưu vào Learning Record.')
   }
-  const playAudio = () => { if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(TOPICS[0].listening.audioText); u.lang = 'en-US'; window.speechSynthesis.speak(u) } }
+  const playAudio = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel()
+      const audioText = SIMULATION_QUESTIONS.Listening[0]?.audioText ?? TOPICS[0].listening.audioText
+      const u = new SpeechSynthesisUtterance(audioText)
+      u.lang = 'en-US'
+      window.speechSynthesis.speak(u)
+    }
+  }
   const minutes = Math.floor(seconds / 60).toString().padStart(2, '0')
   const secs = (seconds % 60).toString().padStart(2, '0')
 
@@ -1511,7 +1467,7 @@ function IELTSSimulation({ s, setS, note }: { s: Store; setS: (store: Store) => 
       <div className="study-modes">{(['Listening', 'Reading', 'Writing', 'Speaking'] as SimulationSkill[]).map(item => <button key={item} className={`mode-tab ${skill === item ? 'active' : ''}`} onClick={() => selectSkill(item)}>{item}</button>)}</div>
     </section>
     {!started ? <section className="panel simulator-start">
-      <div className="simulator-spec"><b>{skill}</b><span>{skill === 'Listening' ? '4 parts · 40 questions · 30 minutes' : skill === 'Reading' ? '3 passages · 40 questions · 60 minutes' : skill === 'Writing' ? 'Task 1 + Task 2 · 60 minutes' : 'Part 1 + Part 2 + Part 3 · 11–14 minutes'}</span></div>
+      <div className="simulator-spec"><b>{skill}</b><span>{skill === 'Listening' ? '4 parts · 24 questions · 30 minutes' : skill === 'Reading' ? `4 passages · ${SIMULATION_QUESTIONS.Reading.length} questions · 60 minutes` : skill === 'Writing' ? 'Task 1 + Task 2 · 60 minutes' : 'Part 1 + Part 2 + Part 3 · 11–14 minutes'}</span></div>
       <p className="muted">Bản demo hiện dùng một module nội bộ có media và câu hỏi thật trong app. Các module tiếp theo sẽ nối vào cùng test runner này.</p><button className="primary" onClick={start}>Bắt đầu simulation</button>
     </section> : <section className="panel simulator-shell">
       <div className="simulator-toolbar"><span className="badge">{skill} · {submitted ? 'Review' : 'In progress'}</span><strong className={seconds < 60 ? 'status' : ''}>⏱ {minutes}:{secs}</strong>{!submitted && <button className="danger" onClick={submit}>Nộp bài</button>}</div>
@@ -2486,7 +2442,7 @@ function VocabularyHub({
         />
       )}
 
-      <DailyVocabDrill note={note} />
+      <DailyVocabDrill />
     </section>
   )
 }
@@ -2599,7 +2555,7 @@ function GrammarHub({
         ))}
       </div>
 
-      <DailyGrammarDrill note={note} />
+      <DailyGrammarDrill />
     </section>
   )
 }
@@ -2763,87 +2719,10 @@ function Errors({
   )
 }
 
-function Plan({
-  s,
-  setS,
-  note
-}: {
-  s: Store
-  setS: (store: Store) => void
-  note: (message: string) => void
-}) {
-  const projection = deriveReadingStates(s.errors, s.attempts, passages)
-  const suggestion = recommendations(s.profile, s.attempts, s.errors, s.plan, projection.statesByDifficulty)
-
-  const add = (source: 'manual' | 'recommended') => {
-    const date = localDate(new Date().toISOString())
-    if (s.profile.daysOff.includes(date)) return note('Today is a planned rest day. Choose another date in Profile.')
-    const error = s.errors.find(item => projection.statesByDifficulty[readingDifficultyId(item)]?.status === 'open')
-    const item: PlanItem = {
-      id: uid('plan'),
-      date,
-      title: source === 'recommended' ? suggestion.title : 'Reading accuracy practice',
-      skill: source === 'recommended' ? s.profile.priority : 'Reading',
-      objective: error?.objective || 'Build learning evidence',
-      minutes: s.profile.dailyGoalMinutes || 30,
-      status: 'planned',
-      source,
-      reason: source === 'recommended' ? suggestion.reason : 'Added manually.'
-    }
-    setS({ ...s, plan: [...s.plan, item] })
-    note('Study plan updated.')
-  }
-
-  return (
-    <section className="stack">
-      <section className="panel">
-        <h2>Study Plan</h2>
-        <p className="muted">Priority, goal, open errors and planned rest days shape suggestions.</p>
-        <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
-          <button className="primary" onClick={() => add('recommended')}>
-            + Add recommendation
-          </button>
-          <button className="secondary" onClick={() => add('manual')}>
-            Add manual
-          </button>
-        </div>
-      </section>
-      {s.plan.map(item => (
-        <section className="panel plan-row" key={item.id}>
-          <div>
-            <span>{item.source === 'recommended' ? 'Recommended' : 'Manual'} · {item.date}</span>
-            <h3>{item.title}</h3>
-            <small>{item.skill} · {item.minutes} min · {item.reason}</small>
-          </div>
-          <select
-            value={item.status}
-            onChange={event =>
-              setS({
-                ...s,
-                plan: s.plan.map(current =>
-                  current.id === item.id ? { ...current, status: event.target.value as PlanItem['status'] } : current
-                )
-              })
-            }
-          >
-            <option value="planned">Planned</option>
-            <option value="done">Done</option>
-            <option value="skipped">Skipped</option>
-          </select>
-        </section>
-      ))}
-    </section>
-  )
-}
-
 function Record({
-  s,
-  setS,
-  note
+  s
 }: {
   s: Store
-  setS: (store: Store) => void
-  note: (message: string) => void
 }) {
   return (
     <section className="stack">
