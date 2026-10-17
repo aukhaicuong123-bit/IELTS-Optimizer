@@ -1954,8 +1954,6 @@ function VocabularyHub({
         </div>
       </section>
 
-      <SkillRoadmap skill="Vocabulary" />
-
       {/* MODE 1: FLASHCARD (Inspired by ForumFlash) */}
       {mode === 'flashcard' && currentWord && (
         <div className="flashcard-stage">
@@ -2251,8 +2249,6 @@ function GrammarHub({
         <TopicBar selected={selectedTopicId} onSelect={id => id !== 'all' && setSelectedTopicId(id)} />
         <TopicHeader topic={currentTopic} />
       </section>
-
-      <SkillRoadmap skill="Grammar" />
 
       <div className="grammar-grid">
         {currentTopic.grammar.map(rule => (
