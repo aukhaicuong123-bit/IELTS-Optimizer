@@ -25,3 +25,5 @@ export type OccurrenceStatus = 'open' | 'resolved' | 'insufficient-evidence'
 export type ErrorOccurrenceState = { occurrenceId: string; status: OccurrenceStatus; evidenceIds: string[]; latestReliableEvidenceId?: string }
 export type DifficultyStatus = OccurrenceStatus
 export type CurrentDifficultyState = { difficultyId: string; status: DifficultyStatus; occurrences: ErrorOccurrenceState[]; latestReliableEvidenceId?: string; chronology: 'reliable' | 'ambiguous' | 'insufficient'; durableMastery: 'not-demonstrated' }
+
+export * from './questionBankTypes'
