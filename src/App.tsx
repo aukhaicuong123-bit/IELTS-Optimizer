@@ -1470,8 +1470,6 @@ function SkillPractice({
         <TopicHeader topic={currentTopic} />
       </section>
 
-      <SkillRoadmap skill={skill} />
-
       {/* LISTENING SPECIFIC VIEW */}
       {skill === 'Listening' && (
         <section className="panel">
