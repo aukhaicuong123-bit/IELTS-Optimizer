@@ -50,6 +50,7 @@ import {
 import { deriveReadingStates, readingDifficultyId, targetFor } from './readingEngine'
 import { clearStore, loadStore } from './storage'
 import { TOPICS, type TopicId, type TopicDefinition, type VocabItem, type GrammarRule } from './topicData'
+import { READING_DRILLS, LISTENING_DRILLS, WRITING_DRILLS, SPEAKING_DRILLS, GRAMMAR_DRILLS, VOCAB_DRILLS, dailySelection, dayOfYear, type ReadingDrill, type ListeningDrill, type WritingDrill, type SpeakingDrill, type GrammarDrill, type VocabDrill } from './practiceBank'
 import type {
   ActiveSession,
   Attempt,
@@ -546,6 +547,260 @@ function TopicHeader({ topic, extraBadge }: { topic: TopicDefinition; extraBadge
         {extraBadge}
       </div>
     </div>
+  )
+}
+
+/* ============================================================================
+ * DAILY DRILL — rotating practice exercises for every skill
+ * ========================================================================== */
+
+function DailyDrillHeader({ title, subtitle }: { title: string; subtitle: string }) {
+  return (
+    <div className="panel-title" style={{ marginBottom: '14px' }}>
+      <div>
+        <span className="eyebrow">BÀI TẬP HẰNG NGÀY · {subtitle.toUpperCase()}</span>
+        <h3>{title}</h3>
+      </div>
+      <span className="badge">{new Date().toLocaleDateString('vi-VN')}</span>
+    </div>
+  )
+}
+
+function DailyReadingDrill({ note }: { note: (msg: string) => void }) {
+  const today = dayOfYear()
+  const drills = dailySelection(READING_DRILLS, 2, today)
+  const drill = drills[0]
+  const [answers, setAnswers] = useState<Record<string, string>>({})
+  const [showResult, setShowResult] = useState(false)
+  if (!drill) return null
+  const answered = Object.keys(answers).length === drill.questions.length
+  const correct = drill.questions.filter(q => answers[q.id] === q.answer).length
+  return (
+    <section className="panel" style={{ marginTop: 20 }}>
+      <DailyDrillHeader title={drill.title} subtitle={`Reading · ${drill.level} · ${drill.minutes} phút`} />
+      <p style={{ whiteSpace: 'pre-line', fontSize: 14, lineHeight: 1.8, color: '#c5d3ca' }}>{drill.text}</p>
+      {drill.questions.map((q, qi) => (
+        <div key={q.id} style={{ margin: '16px 0' }}>
+          <p style={{ fontWeight: 600, marginBottom: 8 }}>{qi + 1}. {q.prompt}</p>
+          <div className="quiz-options">
+            {q.options.map(opt => {
+              let cls = ''
+              if (showResult) {
+                if (opt === q.answer) cls = 'correct'
+                else if (answers[q.id] === opt) cls = 'wrong'
+              }
+              return (
+                <button key={opt} className={`quiz-opt-btn ${cls}`} disabled={showResult} onClick={() => setAnswers(prev => ({ ...prev, [q.id]: opt }))}>
+                  <span>{opt}</span>
+                  {showResult && opt === q.answer && <span>✓</span>}
+                </button>
+              )
+            })}
+          </div>
+          {showResult && <p className="feedback-line muted" style={{ marginTop: 6 }}>{q.explanation}</p>}
+        </div>
+      ))}
+      {!showResult ? (
+        <button className="primary" disabled={!answered} onClick={() => setShowResult(true)}>Kiểm tra đáp án</button>
+      ) : (
+        <div className="panel" style={{ background: '#14221b', textAlign: 'center' }}>
+          <b>{correct}/{drill.questions.length} câu đúng</b>
+          <p className="muted" style={{ margin: '6px 0 0' }}>{correct === drill.questions.length ? 'Xuất sắc!' : 'Ôn lại phần explanation ở trên nhé.'}</p>
+        </div>
+      )}
+    </section>
+  )
+}
+
+function DailyListeningDrill({ note }: { note: (msg: string) => void }) {
+  const drills = dailySelection(LISTENING_DRILLS, 1, dayOfYear())
+  const drill = drills[0]
+  const [answers, setAnswers] = useState<Record<string, string>>({})
+  const [showResult, setShowResult] = useState(false)
+  if (!drill) return null
+  const answered = Object.keys(answers).length === drill.questions.length
+  const correct = drill.questions.filter(q => answers[q.id] === q.answer).length
+  const speak = () => {
+    if (!('speechSynthesis' in window)) return note('Trình duyệt không hỗ trợ phát âm.')
+    window.speechSynthesis.cancel()
+    const u = new SpeechSynthesisUtterance(drill.audioText)
+    u.lang = 'en-US'
+    u.rate = 0.92
+    window.speechSynthesis.speak(u)
+  }
+  return (
+    <section className="panel" style={{ marginTop: 20 }}>
+      <DailyDrillHeader title={drill.title} subtitle={`Listening · ${drill.level} · ${drill.minutes} phút`} />
+      <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+        <button className="primary" onClick={speak}>▶ Nghe đoạn hội thoại</button>
+        <button className="secondary" onClick={() => window.speechSynthesis?.pause()}>⏸ Tạm dừng</button>
+        <button className="secondary" onClick={() => window.speechSynthesis?.resume()}>▶ Tiếp tục</button>
+      </div>
+      <p className="muted" style={{ fontSize: 12, marginBottom: 12 }}>💡 Nghe trước khi trả lời. Nếu chưa nghe rõ, bấm nghe lại.</p>
+      {drill.questions.map((q, qi) => (
+        <div key={q.id} style={{ margin: '14px 0' }}>
+          <p style={{ fontWeight: 600, marginBottom: 8 }}>{qi + 1}. {q.prompt}</p>
+          <div className="quiz-options">
+            {q.options.map(opt => {
+              let cls = ''
+              if (showResult) {
+                if (opt === q.answer) cls = 'correct'
+                else if (answers[q.id] === opt) cls = 'wrong'
+              }
+              return (
+                <button key={opt} className={`quiz-opt-btn ${cls}`} disabled={showResult} onClick={() => setAnswers(prev => ({ ...prev, [q.id]: opt }))}>
+                  <span>{opt}</span>
+                  {showResult && opt === q.answer && <span>✓</span>}
+                </button>
+              )
+            })}
+          </div>
+          {showResult && <p className="feedback-line muted" style={{ marginTop: 6 }}>{q.explanation}</p>}
+        </div>
+      ))}
+      {!showResult ? (
+        <button className="primary" disabled={!answered} onClick={() => setShowResult(true)}>Kiểm tra đáp án</button>
+      ) : (
+        <div className="panel" style={{ background: '#14221b', textAlign: 'center' }}>
+          <b>{correct}/{drill.questions.length} câu đúng</b>
+        </div>
+      )}
+    </section>
+  )
+}
+
+function DailyWritingDrill() {
+  const drills = dailySelection(WRITING_DRILLS, 1, dayOfYear())
+  const drill = drills[0]
+  if (!drill) return null
+  return (
+    <section className="panel" style={{ marginTop: 20 }}>
+      <DailyDrillHeader title={drill.title} subtitle={`Writing ${drill.task} · ${drill.minutes} phút`} />
+      <div className="callout" style={{ marginBottom: 14 }}>{drill.prompt}</div>
+      <h4 style={{ margin: '10px 0 6px', color: 'var(--mint)' }}>Cấu trúc đề xuất</h4>
+      <ul style={{ color: '#c5d3ca', fontSize: 13, lineHeight: 1.8, paddingLeft: 18 }}>
+        {drill.structure.map((s, i) => <li key={i}>{s}</li>)}
+      </ul>
+      <h4 style={{ margin: '10px 0 6px', color: 'var(--mint)' }}>Cụm từ hay dùng</h4>
+      <div className="lexicon-chip-cloud">
+        {drill.keyPhrases.map((p, i) => <span key={i} className="card-colloc-tag">+ {p}</span>)}
+      </div>
+      <h4 style={{ margin: '10px 0 6px', color: 'var(--accent)' }}>Lỗi thường gặp</h4>
+      <ul style={{ color: '#ffb2a6', fontSize: 13, lineHeight: 1.8, paddingLeft: 18 }}>
+        {drill.commonMistakes.map((m, i) => <li key={i}>{m}</li>)}
+      </ul>
+    </section>
+  )
+}
+
+function DailySpeakingDrill() {
+  const drills = dailySelection(SPEAKING_DRILLS, 1, dayOfYear())
+  const drill = drills[0]
+  if (!drill) return null
+  return (
+    <section className="panel" style={{ marginTop: 20 }}>
+      <DailyDrillHeader title={drill.topic} subtitle={`Speaking ${drill.part} · ${drill.minutes} phút`} />
+      <div style={{ display: 'grid', gap: 8, marginBottom: 14 }}>
+        {drill.questions.map((q, i) => (
+          <div key={i} className="callout" style={{ margin: 0 }}>{q}</div>
+        ))}
+      </div>
+      <h4 style={{ margin: '10px 0 6px', color: 'var(--mint)' }}>💡 Mẹo luyện tập</h4>
+      <ul style={{ color: '#c5d3ca', fontSize: 13, lineHeight: 1.8, paddingLeft: 18 }}>
+        {drill.tips.map((t, i) => <li key={i}>{t}</li>)}
+      </ul>
+    </section>
+  )
+}
+
+function DailyGrammarDrill({ note }: { note: (msg: string) => void }) {
+  const drills = dailySelection(GRAMMAR_DRILLS, 3, dayOfYear())
+  const [answers, setAnswers] = useState<Record<string, string>>({})
+  const [showResult, setShowResult] = useState(false)
+  const answered = drills.every(d => answers[d.id])
+  const correct = drills.filter(d => answers[d.id] === d.answer).length
+  return (
+    <section className="panel" style={{ marginTop: 20 }}>
+      <DailyDrillHeader title="Bài tập ngữ pháp hôm nay" subtitle="Grammar · 3 câu" />
+      {drills.map((drill, di) => {
+        const parts = drill.sentence.split('____')
+        return (
+          <div key={drill.id} style={{ margin: '16px 0' }}>
+            <p style={{ fontWeight: 600, marginBottom: 6 }}>
+              {di + 1}. {parts[0]}
+              <span style={{ color: 'var(--accent)', borderBottom: '2px solid var(--accent)', padding: '0 16px' }}>{answers[drill.id] || '____'}</span>
+              {parts[1]}
+            </p>
+            <span className="badge">{drill.category} · {drill.level}</span>
+            <div className="quiz-options" style={{ marginTop: 8 }}>
+              {drill.options.map(opt => {
+                let cls = ''
+                if (showResult) {
+                  if (opt === drill.answer) cls = 'correct'
+                  else if (answers[drill.id] === opt) cls = 'wrong'
+                }
+                return (
+                  <button key={opt} className={`quiz-opt-btn ${cls}`} disabled={showResult} onClick={() => setAnswers(prev => ({ ...prev, [drill.id]: opt }))}>
+                    <span>{opt}</span>
+                    {showResult && opt === drill.answer && <span>✓</span>}
+                  </button>
+                )
+              })}
+            </div>
+            {showResult && <p className="feedback-line muted" style={{ marginTop: 4 }}>{drill.explanation}</p>}
+          </div>
+        )
+      })}
+      {!showResult ? (
+        <button className="primary" disabled={!answered} onClick={() => setShowResult(true)}>Kiểm tra đáp án</button>
+      ) : (
+        <div className="panel" style={{ background: '#14221b', textAlign: 'center' }}>
+          <b>{correct}/{drills.length} câu đúng</b>
+        </div>
+      )}
+    </section>
+  )
+}
+
+function DailyVocabDrill({ note }: { note: (msg: string) => void }) {
+  const drills = dailySelection(VOCAB_DRILLS, 4, dayOfYear())
+  const [answers, setAnswers] = useState<Record<string, string>>({})
+  const [showResult, setShowResult] = useState(false)
+  const answered = drills.every(d => answers[d.id])
+  const correct = drills.filter(d => answers[d.id] === d.answer).length
+  return (
+    <section className="panel" style={{ marginTop: 20 }}>
+      <DailyDrillHeader title="Từ vựng chuyên sâu hôm nay" subtitle="Vocabulary · 4 từ" />
+      {drills.map((drill, di) => (
+        <div key={drill.id} style={{ margin: '16px 0' }}>
+          <p style={{ fontWeight: 600, marginBottom: 4 }}>{di + 1}. {drill.prompt}</p>
+          <span className="badge">{drill.type}</span>
+          <div className="quiz-options" style={{ marginTop: 8 }}>
+            {drill.options.map(opt => {
+              let cls = ''
+              if (showResult) {
+                if (opt === drill.answer) cls = 'correct'
+                else if (answers[drill.id] === opt) cls = 'wrong'
+              }
+              return (
+                <button key={opt} className={`quiz-opt-btn ${cls}`} disabled={showResult} onClick={() => setAnswers(prev => ({ ...prev, [drill.id]: opt }))}>
+                  <span>{opt}</span>
+                  {showResult && opt === drill.answer && <span>✓</span>}
+                </button>
+              )
+            })}
+          </div>
+          {showResult && <p className="feedback-line muted" style={{ marginTop: 4 }}>{drill.note}</p>}
+        </div>
+      ))}
+      {!showResult ? (
+        <button className="primary" disabled={!answered} onClick={() => setShowResult(true)}>Kiểm tra đáp án</button>
+      ) : (
+        <div className="panel" style={{ background: '#14221b', textAlign: 'center' }}>
+          <b>{correct}/{drills.length} từ đúng</b>
+        </div>
+      )}
+    </section>
   )
 }
 
@@ -1203,6 +1458,8 @@ function Practice({
           )}
         </section>
       </div>
+
+      {!isRetestMode && <DailyReadingDrill note={note} />}
     </section>
   )
 }
@@ -1817,6 +2074,10 @@ function SkillPractice({
           <p className="muted">Chưa có bài lưu nào cho chủ đề này.</p>
         )}
       </section>
+
+      {skill === 'Listening' && <DailyListeningDrill note={note} />}
+      {skill === 'Writing' && <DailyWritingDrill />}
+      {skill === 'Speaking' && <DailySpeakingDrill />}
     </section>
   )
 }
@@ -2224,6 +2485,8 @@ function VocabularyHub({
           filter={selectedTopicId}
         />
       )}
+
+      <DailyVocabDrill note={note} />
     </section>
   )
 }
@@ -2335,6 +2598,8 @@ function GrammarHub({
           </div>
         ))}
       </div>
+
+      <DailyGrammarDrill note={note} />
     </section>
   )
 }
