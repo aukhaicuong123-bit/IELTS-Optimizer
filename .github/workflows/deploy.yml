@@ -24,7 +24,7 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: package-lock.json
-      - run: if [ -f package-lock.json ]; then npm ci; else npm install; fi
+      - run: npm ci || npm install
       - run: npm run test
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
