@@ -118,3 +118,134 @@ h1,h2,h3{font-family:Georgia,'Times New Roman',serif;color:#101a2d}
 @media(max-width:1100px){.dashboard-shell{grid-template-columns:1fr 1fr}.dashboard-hero{grid-column:1 / -1}.learner-profile-card{grid-column:2;grid-row:2 / span 2}.activity-card{grid-column:1;grid-row:2}.evidence-card{grid-column:1;grid-row:3}.timer-card{grid-column:2;grid-row:4}.dashboard-hero-copy{max-width:60%}}
 @media(max-width:760px){.app-dashboard aside{width:260px;min-width:260px}.dashboard-shell{display:flex;flex-direction:column}.dashboard-hero{min-height:330px}.dashboard-hero-copy{max-width:100%;padding:30px 24px}.dashboard-hero h2{font-size:30px}.dashboard-landscape{opacity:.62}.dashboard-main .dashboard-header h1{font-size:38px}.dashboard-subtitle{font-size:16px}.dashboard-date{display:none}.learner-profile-card,.activity-card,.evidence-card,.timer-card{width:100%}}
 .dashboard-recommendation-hidden{display:none}
+
+/* ===== WORKSPACE THEME SYNC — shared light system for every section ===== */
+.workspace-theme{--bg:#f8f7f2;--panel:#fffefa;--panel2:#f4f2eb;--line:#e5e3da;--muted:#65748a;--green:#075d52;--mint:#d7fb65;--accent:#d7a843;--red:#e97d78;color:#152337;background:#f8f7f2}
+.workspace-theme *{box-sizing:border-box}
+.workspace-theme h1,.workspace-theme h2,.workspace-theme h3{font-family:Georgia,'Times New Roman',serif;color:#101a2d}
+.workspace-theme h1{font-size:44px;letter-spacing:-.035em}
+.workspace-theme h2{font-size:26px;letter-spacing:-.025em}
+.workspace-theme h3{font-size:18px}
+.workspace-theme aside{background:#fffefa;border-right:1px solid #e7e4db;width:255px;min-width:255px;padding:27px 16px;color:#172236}
+.workspace-theme .brand{font-family:Georgia,'Times New Roman',serif;color:#101a2d;margin:0 12px 39px;font-size:20px;line-height:1.05}
+.workspace-theme .brand small{font-family:'DM Sans',sans-serif;color:#244f61;font-size:8px;letter-spacing:.13em}
+.workspace-theme .brand-mark{flex:0 0 43px}
+.workspace-theme .nav-group{gap:3px}
+.workspace-theme .nav-group+.nav-group{margin-top:18px}
+.workspace-theme .nav-group-label{color:#425978;font-size:11px;letter-spacing:.13em;padding:0 10px 7px}
+.workspace-theme nav{gap:3px}
+.workspace-theme nav button{color:#172236;background:transparent;border-radius:8px;font-size:15px;line-height:1.2;padding:11px 10px;gap:13px}
+.workspace-theme nav button svg{color:#145b56;stroke-width:1.7}
+.workspace-theme nav button:hover,.workspace-theme nav button.active{background:#07564d;color:#fff;box-shadow:none}
+.workspace-theme nav button.active{box-shadow:inset 3px 0 #d7fb65}
+.workspace-theme nav button.active svg{color:#fff}
+.workspace-theme .nav-count{background:#eaf2d8;color:#365b4e}
+.workspace-theme .sidebar-note{border:1px solid #e6e4db;background:#fffefa;color:#60718a;border-radius:12px;margin-top:28px;padding:14px}
+.workspace-theme .sidebar-note b{color:#142337}
+.workspace-theme .sidebar-note svg{color:#62a835}
+.workspace-theme main{background:#f8f7f2;padding:28px 32px 56px}
+.workspace-theme main>header{margin:0 0 22px;padding:0 2px;align-items:flex-start}
+.workspace-theme .section-kicker{color:#344b70;font-size:12px;font-weight:600;letter-spacing:.11em}
+.workspace-theme .section-kicker span{color:#344b70}
+.workspace-theme main>header h1{margin:9px 0 6px}
+.workspace-theme .header-right-tools{display:flex;align-items:center;gap:14px}
+.workspace-theme .header-meta{color:#61718a}
+.workspace-theme .icon-button{background:#fffefa;border:1px solid #e1e0d8;color:#172236;border-radius:9px;padding:10px}
+.workspace-theme .learner-avatar{background:#182536;color:#fff;border:0}
+.workspace-theme .timer-live-badge{background:#eef5e0;border:1px solid #dce8ca;color:#365b4e;border-radius:18px;padding:7px 11px}
+.workspace-theme .timer-pulse-dot{background:#6aaf3d}
+.workspace-theme .eyebrow{color:#39705e;font-size:10px;letter-spacing:.14em}
+.workspace-theme .muted{color:#65748a}
+.workspace-theme .panel,.workspace-theme .hero-card,.workspace-theme .dashboard-card,.workspace-theme .learner-profile-card{background:#fffefa!important;border:1px solid #e5e3da!important;border-radius:16px;color:#152337;box-shadow:0 5px 18px rgba(35,45,50,.035)}
+.workspace-theme .panel{padding:22px 24px}
+.workspace-theme .hero-card{border-color:#d5ddd3!important}
+.workspace-theme .panel-title{margin-bottom:14px}
+.workspace-theme .panel-title h2,.workspace-theme .panel-title h3{color:#101a2d}
+.workspace-theme .primary,.workspace-theme .secondary,.workspace-theme .danger,.workspace-theme .danger-outline{border-radius:10px;font-size:13px}
+.workspace-theme .primary{background:#d7fb65!important;color:#122436!important;border:0}
+.workspace-theme .primary:hover{background:#c9ef54!important}
+.workspace-theme .secondary{background:#fffefa!important;color:#24435a!important;border:1px solid #d9dfd8!important}
+.workspace-theme .secondary:hover{background:#f2f7e6!important;border-color:#a6c78d!important}
+.workspace-theme .danger{background:#f6c4bf!important;color:#7d302f!important}
+.workspace-theme .danger-outline{background:#fffefa!important;color:#c04d4b!important;border-color:#e99b96!important}
+.workspace-theme .badge,.workspace-theme .date-pill{background:#eef5e0!important;color:#39705e!important;border:0}
+.workspace-theme .status{background:#ffe0df!important;color:#bd5a5b!important}
+.workspace-theme .status.good{background:#e6f3d8!important;color:#39804f!important}
+.workspace-theme .callout,.workspace-theme .explanation{background:#f1f7e8!important;border:1px solid #d7e7c8!important;color:#45665c!important}
+.workspace-theme .empty{color:#65748a}
+.workspace-theme .empty-icon{background:#edf5de;color:#0c665a}
+.workspace-theme .list-row,.workspace-theme .plan-row,.workspace-theme .record-activity-row{border-top-color:#ebe9e1}
+.workspace-theme .list-row strong{color:#b17b18}
+.workspace-theme .skill-quick-bar{display:flex;gap:7px;align-items:center;background:#fffefa;border:1px solid #e5e3da;border-radius:14px;padding:9px;margin:0 0 18px;overflow:auto}
+.workspace-theme .skill-quick-btn{display:flex;align-items:center;gap:8px;white-space:nowrap;border:1px solid transparent;border-radius:9px;background:transparent;color:#36536b;padding:10px 14px;font-size:13px}
+.workspace-theme .skill-quick-btn:hover,.workspace-theme .skill-quick-btn.active{background:#e7f2e3;border-color:#bdd7bb;color:#075d52}
+.workspace-theme .skill-quick-btn svg{color:currentColor}
+.workspace-theme input,.workspace-theme select,.workspace-theme textarea,.workspace-theme .manual input,.workspace-theme .form-grid input,.workspace-theme .form-grid select,.workspace-theme .field-label select{background:#fffefa!important;color:#172236!important;border:1px solid #d9dfd8!important;border-radius:9px}
+.workspace-theme input::placeholder,.workspace-theme textarea::placeholder{color:#8793a0}
+.workspace-theme .form-grid label,.workspace-theme .field-label{color:#52647c}
+.workspace-theme .record-grid div,.workspace-theme .record-timer,.workspace-theme .destination-tools,.workspace-theme .destination-add{background:#f4f6ef!important;border-color:#dfe5d9!important}
+.workspace-theme .record-grid b,.workspace-theme .record-timer b{color:#075d52}
+.workspace-theme .record-grid span,.workspace-theme .record-timer span{color:#65748a}
+.workspace-theme .record-summary{background:#eef5e5;border-color:#dbe7d2}
+.workspace-theme .record-summary b{color:#075d52}
+.workspace-theme .record-summary span{color:#63758b}
+.workspace-theme .record-note{color:#65748a}
+.workspace-theme .question{border-top-color:#e7e5dc}
+.workspace-theme .question-top{color:#65748a}
+.workspace-theme .question-top b{background:#d7a843;color:#fff}
+.workspace-theme .question h3{color:#172236}
+.workspace-theme .options label{background:#fffefa;border-color:#dfe3dc;color:#425671}
+.workspace-theme .options label:hover,.workspace-theme .options label.chosen{background:#f0f7e7;border-color:#9dc688;color:#172236}
+.workspace-theme .options input{accent-color:#075d52}
+.workspace-theme .score-circle{border-color:#075d52;color:#075d52}
+.workspace-theme .score-circle span{color:#65748a}
+.workspace-theme .passage p,.workspace-theme .roadmap-step ul{color:#425671}
+.workspace-theme .passage-chips{display:grid;gap:8px}
+.workspace-theme .passage-chip{background:#f6f7f1;border-color:#e0e4da!important;color:#172236}
+.workspace-theme .passage-chip:hover,.workspace-theme .passage-chip.active{background:#edf5e5;border-color:#a9ca99!important}
+.workspace-theme .passage-chip-title{color:#172236}
+.workspace-theme .passage-chip-meta{color:#65748a}
+.workspace-theme .simulator-hero,.workspace-theme .simulator-start,.workspace-theme .simulator-shell,.workspace-theme .media-stage,.workspace-theme .reading-stage,.workspace-theme .writing-stage,.workspace-theme .speaking-stage{background:#fffefa!important;border-color:#e5e3da!important;color:#152337}
+.workspace-theme .simulator-toolbar{border-bottom-color:#e6e4dc}
+.workspace-theme .study-modes{border-bottom-color:#e3e4dc}
+.workspace-theme .mode-tab{background:transparent;color:#64748a;border-color:#dce1da}
+.workspace-theme .mode-tab.active{background:#e8f2e0;border-color:#afd19e;color:#075d52}
+.workspace-theme .feedback{background:#f1f7e8;border-color:#d3e6c3;color:#45665c}
+.workspace-theme .skill-response{background:#fffefa;color:#172236;border-color:#d9dfd8}
+.workspace-theme .audio-controls progress{accent-color:#075d52}
+.workspace-theme .topic-hub-container{color:#152337}
+.workspace-theme .topic-toggle-btn,.workspace-theme .topic-card-btn,.workspace-theme .topic-header-card,.workspace-theme .topic-lexicon-helper,.workspace-theme .grammar-box,.workspace-theme .network-card,.workspace-theme .design-row{background:#fffefa!important;border-color:#e5e3da!important;color:#152337}
+.workspace-theme .topic-toggle-btn:hover,.workspace-theme .topic-card-btn:hover,.workspace-theme .topic-card-btn.active{background:#edf5e5!important;border-color:#a9ca99!important}
+.workspace-theme .topic-en,.workspace-theme .topic-header-title h2,.workspace-theme .grammar-box h3{color:#172236}
+.workspace-theme .topic-vi,.workspace-theme .topic-header-meta,.workspace-theme .topic-band-target,.workspace-theme .topic-progress-badge{color:#65748a}
+.workspace-theme .stat-pill,.workspace-theme .lexicon-chip,.workspace-theme .card-colloc-tag{background:#f0f5e8!important;border-color:#d8e5cc!important;color:#45665c!important}
+.workspace-theme .flashcard-box{background:#fffefa!important;border-color:#e5e3da!important;color:#172236;box-shadow:0 12px 30px rgba(30,45,45,.08)}
+.workspace-theme .flashcard-box h3,.workspace-theme .card-term,.workspace-theme .card-meaning{color:#172236}
+.workspace-theme .card-ipa,.workspace-theme .card-example,.workspace-theme .card-hint{color:#65748a}
+.workspace-theme .card-tag,.workspace-theme .topic-kicker-row .eyebrow{background:#edf5e5;color:#39705e}
+.workspace-theme .flip-btn,.workspace-theme .nav-arrow,.workspace-theme .again-button,.workspace-theme .know-button{background:#fffefa;border-color:#d9dfd8;color:#245548}
+.workspace-theme .grammar-formula,.workspace-theme .grammar-drill{background:#f1f7e8!important;border-color:#d7e7c8!important;color:#45665c}
+.workspace-theme .network-card p,.workspace-theme .design-row p{color:#65748a}
+.workspace-theme .toast{background:#e6f3d8;color:#234c39;box-shadow:0 12px 30px rgba(20,40,30,.16)}
+.workspace-theme .modal-panel{background:#fffefa!important;color:#172236;border-color:#e5e3da}
+.workspace-theme .modal-message{color:#65748a}
+.workspace-theme .modal-actions .secondary{background:#f2f4ed!important}
+.workspace-theme .heatmap-panel{background:#fffefa!important;border-color:#e5e3da!important;box-shadow:0 10px 28px rgba(30,45,45,.05)}
+.workspace-theme .heatmap-selected h2,.workspace-theme .heatmap-heading h3{color:#172236!important}
+.workspace-theme .weekday-labels span{color:#65748a!important}
+.workspace-theme .heatmap-grid .heat{color:#45665c!important;border-color:transparent!important;background:transparent!important}
+.workspace-theme .heatmap-grid .heat:hover{background:#edf5e5!important;border-color:#c5ddba!important}
+.workspace-theme .heatmap-grid .heat.selected-day{background:#075d52!important;color:#fff!important;box-shadow:none!important}
+.workspace-theme .heatmap-detail{border-top-color:#e7e5dc!important;color:#65748a}
+.workspace-theme .heatmap-detail b{color:#172236}
+.workspace-theme .heatmap-legend{color:#65748a}
+.workspace-theme .motivation-panel{background:#fffefa!important;border-color:#e5e3da!important;color:#152337}
+.workspace-theme .motivation-copy p{color:#65748a}
+.workspace-theme main .panel[style]{color:#152337}
+.workspace-theme main .panel[style] h1,.workspace-theme main .panel[style] h2,.workspace-theme main .panel[style] h3{color:#172236}
+.workspace-theme main .panel[style] p,.workspace-theme main .panel[style] span,.workspace-theme main .panel[style] small{color:inherit}
+.workspace-theme main .panel[style] svg{color:inherit}
+.workspace-theme .dashboard-hero{background:#075d52!important}
+@media(max-width:1080px){.workspace-theme main{padding-left:24px;padding-right:24px}.workspace-theme .profile-layout{grid-template-columns:1fr}.workspace-theme .roadmap-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:850px){.workspace-theme aside{width:64px;min-width:64px;padding:16px 6px}.workspace-theme .brand{margin:0 auto 28px}.workspace-theme .brand div{display:none}.workspace-theme .brand-mark{flex-basis:34px;width:34px!important}.workspace-theme nav button:not(.active){font-size:0}.workspace-theme .nav-group-label{display:none}.workspace-theme nav button{justify-content:center;padding:11px}.workspace-theme .sidebar-note{display:none}.workspace-theme main{padding:20px 16px 42px}.workspace-theme main>header h1{font-size:36px}.workspace-theme .skill-quick-bar{margin-left:0;margin-right:0}.workspace-theme .roadmap-grid{grid-template-columns:1fr}.workspace-theme .header-meta{display:none}}
+@media(max-width:520px){.workspace-theme main>header h1{font-size:30px}.workspace-theme .panel{padding:18px}.workspace-theme .skill-quick-bar{border-radius:11px}.workspace-theme .skill-quick-btn{padding:9px 11px;font-size:12px}.workspace-theme .header-right-tools{gap:7px}.workspace-theme .form-grid{grid-template-columns:1fr}.workspace-theme .record-grid{grid-template-columns:1fr 1fr}}

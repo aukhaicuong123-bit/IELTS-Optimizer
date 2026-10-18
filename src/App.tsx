@@ -228,7 +228,7 @@ export default function App() {
   }, [confirmDialog, go, closeConfirm])
 
   return (
-    <div className={`app ${page === 'dashboard' ? 'app-dashboard' : ''}`}>
+    <div className={`app workspace-theme ${page === 'dashboard' ? 'app-dashboard' : ''}`}>
       <aside>
         <div className="brand">
           <span className="brand-mark" aria-hidden="true"><i /><i /><i /></span>
