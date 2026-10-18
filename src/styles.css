@@ -253,7 +253,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 .workspace-theme main .panel .eyebrow,.workspace-theme main .panel .badge,.workspace-theme main .panel .date-pill,.workspace-theme main .panel .status,.workspace-theme main .panel .green-text{color:#39705e!important}
 .workspace-theme main .panel .status{color:#bd5a5b!important}
 .workspace-theme main .panel button:not(.primary):not(.secondary):not(.danger):not(.danger-outline){background:#fffefa!important;color:#36536b!important;border-color:#d9dfd8!important}
-.workspace-theme .dashboard-landscape{background-image:url('./assets/dashboard-hero.png');background-color:#075d52;background-position:center;background-size:cover;background-repeat:no-repeat}
+.workspace-theme .dashboard-landscape{background-image:url('./assets/dashboard-hero.png');background-color:#075d52;background-position:right center;background-size:cover;background-repeat:no-repeat}
 .workspace-theme .dashboard-landscape .sun,.workspace-theme .dashboard-landscape .mountain,.workspace-theme .dashboard-landscape .lake,.workspace-theme .dashboard-landscape .traveller{display:none}
 .workspace-theme .dashboard-landscape:before{background:linear-gradient(90deg,rgba(3,45,39,.22) 0%,rgba(3,45,39,.08) 46%,rgba(3,45,39,0) 78%)}
 .workspace-theme .audio-upload-box{background:#f1f7e8!important;border:1px dashed #b8d59c!important;color:#45665c!important}
