@@ -252,6 +252,37 @@ h1,h2,h3{font-family:Georgia,'Times New Roman',serif;color:#101a2d}
 .workspace-theme main .panel .eyebrow,.workspace-theme main .panel .badge,.workspace-theme main .panel .date-pill,.workspace-theme main .panel .status,.workspace-theme main .panel .green-text{color:#39705e!important}
 .workspace-theme main .panel .status{color:#bd5a5b!important}
 .workspace-theme main .panel button:not(.primary):not(.secondary):not(.danger):not(.danger-outline){background:#fffefa!important;color:#36536b!important;border-color:#d9dfd8!important}
+.workspace-theme .dashboard-landscape{background-image:url('./assets/dashboard-hero.png');background-position:center;background-size:cover;background-repeat:no-repeat}
+.workspace-theme .dashboard-landscape .sun,.workspace-theme .dashboard-landscape .mountain,.workspace-theme .dashboard-landscape .lake,.workspace-theme .dashboard-landscape .traveller{display:none}
+.workspace-theme .dashboard-landscape:before{background:linear-gradient(90deg,rgba(3,45,39,.22) 0%,rgba(3,45,39,.08) 46%,rgba(3,45,39,0) 78%)}
+.workspace-theme .audio-upload-box{background:#f1f7e8!important;border:1px dashed #b8d59c!important;color:#45665c!important}
+.workspace-theme .audio-upload-box label,.workspace-theme .audio-upload-box label span,.workspace-theme .audio-upload-box input{color:#45665c!important}
+.workspace-theme .writing-chart-card{background:#f4f7ef!important;border-color:#dfe6d8!important}
+.workspace-theme .media-stage,.workspace-theme .reading-stage,.workspace-theme .writing-stage,.workspace-theme .speaking-stage{background:#fffefa!important;border-color:#e5e3da!important}
+.workspace-theme .simulation-questions .question{background:#f6f8f2!important;border-color:#dfe5d9!important;color:#172236}
+.workspace-theme .simulation-questions .question h3{color:#172236!important}
+.workspace-theme .feedback{background:#f1f7e8!important;border-color:#d7e7c8!important;color:#45665c!important}
+.workspace-theme .grammar-example-item{background:#f5f7f0!important;border:1px solid #dce5d5!important;color:#345466!important}
+.workspace-theme .grammar-formula{background:#f1f7e8!important;border-color:#d7e7c8!important;color:#45665c!important}
+.workspace-theme .grammar-drill{background:#f6f9f1!important;border-color:#cbdcaf!important;color:#45665c!important}
+.workspace-theme .quiz-term-box{background:#f4f7ef!important;border-color:#dfe6d8!important}
+.workspace-theme .quiz-term-box h2{color:#172236!important}
+.workspace-theme .quiz-opt-btn{background:#fffefa!important;border-color:#d9dfd8!important;color:#36536b!important}
+.workspace-theme .quiz-opt-btn:hover:not(:disabled){background:#edf5e5!important;border-color:#a9ca99!important}
+.workspace-theme .quiz-opt-btn.correct{background:#e6f3d8!important;border-color:#83ba70!important;color:#2f6547!important}
+.workspace-theme .quiz-opt-btn.wrong{background:#ffe7e4!important;border-color:#e99b96!important;color:#a74643!important}
+.workspace-theme .passage-chip-btn{background:#fffefa!important;border-color:#dfe5d9!important;color:#36536b!important;box-shadow:0 2px 6px rgba(30,45,45,.06)}
+.workspace-theme .passage-chip-btn:hover,.workspace-theme .passage-chip-btn.active{background:#edf5e5!important;border-color:#a9ca99!important;color:#172236!important}
+.workspace-theme .passage-chip-level{background:#eaf2df!important;border-color:#d4e4c5!important;color:#39705e!important}
+.workspace-theme .exam-code-badge{background:#e9f1e3!important;color:#39705e!important;border:1px solid #d5e3ca}
+.workspace-theme .topic-toggle-btn{background:#fffefa!important;border-color:#dfe5d9!important;color:#36536b!important}
+.workspace-theme .topic-toggle-btn:hover{background:#edf5e5!important;border-color:#a9ca99!important;color:#075d52!important}
+.workspace-theme .topic-band-target{background:#0b5e54!important;color:#fff!important;border-radius:5px;padding:4px 8px}
+.workspace-theme .grammar-level{background:#0b5e54!important;color:#fff!important}
+.workspace-theme .daily-plan-day{background:#f5f7f0!important;border-color:#dfe5d9!important;color:#425671!important}
+.workspace-theme .test-blueprint{background:#f4f7ef!important;border-left-color:#d7a843!important}
+.workspace-theme .reflection{border-top-color:#e7e5dc!important}
+.workspace-theme .reflection textarea{background:#fffefa!important;color:#172236!important;border-color:#d9dfd8!important}
 @media(max-width:1080px){.workspace-theme main{padding-left:24px;padding-right:24px}.workspace-theme .profile-layout{grid-template-columns:1fr}.workspace-theme .roadmap-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:850px){.workspace-theme aside{width:64px;min-width:64px;padding:16px 6px}.workspace-theme .brand{margin:0 auto 28px}.workspace-theme .brand div{display:none}.workspace-theme .brand-mark{flex-basis:34px;width:34px!important}.workspace-theme nav button:not(.active){font-size:0}.workspace-theme .nav-group-label{display:none}.workspace-theme nav button{justify-content:center;padding:11px}.workspace-theme .sidebar-note{display:none}.workspace-theme main{padding:20px 16px 42px}.workspace-theme main>header h1{font-size:36px}.workspace-theme .skill-quick-bar{margin-left:0;margin-right:0}.workspace-theme .roadmap-grid{grid-template-columns:1fr}.workspace-theme .header-meta{display:none}}
 @media(max-width:520px){.workspace-theme main>header h1{font-size:30px}.workspace-theme .panel{padding:18px}.workspace-theme .skill-quick-bar{border-radius:11px}.workspace-theme .skill-quick-btn{padding:9px 11px;font-size:12px}.workspace-theme .header-right-tools{gap:7px}.workspace-theme .form-grid{grid-template-columns:1fr}.workspace-theme .record-grid{grid-template-columns:1fr 1fr}}

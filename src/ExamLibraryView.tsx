@@ -250,7 +250,7 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
                 }}
               >
                 <span style={{ color: 'var(--accent)', fontWeight: 600 }}>{exam.volume}</span>
-                <span style={{ fontFamily: 'monospace', background: '#1c2e27', padding: '2px 6px', borderRadius: 4 }}>
+                <span className="exam-code-badge" style={{ fontFamily: 'monospace', background: '#1c2e27', padding: '2px 6px', borderRadius: 4 }}>
                   {exam.code}
                 </span>
               </div>
