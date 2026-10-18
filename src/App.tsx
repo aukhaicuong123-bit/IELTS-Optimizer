@@ -42,7 +42,8 @@ import {
   BookOpenCheck,
   CalendarDays,
   UserRound,
-  BarChart3
+  BarChart3,
+  Flame
 } from 'lucide-react'
 import ExamLibraryView from './ExamLibraryView'
 import { passages } from './content'
@@ -229,7 +230,7 @@ export default function App() {
 
   return (
     <div className={`app workspace-theme ${page === 'dashboard' ? 'app-dashboard' : ''}`}>
-      <aside>
+      <aside className="app-sidebar">
         <div className="brand">
           <span className="brand-mark" aria-hidden="true"><i /><i /><i /></span>
           <div>
@@ -912,9 +913,6 @@ function Dashboard({
   const minutes = minutesByDate(s.sessions)
   const today = Math.round(minutes[localDate(new Date().toISOString())] || 0)
   const projection = deriveReadingStates(s.errors, s.attempts, passages)
-  const open = s.errors.filter(
-    error => projection.statesByDifficulty[readingDifficultyId(error)]?.status === 'open'
-  )
   const rec = recommendations(s.profile, s.attempts, s.errors, s.plan, projection.statesByDifficulty)
 
   return (
@@ -931,13 +929,7 @@ function Dashboard({
         </div>
       </section>
 
-      <aside className="learner-profile-card">
-        <div className="card-heading"><h2>Hồ sơ người học</h2><ChevronRight size={20} /></div>
-        <ProfileRow icon={<Target />} label="Mục tiêu band" hint="Lấy từ bước onboarding" value={s.profile.targetBand ? `Band ${s.profile.targetBand}` : 'Chưa thiết lập'} />
-        <ProfileRow icon={<BarChart3 />} label="Điểm chính thức" hint="IELTS (nếu có)" value="Chưa có" />
-        <ProfileRow icon={<CalendarDays />} label="Lịch thi" hint="Ngày thi dự kiến" value="Chưa đặt" />
-        <ProfileRow icon={<Clock3 />} label="Thời gian học mỗi ngày" hint="Thiết lập bởi người học" value={s.profile.dailyGoalMinutes ? `~ ${Math.round(s.profile.dailyGoalMinutes / 60)} giờ` : '~ 1–2 giờ'} />
-      </aside>
+      <LearnerProfileCard s={s} go={go} />
 
       <section className="dashboard-card activity-card">
         <div className="card-heading"><h2>Hoạt động học tập <span className="info-dot">i</span></h2><span className="card-filter">Dữ liệu minh hoạ　 <b>7 ngày qua⌄</b></span></div>
@@ -946,14 +938,134 @@ function Dashboard({
         <p className="activity-note">Thời gian học, không phải mức độ thành thạo.</p>
       </section>
 
-      <RecentEvidence s={s} go={go} />
       <DashboardTimerCard s={s} setS={setS} note={note} />
+
+      <RecentEvidence s={s} go={go} />
     </div>
   )
 }
 
+function LearnerProfileCard({ s, go }: { s: Store; go: (page: Page) => void }) {
+  const targetBand = s.profile.targetBand || 7.0
+  const currentLevel = s.profile.currentLevel || 'B2 (Intermediate)'
+  const examDate = s.profile.examDate
+  const daysLeft = examDate
+    ? Math.max(0, Math.ceil((new Date(examDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+    : null
+
+  const totalMinutesAllTime = Math.round(s.sessions.reduce((acc, sess) => acc + (sess.minutes || 0), 0))
+  const totalHours = Math.floor(totalMinutesAllTime / 60)
+  const totalMinsRem = totalMinutesAllTime % 60
+  const dailyGoal = s.profile.dailyGoalMinutes || 60
+  const todayMinutes = Math.round(minutesByDate(s.sessions)[localDate(new Date().toISOString())] || 0)
+  const progressPercent = Math.min(100, Math.round((todayMinutes / dailyGoal) * 100))
+
+  const skillTargets: { skill: Skill; label: string; icon: string; band: number }[] = [
+    { skill: 'Listening', label: 'Nghe', icon: '🎧', band: targetBand },
+    { skill: 'Reading', label: 'Đọc', icon: '📖', band: s.profile.priority === 'Reading' ? Math.min(9, targetBand + 0.5) : targetBand },
+    { skill: 'Writing', label: 'Viết', icon: '✍️', band: Math.max(6.0, targetBand - 0.5) },
+    { skill: 'Speaking', label: 'Nói', icon: '🗣️', band: Math.max(6.0, targetBand - 0.5) }
+  ]
+
+  return (
+    <section className="learner-profile-card">
+      <div className="card-heading">
+        <div className="profile-heading-main">
+          <div className="profile-avatar-circle" aria-hidden="true">
+            <UserRound size={20} />
+          </div>
+          <div>
+            <h2>Hồ sơ người học</h2>
+            <span className="profile-subheading">Kế hoạch cá nhân hóa</span>
+          </div>
+        </div>
+        <button
+          className="profile-settings-btn"
+          onClick={() => go('profile')}
+          title="Tùy chỉnh thông tin hồ sơ"
+          aria-label="Cài đặt hồ sơ"
+        >
+          <Settings size={15} />
+          <span>Cài đặt</span>
+        </button>
+      </div>
+
+      <div className="profile-band-spotlight">
+        <div className="band-spotlight-top">
+          <div className="band-spotlight-badge">
+            <span className="band-badge-label">MỤC TIÊU TỔNG QUAN</span>
+            <strong className="band-badge-value">Band {targetBand.toFixed(1)}</strong>
+          </div>
+          <div className="band-spotlight-meta">
+            <span className="band-level-tag">{currentLevel}</span>
+            <span className="band-gap-text">
+              Khoảng cách: <b>+{targetBand - 6.0 > 0 ? (targetBand - 6.0).toFixed(1) : '0.5'} Band</b>
+            </span>
+          </div>
+        </div>
+
+        <div className="profile-skills-grid">
+          {skillTargets.map(item => (
+            <div
+              key={item.skill}
+              className={`profile-skill-chip ${s.profile.priority === item.skill ? 'priority' : ''}`}
+              title={`Kỹ năng ${item.label} - Mục tiêu Band ${item.band.toFixed(1)}`}
+            >
+              <span className="skill-chip-icon">{item.icon}</span>
+              <span className="skill-chip-name">{item.label}</span>
+              <b className="skill-chip-band">{item.band.toFixed(1)}</b>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="profile-details-grid">
+        <ProfileRow
+          icon={<Target />}
+          label="Trọng tâm ưu tiên"
+          hint="Kỹ năng tập trung bứt phá"
+          value={s.profile.priority || 'Reading'}
+        />
+        <ProfileRow
+          icon={<CalendarDays />}
+          label="Lịch thi IELTS"
+          hint={daysLeft !== null ? `Còn ${daysLeft} ngày chuẩn bị` : 'Thời gian dự kiến'}
+          value={examDate ? new Date(examDate).toLocaleDateString('vi-VN') : 'Chưa đặt lịch'}
+        />
+        <ProfileRow
+          icon={<Clock3 />}
+          label="Thời gian học mỗi ngày"
+          hint={`Hôm nay đã hoàn thành ${progressPercent}%`}
+          value={`~ ${Math.round(dailyGoal / 60)} giờ (${dailyGoal} phút)`}
+        />
+        <ProfileRow
+          icon={<Award />}
+          label="Tổng tích lũy thực tế"
+          hint={`${s.attempts.length + (s.submissions || []).length} bài thi & hoạt động hoàn tất`}
+          value={`${totalHours}h ${totalMinsRem}m`}
+        />
+      </div>
+
+      <button className="profile-edit-btn" onClick={() => go('profile')}>
+        <Settings size={15} />
+        <span>Chỉnh sửa mục tiêu & thông tin cá nhân</span>
+        <ChevronRight size={15} />
+      </button>
+    </section>
+  )
+}
+
 function ProfileRow({ icon, label, hint, value }: { icon: ReactNode; label: string; hint: string; value: string }) {
-  return <div className="profile-row"><span className="profile-row-icon">{icon}</span><span className="profile-row-copy"><b>{label}</b><small>{hint}</small></span><span className="profile-row-value">{value}</span></div>
+  return (
+    <div className="profile-row">
+      <span className="profile-row-icon">{icon}</span>
+      <span className="profile-row-copy">
+        <b>{label}</b>
+        <small>{hint}</small>
+      </span>
+      <span className="profile-row-value">{value}</span>
+    </div>
+  )
 }
 
 function ActivityGrid({ s, today }: { s: Store; today: number }) {
@@ -986,19 +1098,269 @@ function RecentEvidence({ s, go }: { s: Store; go: (page: Page) => void }) {
   const latestSubmission = (s.submissions || []).slice().reverse()[0]
   const label = latestAttempt ? 'Reading' : latestSubmission ? latestSubmission.skill : 'Reading'
   const date = latestAttempt?.createdAt || latestSubmission?.createdAt
-  return <section className="dashboard-card evidence-card"><div className="card-heading"><h2>Bằng chứng học tập gần đây</h2><button className="card-link" onClick={() => go('record')}>Xem <ChevronRight size={17} /></button></div><div className="evidence-main"><span className="evidence-icon"><BookOpen size={23} /></span><div><small>{label}　·　{date ? new Date(date).toLocaleDateString('vi-VN') : '18/10/2026'}</small><h3>{latestAttempt ? 'Nhận diện paraphrase' : 'Bắt đầu bài học đầu tiên'}</h3><p>{latestAttempt ? 'Chọn đáp án vì có từ khóa giống nhau, chưa đối chiếu nghĩa.' : 'Hoàn thành một hoạt động để tạo bằng chứng học tập.'}</p></div><span className="evidence-status">{latestAttempt ? 'Cần retest' : 'Mới'}</span></div><div className="evidence-detail"><span>▤　Đang lỗi</span><b>Paraphrase recognition</b><span>▤　Câu hỏi liên quan</span><b>IELTS Academic Test 1</b><span>◷　Hành động tiếp theo</span><b>Làm lại câu hỏi tương tự</b></div></section>
+  return (
+    <section className="dashboard-card evidence-card">
+      <div className="card-heading">
+        <h2>Bằng chứng học tập gần đây</h2>
+        <button className="card-link" onClick={() => go('record')}>
+          Xem tất cả <ChevronRight size={17} />
+        </button>
+      </div>
+      <div className="evidence-main">
+        <span className="evidence-icon"><BookOpen size={23} /></span>
+        <div>
+          <small>{label}　·　{date ? new Date(date).toLocaleDateString('vi-VN') : '18/10/2026'}</small>
+          <h3>{latestAttempt ? 'Nhận diện paraphrase' : 'Bắt đầu bài học đầu tiên'}</h3>
+          <p>{latestAttempt ? 'Chọn đáp án vì có từ khóa giống nhau, chưa đối chiếu nghĩa.' : 'Hoàn thành một hoạt động để tạo bằng chứng học tập.'}</p>
+        </div>
+        <span className="evidence-status">{latestAttempt ? 'Cần retest' : 'Mới'}</span>
+      </div>
+      <div className="evidence-detail">
+        <div className="evidence-detail-col">
+          <span>▤ Trạng thái</span>
+          <b>Paraphrase recognition</b>
+        </div>
+        <div className="evidence-detail-col">
+          <span>▤ Câu hỏi liên quan</span>
+          <b>IELTS Academic Test 1</b>
+        </div>
+        <div className="evidence-detail-col">
+          <span>◷ Hành động tiếp theo</span>
+          <b>Làm lại câu hỏi tương tự</b>
+        </div>
+      </div>
+    </section>
+  )
 }
 
-function DashboardTimerCard({ s, setS, note }: { s: Store; setS: (store: Store) => void; note: (message: string) => void }) {
+function DashboardTimerCard({
+  s,
+  setS,
+  note
+}: {
+  s: Store
+  setS: (store: Store) => void
+  note: (message: string) => void
+}) {
   const active = s.activeSession
   const [now, setNow] = useState(Date.now())
-  useEffect(() => { if (!active || active.paused) return; const timer = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(timer) }, [active])
-  const seconds = active ? Math.max(0, active.accumulatedSeconds + (active.paused ? 0 : (now - new Date(active.lastResumedAt).getTime()) / 1000)) : 0
-  const start = () => { const time = new Date().toISOString(); setS({ ...s, activeSession: { id: uid('session'), startedAt: time, lastResumedAt: time, accumulatedSeconds: 0, paused: false, activeIntervals: [] } }) }
-  const pause = () => { if (active) setS({ ...s, activeSession: { ...snapshotActiveSession(active, new Date().toISOString()), paused: true } }) }
-  const resume = () => { if (active) setS({ ...s, activeSession: { ...active, lastResumedAt: new Date().toISOString(), paused: false } }) }
-  const stop = () => { if (!active) return; const end = new Date().toISOString(); const completed = snapshotActiveSession(active, end); setS({ ...s, activeSession: undefined, sessions: [...s.sessions, { id: active.id, startedAt: active.startedAt, endedAt: end, minutes: Math.max(0, Math.round(completed.accumulatedSeconds / 60)), activeIntervals: completed.activeIntervals, activity: 'Dashboard study session', skill: 'Reading' }] }); note('Đã lưu thời gian học vào Nhật ký.') }
-  return <section className="dashboard-card timer-card"><div className="card-heading"><h2>Bộ đếm giờ học</h2><ChevronRight size={20} /></div><div className="timer-icon"><Clock3 size={25} /></div><strong className="timer-digits">{Math.floor(seconds / 3600).toString().padStart(2, '0')}:{Math.floor(seconds / 60 % 60).toString().padStart(2, '0')}:{Math.floor(seconds % 60).toString().padStart(2, '0')}</strong><p>Thời gian học hôm nay</p>{!active ? <button className="timer-start" onClick={start}><Play size={18} fill="currentColor" /> Bắt đầu</button> : <div className="timer-actions"><button className="timer-start" onClick={active.paused ? resume : pause}>{active.paused ? <Play size={18} fill="currentColor" /> : <Pause size={18} fill="currentColor" />} {active.paused ? 'Tiếp tục' : 'Tạm dừng'}</button><button className="timer-reset" onClick={stop}><RotateCcw size={18} /></button></div>}<div className="timer-secondary"><button onClick={() => note('Bộ đếm giờ sẽ tự tạm dừng khi bạn rời tab.')}>?</button><button onClick={stop} disabled={!active}><RotateCcw size={17} /></button></div></section>
+  const [selectedPreset, setSelectedPreset] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (!active || active.paused) return
+    const timer = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(timer)
+  }, [active])
+
+  const seconds = active
+    ? Math.max(0, active.accumulatedSeconds + (active.paused ? 0 : (now - new Date(active.lastResumedAt).getTime()) / 1000))
+    : 0
+
+  const minutesMap = minutesByDate(s.sessions)
+  const todaySavedMinutes = Math.round(minutesMap[localDate(new Date().toISOString())] || 0)
+  const currentRunningMinutes = Math.floor(seconds / 60)
+  const totalTodayMinutes = todaySavedMinutes + currentRunningMinutes
+  const dailyGoal = s.profile.dailyGoalMinutes || 60
+  const progressPercent = Math.min(100, Math.round((totalTodayMinutes / dailyGoal) * 100))
+
+  const activeDaysCount = Object.keys(minutesMap).filter(k => minutesMap[k] > 0).length
+  const currentStreak = Math.max(activeDaysCount > 0 ? 1 : 0, Math.min(activeDaysCount, 7))
+
+  const start = (presetMins?: number) => {
+    const time = new Date().toISOString()
+    if (presetMins !== undefined) setSelectedPreset(presetMins)
+    setS({
+      ...s,
+      activeSession: {
+        id: uid('session'),
+        startedAt: time,
+        lastResumedAt: time,
+        accumulatedSeconds: 0,
+        paused: false,
+        activeIntervals: []
+      }
+    })
+  }
+
+  const pause = () => {
+    if (active) {
+      setS({ ...s, activeSession: { ...snapshotActiveSession(active, new Date().toISOString()), paused: true } })
+    }
+  }
+
+  const resume = () => {
+    if (active) {
+      setS({ ...s, activeSession: { ...active, lastResumedAt: new Date().toISOString(), paused: false } })
+    }
+  }
+
+  const stop = () => {
+    if (!active) return
+    const end = new Date().toISOString()
+    const completed = snapshotActiveSession(active, end)
+    const earnedMinutes = Math.max(0, Math.round(completed.accumulatedSeconds / 60))
+    setS({
+      ...s,
+      activeSession: undefined,
+      sessions: [
+        ...s.sessions,
+        {
+          id: active.id,
+          startedAt: active.startedAt,
+          endedAt: end,
+          minutes: earnedMinutes,
+          activeIntervals: completed.activeIntervals,
+          activity: 'Dashboard study session',
+          skill: s.profile.priority || 'Reading'
+        }
+      ]
+    })
+    setSelectedPreset(null)
+    note(`Đã lưu ${earnedMinutes} phút học vào Nhật ký & Bảng tổng quan.`)
+  }
+
+  const resetTimer = () => {
+    if (active) {
+      setS({ ...s, activeSession: undefined })
+      setSelectedPreset(null)
+      note('Đã đặt lại bộ đếm giờ.')
+    }
+  }
+
+  const presets = [
+    { label: 'Pomodoro', mins: 25, icon: '🍅' },
+    { label: 'Tập trung', mins: 45, icon: '⚡' },
+    { label: 'Luyện đề', mins: 60, icon: '📝' },
+    { label: 'Tự do', mins: 0, icon: '⏱️' }
+  ]
+
+  const hours = Math.floor(seconds / 3600).toString().padStart(2, '0')
+  const mins = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0')
+  const secs = Math.floor(seconds % 60).toString().padStart(2, '0')
+
+  return (
+    <section className="dashboard-card timer-card expanded-timer-card">
+      <div className="card-heading">
+        <div className="timer-heading-title">
+          <h2>Bộ đếm giờ học</h2>
+          <span className={`timer-status-chip ${active ? (active.paused ? 'paused' : 'live') : 'idle'}`}>
+            <span className="status-dot" />
+            {active ? (active.paused ? 'Đang tạm dừng' : 'Đang tính giờ') : 'Sẵn sàng'}
+          </span>
+        </div>
+        <button
+          className="timer-help-btn"
+          onClick={() => note('Bộ đếm giờ tự động tạm dừng khi bạn chuyển tab hoặc rời ứng dụng để phản ánh chính xác thời gian học thực tế.')}
+          title="Thông tin cơ chế đếm giờ"
+          aria-label="Cơ chế đếm giờ"
+        >
+          <HelpCircle size={17} />
+        </button>
+      </div>
+
+      <div className="timer-screen-container">
+        <div className="timer-clock-badge">
+          <Clock3 size={18} />
+          <span>{active ? (active.paused ? 'Phiên đang tạm dừng' : 'Phiên học đang tính giờ thực tế') : 'Chọn chế độ và bấm Bắt đầu để tính giờ'}</span>
+        </div>
+
+        <div className="timer-display-frame">
+          <strong className="timer-digits-expanded">
+            {hours}:{mins}:{secs}
+          </strong>
+        </div>
+
+        <div className="timer-presets-row" role="group" aria-label="Chế độ học nhanh">
+          {presets.map(p => (
+            <button
+              key={p.label}
+              type="button"
+              className={`timer-preset-btn ${selectedPreset === p.mins ? 'selected' : ''}`}
+              onClick={() => {
+                if (!active) {
+                  start(p.mins)
+                } else {
+                  setSelectedPreset(p.mins)
+                }
+              }}
+              title={`Chế độ ${p.label} (${p.mins ? `${p.mins} phút` : 'Tự do'})`}
+            >
+              <span className="preset-icon">{p.icon}</span>
+              <span className="preset-name">{p.label}</span>
+              {p.mins > 0 && <small className="preset-mins">{p.mins}p</small>}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="timer-goal-progress-box">
+        <div className="goal-progress-labels">
+          <span className="goal-label-title">Tiến độ mục tiêu hôm nay</span>
+          <span className="goal-label-stat">
+            <b>{totalTodayMinutes}</b> / {dailyGoal} phút ({progressPercent}%)
+          </span>
+        </div>
+        <div className="goal-progress-bar-track">
+          <div
+            className="goal-progress-bar-fill"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+      </div>
+
+      <div className="timer-main-controls">
+        {!active ? (
+          <button className="timer-btn-primary" onClick={() => start()}>
+            <Play size={19} fill="currentColor" />
+            <span>Bắt đầu học ngay</span>
+          </button>
+        ) : (
+          <div className="timer-active-actions">
+            <button
+              className="timer-btn-primary"
+              onClick={active.paused ? resume : pause}
+            >
+              {active.paused ? <Play size={19} fill="currentColor" /> : <Pause size={19} fill="currentColor" />}
+              <span>{active.paused ? 'Tiếp tục' : 'Tạm dừng'}</span>
+            </button>
+            <button
+              className="timer-btn-save"
+              onClick={stop}
+              title="Lưu phiên học này vào Nhật ký"
+            >
+              <CheckCircle2 size={18} />
+              <span>Lưu phiên</span>
+            </button>
+            <button
+              className="timer-btn-reset"
+              onClick={resetTimer}
+              title="Đặt lại bộ đếm giờ"
+              aria-label="Đặt lại bộ đếm giờ"
+            >
+              <RotateCcw size={17} />
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="timer-quick-stats">
+        <div className="timer-stat-col">
+          <span className="stat-label">Đã học hôm nay</span>
+          <b className="stat-val">{totalTodayMinutes} phút</b>
+        </div>
+        <div className="timer-stat-divider" />
+        <div className="timer-stat-col">
+          <span className="stat-label">Chuỗi chuyên cần</span>
+          <b className="stat-val">🔥 {currentStreak} ngày</b>
+        </div>
+        <div className="timer-stat-divider" />
+        <div className="timer-stat-col">
+          <span className="stat-label">Kỹ năng phiên</span>
+          <b className="stat-val">{s.profile.priority || 'Reading'}</b>
+        </div>
+      </div>
+    </section>
+  )
 }
 
 function Metric({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
