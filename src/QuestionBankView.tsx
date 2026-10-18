@@ -34,10 +34,12 @@ import type {
   Attempt,
   ErrorRecord,
   SkillSubmission,
-  DraftRecord
+  DraftRecord,
+  Question
 } from './types'
 import { getApprovedQuestionBankItems } from './questionBankValidator'
 import { SEED_QUESTION_BANK_ITEMS } from './seedQuestionBank'
+import { mergeAttemptErrors } from './domain'
 
 interface Props {
   store: Store
@@ -588,22 +590,24 @@ function ActivePracticeRunner({ item, store, setStore, onBack, addToast }: Runne
   }, [item.id, item.skill, store.drafts])
 
   // Countdown timer for Speaking prep
+  const prepRunning = prepSecondsLeft !== null && prepSecondsLeft > 0
   useEffect(() => {
-    if (prepSecondsLeft === null || prepSecondsLeft <= 0) return
+    if (!prepRunning) return
     const t = setInterval(() => {
       setPrepSecondsLeft(prev => (prev && prev > 1 ? prev - 1 : 0))
     }, 1000)
     return () => clearInterval(t)
-  }, [prepSecondsLeft])
+  }, [prepRunning])
 
   // Countdown timer for Speaking duration
+  const speakRunning = speakSecondsLeft !== null && speakSecondsLeft > 0
   useEffect(() => {
-    if (speakSecondsLeft === null || speakSecondsLeft <= 0) return
+    if (!speakRunning) return
     const t = setInterval(() => {
       setSpeakSecondsLeft(prev => (prev && prev > 1 ? prev - 1 : 0))
     }, 1000)
     return () => clearInterval(t)
-  }, [speakSecondsLeft])
+  }, [speakRunning])
 
   // Browser speech synthesis for listening
   const handleToggleAudio = () => {
@@ -635,7 +639,6 @@ function ActivePracticeRunner({ item, store, setStore, onBack, addToast }: Runne
         : (item.payload as ListeningQuestionBankPayload).questions
 
     let correctCount = 0
-    const newErrors: ErrorRecord[] = []
     const attemptId = `qb-attempt-${Date.now()}`
 
     questions.forEach(q => {
@@ -648,22 +651,6 @@ function ActivePracticeRunner({ item, store, setStore, onBack, addToast }: Runne
 
       if (isMatch) {
         correctCount++
-      } else {
-        newErrors.push({
-          id: `qb-err-${item.id}-${q.id}-${Date.now()}`,
-          questionId: q.id,
-          attemptId,
-          passageId: item.id,
-          type: (q.type as any) || 'multiple-choice',
-          objective: q.objective,
-          prompt: q.prompt,
-          learnerAnswer: answers[q.id] || '(chưa trả lời)',
-          correctAnswer: rawKey,
-          explanation: q.explanation,
-          createdAt: new Date().toISOString(),
-          reviewCount: 0,
-          retestAttemptIds: []
-        })
       }
     })
 
@@ -683,10 +670,20 @@ function ActivePracticeRunner({ item, store, setStore, onBack, addToast }: Runne
       objectiveIds: item.objectives
     }
 
+    const engineQuestions: Question[] = questions.map(q => ({
+      id: q.id,
+      type: (q.type as Question['type']) || 'multiple-choice',
+      prompt: q.prompt,
+      options: q.options || [],
+      answer: Array.isArray(q.answerKey) ? q.answerKey[0] : q.answerKey,
+      explanation: q.explanation,
+      objective: q.objective
+    }))
+    const nextErrors = mergeAttemptErrors(store.errors, newAttempt, engineQuestions)
     setStore(prev => ({
       ...prev,
       attempts: [newAttempt, ...prev.attempts],
-      errors: [...newErrors, ...prev.errors]
+      errors: nextErrors
     }))
 
     addToast(`Đã hoàn thành! Điểm của bạn: ${correctCount}/${questions.length}`, 'success')

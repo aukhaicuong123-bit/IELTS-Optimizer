@@ -26,7 +26,8 @@ import {
   Layers,
   Send
 } from 'lucide-react'
-import type { Store, Page, Attempt, ErrorRecord, SkillSubmission } from './types'
+import type { Store, Page, Attempt, ErrorRecord, SkillSubmission, Question } from './types'
+import { mergeAttemptErrors } from './domain'
 import {
   IELTS_EXAM_COLLECTIONS,
   type FullIELTSExam,
@@ -404,6 +405,7 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false)
   const [confirmExitOpen, setConfirmExitOpen] = useState(false)
   const questionRefs = useRef<Record<number, HTMLDivElement | null>>({})
+  const handleSubmitRef = useRef<(() => void) | null>(null)
 
   // Flatten all 40 questions in order 1..40
   const allQuestions = useMemo(() => {
@@ -412,19 +414,22 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
 
   // Timer countdown
   useEffect(() => {
-    if (isSubmitted || secondsLeft <= 0) return
+    handleSubmitRef.current = handleSubmitTest
+  })
+  useEffect(() => {
+    if (isSubmitted) return
     const t = setInterval(() => {
       setSecondsLeft(prev => {
         if (prev <= 1) {
           clearInterval(t)
-          handleSubmitTest()
+          handleSubmitRef.current?.()
           return 0
         }
         return prev - 1
       })
     }, 1000)
     return () => clearInterval(t)
-  }, [isSubmitted, secondsLeft])
+  }, [isSubmitted])
 
   const formatTimer = (totalSeconds: number) => {
     const mins = Math.floor(totalSeconds / 60)
@@ -457,7 +462,6 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
 
   const handleSubmitTest = () => {
     let rawScore = 0
-    const newErrors: ErrorRecord[] = []
     const attemptId = `full-reading-attempt-${Date.now()}`
 
     allQuestions.forEach(q => {
@@ -467,22 +471,6 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
 
       if (isCorrect) {
         rawScore++
-      } else {
-        newErrors.push({
-          id: `full-reading-err-${q.id}-${Date.now()}`,
-          questionId: q.id,
-          attemptId,
-          passageId: exam.id,
-          type: (q.type as any) || 'multiple-choice',
-          objective: `reading:passage-${q.passageNumber || 1}`,
-          prompt: q.prompt,
-          learnerAnswer: answers[q.id] || '(bỏ trống)',
-          correctAnswer: q.answerKey,
-          explanation: q.explanation,
-          createdAt: new Date().toISOString(),
-          reviewCount: 0,
-          retestAttemptIds: []
-        })
       }
     })
 
@@ -497,13 +485,23 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
       total: allQuestions.length,
       kind: 'practice',
       createdAt: new Date().toISOString(),
-      objectiveIds: ['reading:full-exam', `band-${bandScore}`]
+      objectiveIds: allQuestions.map(q => `reading:passage-${q.passageNumber || 1}`)
     }
 
+    const engineQuestions: Question[] = allQuestions.map(q => ({
+      id: q.id,
+      type: (q.type as Question['type']) || 'multiple-choice',
+      prompt: q.prompt,
+      options: q.options || [],
+      answer: q.answerKey,
+      explanation: q.explanation,
+      objective: `reading:passage-${q.passageNumber || 1}`
+    }))
+    const nextErrors = mergeAttemptErrors(store.errors, newAttempt, engineQuestions)
     setStore(prev => ({
       ...prev,
       attempts: [newAttempt, ...prev.attempts],
-      errors: [...newErrors, ...prev.errors]
+      errors: nextErrors
     }))
 
     setIsSubmitted(true)
@@ -1007,6 +1005,7 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
   const [isPlaying, setIsPlaying] = useState<boolean>(false)
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1.0)
   const questionRefs = useRef<Record<number, HTMLDivElement | null>>({})
+  const handleSubmitRef = useRef<(() => void) | null>(null)
 
   const listeningPaper = exam.listening
 
@@ -1018,19 +1017,22 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
 
   // Timer countdown
   useEffect(() => {
-    if (isSubmitted || secondsLeft <= 0) return
+    handleSubmitRef.current = handleSubmitTest
+  })
+  useEffect(() => {
+    if (isSubmitted) return
     const t = setInterval(() => {
       setSecondsLeft(prev => {
         if (prev <= 1) {
           clearInterval(t)
-          handleSubmitTest()
+          handleSubmitRef.current?.()
           return 0
         }
         return prev - 1
       })
     }, 1000)
     return () => clearInterval(t)
-  }, [isSubmitted, secondsLeft])
+  }, [isSubmitted])
 
   // Speech synthesis audio playback for authentic simulation
   useEffect(() => {
@@ -1097,7 +1099,6 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
     setIsPlaying(false)
 
     let rawScore = 0
-    const newErrors: ErrorRecord[] = []
     const attemptId = `full-listening-attempt-${Date.now()}`
 
     allQuestions.forEach(q => {
@@ -1107,22 +1108,6 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
 
       if (isCorrect) {
         rawScore++
-      } else {
-        newErrors.push({
-          id: `full-listening-err-${q.id}-${Date.now()}`,
-          questionId: q.id,
-          attemptId,
-          passageId: exam.id,
-          type: (q.type as any) || 'multiple-choice',
-          objective: `listening:section-${q.sectionNumber || 1}`,
-          prompt: q.prompt,
-          learnerAnswer: answers[q.id] || '(bỏ trống)',
-          correctAnswer: q.answerKey,
-          explanation: q.explanation,
-          createdAt: new Date().toISOString(),
-          reviewCount: 0,
-          retestAttemptIds: []
-        })
       }
     })
 
@@ -1137,13 +1122,23 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
       total: allQuestions.length,
       kind: 'practice',
       createdAt: new Date().toISOString(),
-      objectiveIds: ['listening:full-exam', `band-${bandScore}`]
+      objectiveIds: allQuestions.map(q => `listening:section-${q.sectionNumber || 1}`)
     }
 
+    const engineQuestions: Question[] = allQuestions.map(q => ({
+      id: q.id,
+      type: (q.type as Question['type']) || 'multiple-choice',
+      prompt: q.prompt,
+      options: q.options || [],
+      answer: q.answerKey,
+      explanation: q.explanation,
+      objective: `listening:section-${q.sectionNumber || 1}`
+    }))
+    const nextErrors = mergeAttemptErrors(store.errors, newAttempt, engineQuestions)
     setStore(prev => ({
       ...prev,
       attempts: [newAttempt, ...prev.attempts],
-      errors: [...newErrors, ...prev.errors]
+      errors: nextErrors
     }))
 
     setIsSubmitted(true)
@@ -1678,23 +1673,27 @@ function FullWritingExamSimulator({ exam, store, setStore, onExit, addToast }: W
   const [secondsLeft, setSecondsLeft] = useState<number>(60 * 60) // 60 minutes
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false)
   const [confirmExitOpen, setConfirmExitOpen] = useState(false)
+  const handleSubmitRef = useRef<(() => void) | null>(null)
 
   const writingPaper = exam.writing
 
   useEffect(() => {
-    if (isSubmitted || secondsLeft <= 0) return
+    handleSubmitRef.current = handleSubmitWriting
+  })
+  useEffect(() => {
+    if (isSubmitted) return
     const t = setInterval(() => {
       setSecondsLeft(prev => {
         if (prev <= 1) {
           clearInterval(t)
-          handleSubmitWriting()
+          handleSubmitRef.current?.()
           return 0
         }
         return prev - 1
       })
     }, 1000)
     return () => clearInterval(t)
-  }, [isSubmitted, secondsLeft])
+  }, [isSubmitted])
 
   const formatTimer = (totalSeconds: number) => {
     const mins = Math.floor(totalSeconds / 60)
@@ -2049,7 +2048,7 @@ function FullSpeakingExamSimulator({ exam, store, setStore, onExit, addToast }: 
 
   // Prep timer for Part 2
   useEffect(() => {
-    if (!prepActive || prepSeconds <= 0) return
+    if (!prepActive) return
     const t = setInterval(() => {
       setPrepSeconds(s => {
         if (s <= 1) {
@@ -2062,11 +2061,11 @@ function FullSpeakingExamSimulator({ exam, store, setStore, onExit, addToast }: 
       })
     }, 1000)
     return () => clearInterval(t)
-  }, [prepActive, prepSeconds])
+  }, [prepActive])
 
   // Speaking timer for Part 2
   useEffect(() => {
-    if (!speakingActive || speakingSeconds <= 0) return
+    if (!speakingActive) return
     const t = setInterval(() => {
       setSpeakingSeconds(s => {
         if (s <= 1) {
@@ -2080,7 +2079,7 @@ function FullSpeakingExamSimulator({ exam, store, setStore, onExit, addToast }: 
       })
     }, 1000)
     return () => clearInterval(t)
-  }, [speakingActive, speakingSeconds])
+  }, [speakingActive])
 
   const speakPrompt = (text: string) => {
     if (!('speechSynthesis' in window)) return

@@ -966,10 +966,8 @@ function ActivityGrid({ s, today }: { s: Store; today: number }) {
   const cells = weekdayLabels.flatMap((_, row) => Array.from({ length: 18 }, (_, column) => {
     const date = new Date(currentMonday)
     date.setDate(currentMonday.getDate() - (17 - column) * 7 + row)
-    const measured = minutes[localDate(date.toISOString())]
-    // Keep the empty-state dashboard visually useful while preserving real session data when it exists.
-    const demo = ((column * 7 + row * 5) % 17 === 0) ? Math.max(today, 72) : ((column + row) % 6 === 0 ? 16 : 0)
-    return measured || demo
+    const measured = minutes[localDate(date.toISOString())] || 0
+    return measured
   }))
   return (
     <div className="activity-grid-shell" role="img" aria-label="Heatmap hoạt động học tập 18 tuần">
@@ -1280,8 +1278,7 @@ function DashboardRecord({
 
 function Heatmap({ s }: { s: Store }) {
   const map = minutesByDate(s.sessions)
-  const key = (date: Date) =>
-    `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  const key = (date: Date) => localDate(date.toISOString())
   const today = new Date()
   const selected = key(today)
   const [month, setMonth] = useState(new Date(today.getFullYear(), today.getMonth(), 1))
@@ -1647,10 +1644,18 @@ function IELTSSimulation({ s, setS, note }: { s: Store; setS: (store: Store) => 
   const timeLimit = skill === 'Reading' ? 60 * 60 : skill === 'Writing' ? 60 * 60 : skill === 'Speaking' ? 14 * 60 : 30 * 60
 
   useEffect(() => {
-    if (!started || submitted || seconds <= 0) return
-    const timer = window.setInterval(() => setSeconds(value => Math.max(0, value - 1)), 1000)
+    if (!started || submitted) return
+    const timer = window.setInterval(() => {
+      setSeconds(value => {
+        if (value <= 1) {
+          window.clearInterval(timer)
+          return 0
+        }
+        return value - 1
+      })
+    }, 1000)
     return () => window.clearInterval(timer)
-  }, [started, submitted, seconds])
+  }, [started, submitted])
 
   const selectSkill = (next: SimulationSkill) => {
     setSkill(next); setStarted(false); setSubmitted(false); setSeconds(next === 'Reading' ? 3600 : next === 'Writing' ? 3600 : next === 'Speaking' ? 840 : 1800); setAnswers({}); setResponse('')
@@ -1749,14 +1754,19 @@ function SkillPractice({
   }, [activityId, draft])
 
   useEffect(() => {
-    let timer: any
-    if (prepActive && prepSeconds > 0) {
-      timer = setInterval(() => setPrepSeconds(prev => prev - 1), 1000)
-    } else if (prepSeconds === 0) {
-      setPrepActive(false)
-    }
+    if (!prepActive) return
+    const timer = setInterval(() => {
+      setPrepSeconds(prev => {
+        if (prev <= 1) {
+          clearInterval(timer)
+          setPrepActive(false)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
     return () => clearInterval(timer)
-  }, [prepActive, prepSeconds])
+  }, [prepActive])
 
   useEffect(() => {
     return () => {
