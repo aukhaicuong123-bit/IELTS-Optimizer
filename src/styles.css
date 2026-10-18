@@ -81,7 +81,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 .brand-mark i{position:absolute;display:block;width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-bottom:20px solid #116054}
 .brand-mark i:nth-child(1){left:0;bottom:1px;border-left-width:16px;border-right-width:16px;border-bottom-width:16px;transform:skew(-28deg)}
 .brand-mark i:nth-child(2){left:17px;bottom:1px;border-left-width:14px;border-right-width:14px;border-bottom-width:25px;border-bottom-color:#0a4b44}
-.brand-mark i:nth-child(3){left:24px;top:2px;border-left-width:7px;border-right-width:7px;border-bottom-width:10px;border-bottom-color:#c8f25e;transform:rotate(34deg);transform-origin:50% 100%}
+.brand-mark i:nth-child(3){left:24px;top:4px;border-left-width:7px;border-right-width:7px;border-bottom-width:10px;border-bottom-color:#c8f25e;transform:rotate(34deg);transform-origin:50% 100%}
 .app-dashboard .nav-group-label{color:#425978;font-size:11px;letter-spacing:.13em;padding:0 10px 6px}
 .app-dashboard .nav-group+.nav-group{margin-top:17px}
 .app-dashboard nav button{color:#172236;font-size:15px;padding:12px 10px;border-radius:8px;gap:13px}
