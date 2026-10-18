@@ -1,0 +1,78 @@
+declare module 'lucide-react' {
+  import type { ComponentType, SVGProps } from 'react'
+
+  export type LucideProps = SVGProps<SVGSVGElement> & {
+    size?: string | number
+    color?: string
+    strokeWidth?: string | number
+  }
+
+  export const Accessibility: ComponentType<LucideProps>
+  export const Activity: ComponentType<LucideProps>
+  export const AlertTriangle: ComponentType<LucideProps>
+  export const ArrowLeft: ComponentType<LucideProps>
+  export const ArrowRight: ComponentType<LucideProps>
+  export const Award: ComponentType<LucideProps>
+  export const BarChart3: ComponentType<LucideProps>
+  export const BookOpen: ComponentType<LucideProps>
+  export const BookOpenCheck: ComponentType<LucideProps>
+  export const Briefcase: ComponentType<LucideProps>
+  export const Building2: ComponentType<LucideProps>
+  export const Brain: ComponentType<LucideProps>
+  export const Check: ComponentType<LucideProps>
+  export const CheckCircle2: ComponentType<LucideProps>
+  export const CheckCircle: ComponentType<LucideProps>
+  export const ChevronDown: ComponentType<LucideProps>
+  export const ChevronLeft: ComponentType<LucideProps>
+  export const ChevronRight: ComponentType<LucideProps>
+  export const ChevronUp: ComponentType<LucideProps>
+  export const Circle: ComponentType<LucideProps>
+  export const Clock3: ComponentType<LucideProps>
+  export const Clock: ComponentType<LucideProps>
+  export const Compass: ComponentType<LucideProps>
+  export const Cpu: ComponentType<LucideProps>
+  export const Eye: ComponentType<LucideProps>
+  export const FastForward: ComponentType<LucideProps>
+  export const FileText: ComponentType<LucideProps>
+  export const Filter: ComponentType<LucideProps>
+  export const Flag: ComponentType<LucideProps>
+  export const Flame: ComponentType<LucideProps>
+  export const GraduationCap: ComponentType<LucideProps>
+  export const Headphones: ComponentType<LucideProps>
+  export const HeartPulse: ComponentType<LucideProps>
+  export const HelpCircle: ComponentType<LucideProps>
+  export const Home: ComponentType<LucideProps>
+  export const Info: ComponentType<LucideProps>
+  export const Keyboard: ComponentType<LucideProps>
+  export const Layers: ComponentType<LucideProps>
+  export const Leaf: ComponentType<LucideProps>
+  export const Library: ComponentType<LucideProps>
+  export const ListChecks: ComponentType<LucideProps>
+  export const Menu: ComponentType<LucideProps>
+  export const MessageCircle: ComponentType<LucideProps>
+  export const Mic2: ComponentType<LucideProps>
+  export const Mic: ComponentType<LucideProps>
+  export const Moon: ComponentType<LucideProps>
+  export const Network: ComponentType<LucideProps>
+  export const Palette: ComponentType<LucideProps>
+  export const Pause: ComponentType<LucideProps>
+  export const PenLine: ComponentType<LucideProps>
+  export const PenTool: ComponentType<LucideProps>
+  export const Play: ComponentType<LucideProps>
+  export const Quote: ComponentType<LucideProps>
+  export const RefreshCw: ComponentType<LucideProps>
+  export const RotateCcw: ComponentType<LucideProps>
+  export const Scale: ComponentType<LucideProps>
+  export const Search: ComponentType<LucideProps>
+  export const Send: ComponentType<LucideProps>
+  export const Settings: ComponentType<LucideProps>
+  export const ShieldCheck: ComponentType<LucideProps>
+  export const Sparkles: ComponentType<LucideProps>
+  export const Target: ComponentType<LucideProps>
+  export const Timer: ComponentType<LucideProps>
+  export const TrendingUp: ComponentType<LucideProps>
+  export const Volume2: ComponentType<LucideProps>
+  export const VolumeX: ComponentType<LucideProps>
+  export const X: ComponentType<LucideProps>
+  export const XCircle: ComponentType<LucideProps>
+}
