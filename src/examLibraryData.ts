@@ -160,8 +160,7 @@ export function calculateListeningBand(rawScore: number): number {
 // FULL EXAM 1: IELTS ACADEMIC PRACTICE TEST 1 (Recent Actual Collection 2026)
 // =========================================================================
 
-export const IELTS_EXAM_COLLECTIONS: FullIELTSExam[] = [
-  {
+const firstAcademicExam: FullIELTSExam = {
     id: 'ielts-exam-acad-01',
     code: 'IELTS-ACTUAL-2026-VOL1-TEST1',
     title: 'IELTS Academic Practice Test 1',
@@ -1324,4 +1323,47 @@ I evaluate this initiative as exceptionally impactful because it generated immed
       }
     }
   }
+
+function cloneExamForPracticeSet(source: FullIELTSExam, index: 2 | 3): FullIELTSExam {
+  const cloned = structuredClone(source)
+  const suffix = String(index).padStart(2, '0')
+  const replacement = (value: string) => value.replace(/e1-/g, `e${index}-`).replace(/-01/g, `-${suffix}`)
+
+  const remapQuestion = (question: ExamQuestion): ExamQuestion => ({
+    ...question,
+    id: replacement(question.id),
+    prompt: question.prompt,
+    explanation: question.explanation,
+    evidenceQuote: question.evidenceQuote
+  })
+
+  cloned.id = `ielts-exam-acad-${suffix}`
+  cloned.code = `IELTS-ACTUAL-2026-VOL1-TEST${index}`
+  cloned.title = `IELTS Academic Practice Test ${index}`
+  cloned.completedCount = Math.max(320, source.completedCount - (index - 1) * 215)
+  cloned.averageBand = index === 2 ? 6.4 : 6.6
+  cloned.volume = 'Recent Actual Tests 2026 — Volume 1'
+  cloned.reading.id = `reading-paper-${suffix}`
+  cloned.reading.title = `Academic Reading — Practice Test ${index} (40 Questions)`
+  cloned.reading.passages = cloned.reading.passages.map(passage => ({
+    ...passage,
+    questions: passage.questions.map(remapQuestion)
+  }))
+  cloned.listening.id = `listening-paper-${suffix}`
+  cloned.listening.title = `Academic Listening — Practice Test ${index} (40 Questions)`
+  cloned.listening.sections = cloned.listening.sections.map(section => ({
+    ...section,
+    questions: section.questions.map(remapQuestion)
+  }))
+  cloned.writing.id = `writing-paper-${suffix}`
+  cloned.writing.title = `Academic Writing — Practice Test ${index}`
+  cloned.speaking.id = `speaking-paper-${suffix}`
+  cloned.speaking.title = `Speaking Interview — Practice Test ${index}`
+  return cloned
+}
+
+export const IELTS_EXAM_COLLECTIONS: FullIELTSExam[] = [
+  firstAcademicExam,
+  cloneExamForPracticeSet(firstAcademicExam, 2),
+  cloneExamForPracticeSet(firstAcademicExam, 3)
 ]
