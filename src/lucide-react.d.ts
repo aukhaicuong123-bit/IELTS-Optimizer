@@ -22,6 +22,7 @@ declare module 'lucide-react' {
   export const Check: ComponentType<LucideProps>
   export const CheckCircle2: ComponentType<LucideProps>
   export const CheckCircle: ComponentType<LucideProps>
+  export const CalendarDays: ComponentType<LucideProps>
   export const ChevronDown: ComponentType<LucideProps>
   export const ChevronLeft: ComponentType<LucideProps>
   export const ChevronRight: ComponentType<LucideProps>
@@ -69,6 +70,7 @@ declare module 'lucide-react' {
   export const ShieldCheck: ComponentType<LucideProps>
   export const Sparkles: ComponentType<LucideProps>
   export const Target: ComponentType<LucideProps>
+  export const UserRound: ComponentType<LucideProps>
   export const Timer: ComponentType<LucideProps>
   export const TrendingUp: ComponentType<LucideProps>
   export const Volume2: ComponentType<LucideProps>

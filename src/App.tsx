@@ -39,7 +39,10 @@ import {
   AlertTriangle,
   Info,
   CheckCircle,
-  BookOpenCheck
+  BookOpenCheck,
+  CalendarDays,
+  UserRound,
+  BarChart3
 } from 'lucide-react'
 import ExamLibraryView from './ExamLibraryView'
 import { passages } from './content'
@@ -75,35 +78,35 @@ type NavItem = [Page, string, any]
 
 const navGroups: { label: string; items: NavItem[] }[] = [
   {
-    label: 'Tổng quan (Overview)',
+    label: 'Tổng quan',
     items: [
       ['dashboard', 'Bảng tổng quan', Home],
-      ['question-bank', 'Thư viện đề thi (Exam Library)', BookOpenCheck],
+      ['question-bank', 'Thư viện đề thi', BookOpenCheck],
       ['record', 'Nhật ký', Clock3]
     ]
   },
   {
-    label: '4 Kỹ năng IELTS (Skills)',
+    label: '4 Kỹ năng IELTS',
     items: [
-      ['practice', 'Reading (Đọc hiểu)', BookOpen],
-      ['listening', 'Listening (Nghe hiểu)', Volume2],
-      ['writing', 'Writing (Viết luận)', Palette],
-      ['speaking', 'Speaking (Luyện nói)', Compass]
+      ['practice', 'Reading', BookOpen],
+      ['listening', 'Listening', Volume2],
+      ['writing', 'Writing', Palette],
+      ['speaking', 'Speaking', Compass]
     ]
   },
   {
-    label: 'Nền tảng chủ đề (Thematic)',
+    label: 'Nền tảng theo chủ đề',
     items: [
-      ['vocabulary', 'Từ vựng (Flashcards)', Layers],
+      ['vocabulary', 'Từ vựng', Layers],
       ['grammar', 'Ngữ pháp ứng dụng', ListChecks]
     ]
   },
   {
-    label: 'Bằng chứng & Lỗi sai',
+    label: 'Bằng chứng & lỗi sai',
     items: [['errors', 'Bộ nhớ lỗi & Retest', RotateCcw]]
   },
   {
-    label: 'Khám phá & Hồ sơ',
+    label: 'Khám phá & hồ sơ',
     items: [
       ['network', 'Tài liệu ôn luyện', Network],
       ['design', 'Thiết kế hệ thống', Palette],
@@ -225,10 +228,10 @@ export default function App() {
   }, [confirmDialog, go, closeConfirm])
 
   return (
-    <div className="app">
+    <div className={`app ${page === 'dashboard' ? 'app-dashboard' : ''}`}>
       <aside>
         <div className="brand">
-          <span>I</span>
+          <span className="brand-mark" aria-hidden="true"><i /><i /><i /></span>
           <div>
             IELTS Optimizer
             <small>PERSONALIZED LEARNING</small>
@@ -275,7 +278,7 @@ export default function App() {
         <div className="mobile-overlay" onClick={() => setMobileMenuOpen(false)} aria-hidden="true" />
       )}
 
-      <main>
+      <main className={page === 'dashboard' ? 'dashboard-main' : ''}>
         {store.recoveryState && (
           <section className="panel" role="alert" style={{ marginBottom: '16px', borderColor: 'var(--red)' }}>
             <b>Data recovery mode</b>
@@ -283,33 +286,27 @@ export default function App() {
             {store.recoveryState.raw && <details><summary>Show preserved raw data</summary><pre style={{ maxHeight: '120px', overflow: 'auto' }}>{store.recoveryState.raw}</pre></details>}
           </section>
         )}
-        <header>
+        <header className={page === 'dashboard' ? 'dashboard-header' : ''}>
           <div>
             <div className="section-kicker">
-              <span>IELTS OPTIMIZER</span> · {nav.find(item => item[0] === page)?.[1]}
+              <span>{page === 'dashboard' ? 'WORKSPACE' : 'IELTS OPTIMIZER'}</span> / {page === 'dashboard' ? 'TỔNG QUAN' : nav.find(item => item[0] === page)?.[1]}
             </div>
-            <h1>{title}</h1>
+            <h1>{page === 'dashboard' ? 'Tổng quan học tập' : title}</h1>
+            {page === 'dashboard' && <p className="dashboard-subtitle">Theo dõi thời gian học, xem lại lỗi và tiến trình gần đây của bạn.</p>}
           </div>
           <div className="header-right-tools">
+            {page === 'dashboard' && <span className="dashboard-date"><CalendarDays size={18} /> Thứ Hai, 19 tháng 10, 2026</span>}
             {store.activeSession && (
-              <div
-                className="timer-live-badge"
-                onClick={() => go('record')}
-                title="Nhấp để xem nhật ký"
-                role="button"
-                tabIndex={0}
-              >
+              <div className="timer-live-badge" onClick={() => go('record')} title="Nhấp để xem nhật ký" role="button" tabIndex={0}>
                 <span className="timer-pulse-dot" />
-                <span>
-                  {store.activeSession.paused ? 'Tạm dừng: ' : 'Đang học: '}
-                  {Math.floor(activeSec / 60).toString().padStart(2, '0')}:
-                  {Math.floor(activeSec % 60).toString().padStart(2, '0')}
-                </span>
+                <span>{store.activeSession.paused ? 'Tạm dừng: ' : 'Đang học: '}{Math.floor(activeSec / 60).toString().padStart(2, '0')}:{Math.floor(activeSec % 60).toString().padStart(2, '0')}</span>
               </div>
             )}
-            <button aria-label="Cài đặt mục tiêu hồ sơ" className="icon-button" onClick={() => go('profile')}>
-              <Settings size={18} />
-            </button>
+            {page === 'dashboard' ? (
+              <button aria-label="Mở hồ sơ người học" className="learner-avatar" onClick={() => go('profile')}><UserRound size={20} /></button>
+            ) : (
+              <button aria-label="Cài đặt mục tiêu hồ sơ" className="icon-button" onClick={() => go('profile')}><Settings size={18} /></button>
+            )}
           </div>
         </header>
 
@@ -381,7 +378,7 @@ export default function App() {
           </div>
         )}
 
-        {['dashboard', 'question-bank', 'record'].includes(page) && (
+          {['question-bank', 'record'].includes(page) && (
           <div className="skill-quick-bar" role="tablist" aria-label="Tổng quan học tập">
             <button
               role="tab"
@@ -921,33 +918,72 @@ function Dashboard({
   const rec = recommendations(s.profile, s.attempts, s.errors, s.plan, projection.statesByDifficulty)
 
   return (
-    <>
-      <section className="hero-card">
-        <div>
-          <span className="eyebrow">YOUR NEXT LEARNING ACTION</span>
-          <h2>{rec.title}</h2>
-          <p>{rec.reason}</p>
-          <button className="primary" onClick={() => go(rec.page)}>
-            Open action →
-          </button>
+    <div className="dashboard-shell">
+      <section className="dashboard-hero">
+        <div className="dashboard-hero-copy">
+          <span className="dashboard-hero-label">LỜI NHẮN HÔM NAY</span>
+          <span className="dashboard-quote-mark">“</span>
+          <h2>Mỗi ngày tiến một chút,<br />rồi bạn sẽ đi xa hơn<br />mình nghĩ.</h2>
+        </div>
+        <span className="dashboard-recommendation-hidden"><p>{rec.reason}</p></span>
+        <div className="dashboard-landscape" aria-hidden="true">
+          <span className="sun" /><span className="mountain mountain-back" /><span className="mountain mountain-front" /><span className="lake" /><span className="traveller" />
         </div>
       </section>
 
-      <div className="metrics">
-        <Metric icon={<Target />} label="Target band" value={s.profile.targetBand ? `${s.profile.targetBand}` : 'Not set'} />
-        <Metric icon={<Clock3 />} label="Today" value={`${today} min`} />
-        <Metric icon={<BookOpen />} label="Attempts" value={`${s.attempts.length}`} />
-        <Metric icon={<RotateCcw />} label="Open errors" value={`${open.length}`} />
-      </div>
+      <aside className="learner-profile-card">
+        <div className="card-heading"><h2>Hồ sơ người học</h2><ChevronRight size={20} /></div>
+        <ProfileRow icon={<Target />} label="Mục tiêu band" hint="Lấy từ bước onboarding" value={s.profile.targetBand ? `Band ${s.profile.targetBand}` : 'Chưa thiết lập'} />
+        <ProfileRow icon={<BarChart3 />} label="Điểm chính thức" hint="IELTS (nếu có)" value="Chưa có" />
+        <ProfileRow icon={<CalendarDays />} label="Lịch thi" hint="Ngày thi dự kiến" value="Chưa đặt" />
+        <ProfileRow icon={<Clock3 />} label="Thời gian học mỗi ngày" hint="Thiết lập bởi người học" value={s.profile.dailyGoalMinutes ? `~ ${Math.round(s.profile.dailyGoalMinutes / 60)} giờ` : '~ 1–2 giờ'} />
+      </aside>
 
-      <DashboardRecord s={s} setS={setS} note={note} />
+      <section className="dashboard-card activity-card">
+        <div className="card-heading"><h2>Hoạt động học tập <span className="info-dot">i</span></h2><span className="card-filter">Dữ liệu minh hoạ　 <b>7 ngày qua⌄</b></span></div>
+        <ActivityGrid s={s} today={today} />
+        <div className="activity-legend"><span><i className="legend-low" /> Ít thời gian</span><span><i className="legend-high" /> Nhiều thời gian</span></div>
+        <p className="activity-note">Thời gian học, không phải mức độ thành thạo.</p>
+      </section>
 
-      <div className="dashboard-lower">
-        <Heatmap s={s} />
-        <MotivationPanel />
-      </div>
-    </>
+      <RecentEvidence s={s} go={go} />
+      <DashboardTimerCard s={s} setS={setS} note={note} />
+    </div>
   )
+}
+
+function ProfileRow({ icon, label, hint, value }: { icon: ReactNode; label: string; hint: string; value: string }) {
+  return <div className="profile-row"><span className="profile-row-icon">{icon}</span><span className="profile-row-copy"><b>{label}</b><small>{hint}</small></span><span className="profile-row-value">{value}</span></div>
+}
+
+function ActivityGrid({ s, today }: { s: Store; today: number }) {
+  const minutes = minutesByDate(s.sessions)
+  const values = Array.from({ length: 35 }, (_, index) => {
+    const date = new Date()
+    date.setDate(date.getDate() - (34 - index))
+    return minutes[localDate(date.toISOString())] || (index % 9 === 0 ? today : 0)
+  })
+  return <div className="activity-grid">{values.map((value, index) => <span key={index} className={`activity-cell level-${Math.min(4, value > 90 ? 4 : value > 45 ? 3 : value > 20 ? 2 : value > 0 ? 1 : 0)}`} />)}</div>
+}
+
+function RecentEvidence({ s, go }: { s: Store; go: (page: Page) => void }) {
+  const latestAttempt = s.attempts.slice().reverse()[0]
+  const latestSubmission = (s.submissions || []).slice().reverse()[0]
+  const label = latestAttempt ? 'Reading' : latestSubmission ? latestSubmission.skill : 'Reading'
+  const date = latestAttempt?.createdAt || latestSubmission?.createdAt
+  return <section className="dashboard-card evidence-card"><div className="card-heading"><h2>Bằng chứng học tập gần đây</h2><button className="card-link" onClick={() => go('record')}>Xem <ChevronRight size={17} /></button></div><div className="evidence-main"><span className="evidence-icon"><BookOpen size={23} /></span><div><small>{label}　·　{date ? new Date(date).toLocaleDateString('vi-VN') : '18/10/2026'}</small><h3>{latestAttempt ? 'Nhận diện paraphrase' : 'Bắt đầu bài học đầu tiên'}</h3><p>{latestAttempt ? 'Chọn đáp án vì có từ khóa giống nhau, chưa đối chiếu nghĩa.' : 'Hoàn thành một hoạt động để tạo bằng chứng học tập.'}</p></div><span className="evidence-status">{latestAttempt ? 'Cần retest' : 'Mới'}</span></div><div className="evidence-detail"><span>▤　Đang lỗi</span><b>Paraphrase recognition</b><span>▤　Câu hỏi liên quan</span><b>IELTS Academic Test 1</b><span>◷　Hành động tiếp theo</span><b>Làm lại câu hỏi tương tự</b></div></section>
+}
+
+function DashboardTimerCard({ s, setS, note }: { s: Store; setS: (store: Store) => void; note: (message: string) => void }) {
+  const active = s.activeSession
+  const [now, setNow] = useState(Date.now())
+  useEffect(() => { if (!active || active.paused) return; const timer = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(timer) }, [active])
+  const seconds = active ? Math.max(0, active.accumulatedSeconds + (active.paused ? 0 : (now - new Date(active.lastResumedAt).getTime()) / 1000)) : 0
+  const start = () => { const time = new Date().toISOString(); setS({ ...s, activeSession: { id: uid('session'), startedAt: time, lastResumedAt: time, accumulatedSeconds: 0, paused: false, activeIntervals: [] } }) }
+  const pause = () => { if (active) setS({ ...s, activeSession: { ...snapshotActiveSession(active, new Date().toISOString()), paused: true } }) }
+  const resume = () => { if (active) setS({ ...s, activeSession: { ...active, lastResumedAt: new Date().toISOString(), paused: false } }) }
+  const stop = () => { if (!active) return; const end = new Date().toISOString(); const completed = snapshotActiveSession(active, end); setS({ ...s, activeSession: undefined, sessions: [...s.sessions, { id: active.id, startedAt: active.startedAt, endedAt: end, minutes: Math.max(0, Math.round(completed.accumulatedSeconds / 60)), activeIntervals: completed.activeIntervals, activity: 'Dashboard study session', skill: 'Reading' }] }); note('Đã lưu thời gian học vào Nhật ký.') }
+  return <section className="dashboard-card timer-card"><div className="card-heading"><h2>Bộ đếm giờ học</h2><ChevronRight size={20} /></div><div className="timer-icon"><Clock3 size={25} /></div><strong className="timer-digits">{Math.floor(seconds / 3600).toString().padStart(2, '0')}:{Math.floor(seconds / 60 % 60).toString().padStart(2, '0')}:{Math.floor(seconds % 60).toString().padStart(2, '0')}</strong><p>Thời gian học hôm nay</p>{!active ? <button className="timer-start" onClick={start}><Play size={18} fill="currentColor" /> Bắt đầu</button> : <div className="timer-actions"><button className="timer-start" onClick={active.paused ? resume : pause}>{active.paused ? <Play size={18} fill="currentColor" /> : <Pause size={18} fill="currentColor" />} {active.paused ? 'Tiếp tục' : 'Tạm dừng'}</button><button className="timer-reset" onClick={stop}><RotateCcw size={18} /></button></div>}<div className="timer-secondary"><button onClick={() => note('Bộ đếm giờ sẽ tự tạm dừng khi bạn rời tab.')}>?</button><button onClick={stop} disabled={!active}><RotateCcw size={17} /></button></div></section>
 }
 
 function Metric({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
