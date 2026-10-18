@@ -414,6 +414,88 @@ interface RunnerProps {
   addToast: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void
 }
 
+function getQuestionBankPrompt(item: QuestionBankItem): string {
+  const payload = item.payload as { prompt?: string }
+  return payload.prompt || item.instructions
+}
+
+function buildLocalApproachFallback(item: QuestionBankItem) {
+  const taskType = ((item.payload as { taskType?: string }).taskType || item.skill.toLowerCase()) as string
+
+  return {
+    understandTheTask: `Bản public hiện đang dùng chế độ hướng dẫn cục bộ cho dạng ${taskType}. Hãy xác định đúng yêu cầu đề, giới hạn thời gian và tiêu chí chấm trước khi bắt đầu.`,
+    recommendedStructure: [
+      'Bước 1: Gạch chân từ khóa đề bài và xác định dạng câu hỏi hoặc nhiệm vụ chính.',
+      'Bước 2: Chia bài làm thành các phần nhỏ theo đúng tiêu chí chấm hoặc thứ tự xử lý hợp lý.',
+      'Bước 3: Hoàn thành phần trả lời chính trước, sau đó mới rà soát lỗi diễn đạt và tính đầy đủ.',
+      'Bước 4: Tự kiểm lại xem câu trả lời có bám đề, rõ ràng và đủ bằng chứng hay chưa.'
+    ],
+    keyVocabulary: [
+      'clear central idea',
+      'relevant supporting detail',
+      'logical progression',
+      'accurate language control'
+    ],
+    selfCheckQuestions: [
+      'Tôi đã trả lời đúng trọng tâm đề chưa?',
+      'Các ý đã được sắp xếp theo trình tự dễ theo dõi chưa?',
+      'Tôi đã rà lại lỗi từ vựng, ngữ pháp hoặc chi tiết còn thiếu chưa?'
+    ]
+  }
+}
+
+function buildLocalEvaluationFallback(item: QuestionBankItem, submission: string) {
+  const words = submission.trim().split(/\s+/).filter(Boolean)
+  const wordCount = words.length
+  const taskType = ((item.payload as { taskType?: string }).taskType || item.skill.toLowerCase()) as string
+  const targetMin = taskType === 'task2' ? 250 : 150
+  const meetsLength = wordCount >= targetMin
+
+  return {
+    overallBandEstimate: meetsLength ? 6.0 : 5.0,
+    overallAssessment: `Bản public hiện dùng đánh giá cục bộ để mọi người có thể trải nghiệm giao diện trên web. Bài hiện có ${wordCount} từ, mục tiêu tham chiếu là ${targetMin} từ.`,
+    criteria: {
+      taskAchievementOrResponse: {
+        score: meetsLength ? 6.0 : 5.0,
+        comment: meetsLength ? 'Đã đạt ngưỡng độ dài tham chiếu cho dạng bài này.' : 'Chưa đạt ngưỡng độ dài tham chiếu, nên phát triển ý thêm.',
+        evidence: words.slice(0, 10).join(' ') || 'Chưa có đủ nội dung để trích dẫn.'
+      },
+      coherenceAndCohesion: {
+        score: 6.0,
+        comment: 'Ưu tiên chia đoạn rõ ràng và liên kết ý mạch lạc giữa các phần trả lời.',
+        evidence: 'Đánh giá cục bộ dựa trên độ đầy đủ và cấu trúc tổng quát.'
+      },
+      lexicalResource: {
+        score: 5.5,
+        comment: 'Nên tăng mật độ từ vựng theo chủ đề và tránh lặp từ khóa quá nhiều.',
+        evidence: 'Đánh giá cục bộ chưa thay thế phản hồi AI có dẫn chứng.'
+      },
+      grammaticalRangeAndAccuracy: {
+        score: 5.5,
+        comment: 'Nên rà lỗi câu đơn/câu ghép và giữ cấu trúc câu ổn định.',
+        evidence: 'Đánh giá cục bộ tập trung vào trải nghiệm public-first.'
+      }
+    },
+    strengths: [
+      'Có nội dung để tiếp tục luyện tập trực tiếp trên website public',
+      'Có thể dùng ngay để thử luồng giao diện và nhập bài'
+    ],
+    priorityIssues: [
+      meetsLength ? 'Mở rộng ví dụ và bằng chứng để tăng sức thuyết phục.' : 'Viết dài hơn để đạt độ phủ ý tối thiểu.',
+      'Rà lại liên kết ý và giảm lặp từ vựng.'
+    ],
+    actionableRevisions: [
+      {
+        originalExcerpt: words.slice(0, 12).join(' ') || 'Chưa có đoạn trích phù hợp.',
+        suggestedRewrite: 'Viết lại câu mở đầu theo hướng rõ luận điểm hơn và thêm một chi tiết hỗ trợ cụ thể.',
+        reason: 'Giúp câu trả lời rõ mục tiêu hơn trong bản public đầu tiên.'
+      }
+    ],
+    nextExerciseRecommendation: 'Tiếp tục luyện một đề cùng kỹ năng trong Question Bank để kiểm tra độ ổn định của câu trả lời.',
+    limitationsNotice: 'Chế độ public hiện đang dùng đánh giá cục bộ để website chạy ổn trên GitHub Pages; phản hồi AI server-side sẽ được bổ sung sau.'
+  }
+}
+
 function ActivePracticeRunner({ item, store, setStore, onBack, addToast }: RunnerProps) {
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [submitted, setSubmitted] = useState(false)
@@ -436,20 +518,23 @@ function ActivePracticeRunner({ item, store, setStore, onBack, addToast }: Runne
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           taskTitle: item.title,
-          taskPrompt: (item.payload as any).prompt || item.instructions,
+          taskPrompt: getQuestionBankPrompt(item),
           taskType: (item.payload as any).taskType || 'task2',
           mode: 'approach'
         })
       })
+      if (!res.ok) throw new Error('ai-coach-unavailable')
       const result = await res.json()
       if (result.success && result.data) {
         setAiApproach(result.data)
         addToast(result.isFallback ? 'Đã tải gợi ý tiếp cận' : 'AI Coach đã phân tích hướng tiếp cận!', 'info')
       } else {
-        addToast(result.error || 'Không thể lấy gợi ý tiếp cận', 'error')
+        setAiApproach(buildLocalApproachFallback(item))
+        addToast('Đã chuyển sang gợi ý cục bộ để bản public vẫn hoạt động.', 'info')
       }
-    } catch (e: any) {
-      addToast('Lỗi kết nối tới máy chủ AI Coach', 'error')
+    } catch (_e: any) {
+      setAiApproach(buildLocalApproachFallback(item))
+      addToast('AI server chưa bật trên bản public, đã dùng gợi ý cục bộ.', 'info')
     } finally {
       setAiLoading(false)
     }
@@ -468,21 +553,24 @@ function ActivePracticeRunner({ item, store, setStore, onBack, addToast }: Runne
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           taskTitle: item.title,
-          taskPrompt: (item.payload as any).prompt,
+          taskPrompt: getQuestionBankPrompt(item),
           taskType: (item.payload as any).taskType || 'task2',
           studentSubmission: writingDraft,
           mode: 'evaluate'
         })
       })
+      if (!res.ok) throw new Error('ai-coach-unavailable')
       const result = await res.json()
       if (result.success && result.data) {
         setAiAssessment(result.data)
         addToast(result.isFallback ? 'Đã hoàn thành đánh giá định lượng' : 'AI Examiner đã hoàn thành chấm bài có bằng chứng!', 'success')
       } else {
-        addToast(result.error || 'Không thể hoàn thành đánh giá bài viết', 'error')
+        setAiAssessment(buildLocalEvaluationFallback(item, writingDraft))
+        addToast('Đã chuyển sang đánh giá cục bộ để bản public vẫn hoạt động.', 'info')
       }
-    } catch (e: any) {
-      addToast('Lỗi kết nối tới máy chủ AI Coach', 'error')
+    } catch (_e: any) {
+      setAiAssessment(buildLocalEvaluationFallback(item, writingDraft))
+      addToast('AI server chưa bật trên bản public, đã dùng đánh giá cục bộ.', 'info')
     } finally {
       setAiLoading(false)
     }
