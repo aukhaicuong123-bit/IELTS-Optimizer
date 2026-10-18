@@ -246,6 +246,12 @@ h1,h2,h3{font-family:Georgia,'Times New Roman',serif;color:#101a2d}
 .workspace-theme main .panel[style] p,.workspace-theme main .panel[style] span,.workspace-theme main .panel[style] small{color:inherit}
 .workspace-theme main .panel[style] svg{color:inherit}
 .workspace-theme .dashboard-hero{background:#075d52!important}
+.workspace-theme .dashboard-hero h2{color:#fff!important}
+.workspace-theme main .panel h1,.workspace-theme main .panel h2,.workspace-theme main .panel h3,.workspace-theme main .panel h4,.workspace-theme main .panel h5,.workspace-theme main .panel strong{color:#172236!important}
+.workspace-theme main .panel p,.workspace-theme main .panel li,.workspace-theme main .panel label,.workspace-theme main .panel span,.workspace-theme main .panel small{color:#425671!important}
+.workspace-theme main .panel .eyebrow,.workspace-theme main .panel .badge,.workspace-theme main .panel .date-pill,.workspace-theme main .panel .status,.workspace-theme main .panel .green-text{color:#39705e!important}
+.workspace-theme main .panel .status{color:#bd5a5b!important}
+.workspace-theme main .panel button:not(.primary):not(.secondary):not(.danger):not(.danger-outline){background:#fffefa!important;color:#36536b!important;border-color:#d9dfd8!important}
 @media(max-width:1080px){.workspace-theme main{padding-left:24px;padding-right:24px}.workspace-theme .profile-layout{grid-template-columns:1fr}.workspace-theme .roadmap-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:850px){.workspace-theme aside{width:64px;min-width:64px;padding:16px 6px}.workspace-theme .brand{margin:0 auto 28px}.workspace-theme .brand div{display:none}.workspace-theme .brand-mark{flex-basis:34px;width:34px!important}.workspace-theme nav button:not(.active){font-size:0}.workspace-theme .nav-group-label{display:none}.workspace-theme nav button{justify-content:center;padding:11px}.workspace-theme .sidebar-note{display:none}.workspace-theme main{padding:20px 16px 42px}.workspace-theme main>header h1{font-size:36px}.workspace-theme .skill-quick-bar{margin-left:0;margin-right:0}.workspace-theme .roadmap-grid{grid-template-columns:1fr}.workspace-theme .header-meta{display:none}}
 @media(max-width:520px){.workspace-theme main>header h1{font-size:30px}.workspace-theme .panel{padding:18px}.workspace-theme .skill-quick-bar{border-radius:11px}.workspace-theme .skill-quick-btn{padding:9px 11px;font-size:12px}.workspace-theme .header-right-tools{gap:7px}.workspace-theme .form-grid{grid-template-columns:1fr}.workspace-theme .record-grid{grid-template-columns:1fr 1fr}}
