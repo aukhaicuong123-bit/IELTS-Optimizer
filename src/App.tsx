@@ -41,7 +41,6 @@ import {
   CheckCircle,
   BookOpenCheck
 } from 'lucide-react'
-import QuestionBankView from './QuestionBankView'
 import ExamLibraryView from './ExamLibraryView'
 import { passages } from './content'
 import {
@@ -138,10 +137,6 @@ export default function App() {
   const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void; onCancel?: () => void } | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [headerNow, setHeaderNow] = useState(Date.now())
-  const [readingSubView, setReadingSubView] = useState<'passages' | 'question-bank'>('passages')
-  const [listeningSubView, setListeningSubView] = useState<'thematic' | 'question-bank'>('thematic')
-  const [writingSubView, setWritingSubView] = useState<'thematic' | 'question-bank'>('thematic')
-  const [speakingSubView, setSpeakingSubView] = useState<'thematic' | 'question-bank'>('thematic')
 
   useEffect(() => {
     if (!store.recoveryState) localStorage.setItem('ielts-optimizer-store-v1', JSON.stringify(store))
@@ -418,38 +413,7 @@ export default function App() {
         {page === 'dashboard' && <Dashboard s={store} go={setPage} setS={setStore} note={note} />}
         {page === 'question-bank' && <ExamLibraryView store={store} setStore={setStore} onNavigate={setPage} addToast={addToast} />}
 
-        {page === 'practice' && (
-          <div className="stack" style={{ gap: 16 }}>
-            <div style={{ display: 'flex', gap: 8, borderBottom: '1px solid var(--line)', paddingBottom: 10 }}>
-              <button
-                type="button"
-                className={`skill-quick-btn ${readingSubView === 'passages' ? 'active' : ''}`}
-                onClick={() => setReadingSubView('passages')}
-              >
-                <BookOpen size={14} /> <span>Bài đọc theo chủ đề (Passages & Retest)</span>
-              </button>
-              <button
-                type="button"
-                className={`skill-quick-btn ${readingSubView === 'question-bank' ? 'active' : ''}`}
-                onClick={() => setReadingSubView('question-bank')}
-              >
-                <BookOpenCheck size={14} /> <span>Ngân hàng câu hỏi đọc hiểu (Reading Bank)</span>
-              </button>
-            </div>
-            {readingSubView === 'passages' ? (
-              <Practice s={store} setS={setStore} note={note} targets={retestTargets} />
-            ) : (
-              <QuestionBankView
-                store={store}
-                setStore={setStore}
-                onNavigate={setPage}
-                addToast={addToast}
-                lockedSkill="Reading"
-                hideHeaderBanner
-              />
-            )}
-          </div>
-        )}
+        {page === 'practice' && <Practice s={store} setS={setStore} note={note} targets={retestTargets} />}
 
         {page === 'simulator' && (
           <ExamLibraryView
@@ -462,104 +426,11 @@ export default function App() {
         {page === 'errors' && <Errors s={store} setS={setStore} openRetest={openRetest} note={note} go={setPage} />}
         {page === 'record' && <Record s={store} />}
 
-        {page === 'listening' && (
-          <div className="stack" style={{ gap: 16 }}>
-            <div style={{ display: 'flex', gap: 8, borderBottom: '1px solid var(--line)', paddingBottom: 10 }}>
-              <button
-                type="button"
-                className={`skill-quick-btn ${listeningSubView === 'thematic' ? 'active' : ''}`}
-                onClick={() => setListeningSubView('thematic')}
-              >
-                <Volume2 size={14} /> <span>Luyện nghe theo chủ đề (Thematic Drills)</span>
-              </button>
-              <button
-                type="button"
-                className={`skill-quick-btn ${listeningSubView === 'question-bank' ? 'active' : ''}`}
-                onClick={() => setListeningSubView('question-bank')}
-              >
-                <BookOpenCheck size={14} /> <span>Ngân hàng bài tập nghe (Listening Bank)</span>
-              </button>
-            </div>
-            {listeningSubView === 'thematic' ? (
-              <SkillPractice s={store} setS={setStore} note={note} skill="Listening" />
-            ) : (
-              <QuestionBankView
-                store={store}
-                setStore={setStore}
-                onNavigate={setPage}
-                addToast={addToast}
-                lockedSkill="Listening"
-                hideHeaderBanner
-              />
-            )}
-          </div>
-        )}
+        {page === 'listening' && <SkillPractice s={store} setS={setStore} note={note} skill="Listening" />}
 
-        {page === 'writing' && (
-          <div className="stack" style={{ gap: 16 }}>
-            <div style={{ display: 'flex', gap: 8, borderBottom: '1px solid var(--line)', paddingBottom: 10 }}>
-              <button
-                type="button"
-                className={`skill-quick-btn ${writingSubView === 'thematic' ? 'active' : ''}`}
-                onClick={() => setWritingSubView('thematic')}
-              >
-                <Palette size={14} /> <span>Luyện viết Task 1 & 2 theo chủ đề</span>
-              </button>
-              <button
-                type="button"
-                className={`skill-quick-btn ${writingSubView === 'question-bank' ? 'active' : ''}`}
-                onClick={() => setWritingSubView('question-bank')}
-              >
-                <BookOpenCheck size={14} /> <span>Ngân hàng đề bài viết (Writing Bank)</span>
-              </button>
-            </div>
-            {writingSubView === 'thematic' ? (
-              <SkillPractice s={store} setS={setStore} note={note} skill="Writing" />
-            ) : (
-              <QuestionBankView
-                store={store}
-                setStore={setStore}
-                onNavigate={setPage}
-                addToast={addToast}
-                lockedSkill="Writing"
-                hideHeaderBanner
-              />
-            )}
-          </div>
-        )}
+        {page === 'writing' && <SkillPractice s={store} setS={setStore} note={note} skill="Writing" />}
 
-        {page === 'speaking' && (
-          <div className="stack" style={{ gap: 16 }}>
-            <div style={{ display: 'flex', gap: 8, borderBottom: '1px solid var(--line)', paddingBottom: 10 }}>
-              <button
-                type="button"
-                className={`skill-quick-btn ${speakingSubView === 'thematic' ? 'active' : ''}`}
-                onClick={() => setSpeakingSubView('thematic')}
-              >
-                <Compass size={14} /> <span>Luyện nói Part 1/2/3 theo chủ đề</span>
-              </button>
-              <button
-                type="button"
-                className={`skill-quick-btn ${speakingSubView === 'question-bank' ? 'active' : ''}`}
-                onClick={() => setSpeakingSubView('question-bank')}
-              >
-                <BookOpenCheck size={14} /> <span>Ngân hàng đề thi nói (Speaking Bank)</span>
-              </button>
-            </div>
-            {speakingSubView === 'thematic' ? (
-              <SkillPractice s={store} setS={setStore} note={note} skill="Speaking" />
-            ) : (
-              <QuestionBankView
-                store={store}
-                setStore={setStore}
-                onNavigate={setPage}
-                addToast={addToast}
-                lockedSkill="Speaking"
-                hideHeaderBanner
-              />
-            )}
-          </div>
-        )}
+        {page === 'speaking' && <SkillPractice s={store} setS={setStore} note={note} skill="Speaking" />}
         {page === 'vocabulary' && <VocabularyHub s={store} setS={setStore} note={note} />}
         {page === 'grammar' && <GrammarHub s={store} setS={setStore} note={note} />}
         {page === 'network' && <LearningNetwork />}
