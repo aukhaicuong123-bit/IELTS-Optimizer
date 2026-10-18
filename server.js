@@ -28,6 +28,16 @@ app.post('/api/ai/coach', async (req, res) => {
             res.status(400).json({ error: 'taskPrompt is required' });
             return;
         }
+        const VALID_MODES = ['evaluate', 'approach', 'hint'];
+        if (!mode || !VALID_MODES.includes(mode)) {
+            res.status(400).json({ error: 'mode must be one of: evaluate, approach, hint' });
+            return;
+        }
+        const VALID_TASK_TYPES = ['academic_task1', 'general_task1', 'task2', 'speaking', 'reading', 'listening'];
+        if (!taskType || !VALID_TASK_TYPES.includes(taskType)) {
+            res.status(400).json({ error: `taskType must be one of: ${VALID_TASK_TYPES.join(', ')}` });
+            return;
+        }
         if (mode === 'evaluate' && (!studentSubmission || studentSubmission.trim().split(/\s+/).length < 10)) {
             res.status(400).json({ error: 'Bài viết cần tối thiểu 10 từ để AI có thể đánh giá chi tiết.' });
             return;
