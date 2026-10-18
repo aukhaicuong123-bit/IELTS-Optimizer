@@ -281,11 +281,11 @@ describe('Question Bank Data Contracts & Validation (Phase 1)', () => {
     it('filters approved items by skill, topic, and difficulty', () => {
       const readingOnly = getApprovedQuestionBankItems(SEED_QUESTION_BANK_ITEMS, { skill: 'Reading' })
       expect(readingOnly.every(i => i.skill === 'Reading')).toBe(true)
-      expect(readingOnly.length).toBe(2)
+      expect(readingOnly.length).toBe(4)
 
       const writingOnly = getApprovedQuestionBankItems(SEED_QUESTION_BANK_ITEMS, { skill: 'Writing' })
       expect(writingOnly.every(i => i.skill === 'Writing')).toBe(true)
-      expect(writingOnly.length).toBe(2)
+      expect(writingOnly.length).toBe(4)
 
       const advancedOnly = getApprovedQuestionBankItems(SEED_QUESTION_BANK_ITEMS, { difficulty: 'advanced' })
       expect(advancedOnly.every(i => i.difficulty === 'advanced')).toBe(true)
@@ -293,6 +293,22 @@ describe('Question Bank Data Contracts & Validation (Phase 1)', () => {
       const searchFiltered = getApprovedQuestionBankItems(SEED_QUESTION_BANK_ITEMS, { searchTerm: 'Bioluminescence' })
       expect(searchFiltered.length).toBe(1)
       expect(searchFiltered[0].id).toBe('reading-qb-002')
+
+      const topicFiltered = getApprovedQuestionBankItems(SEED_QUESTION_BANK_ITEMS, { searchTerm: 'Environment' })
+      expect(topicFiltered.length).toBeGreaterThanOrEqual(1)
+
+      const combinedFiltered = getApprovedQuestionBankItems(SEED_QUESTION_BANK_ITEMS, {
+        skill: 'Writing',
+        difficulty: 'advanced'
+      })
+      expect(combinedFiltered.length).toBe(2)
+      expect(combinedFiltered.map(i => i.id)).toContain('writing-qb-002')
+      expect(combinedFiltered.map(i => i.id)).toContain('writing-qb-003')
+
+      const emptyResults = getApprovedQuestionBankItems(SEED_QUESTION_BANK_ITEMS, {
+        searchTerm: 'NonexistentKeywordXYZ123'
+      })
+      expect(emptyResults).toHaveLength(0)
     })
   })
 })

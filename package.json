@@ -3,7 +3,30 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "scripts": {"dev": "vite --host 0.0.0.0 --port 3000", "build": "tsc -b && vite build", "lint": "tsc -b", "test": "vitest run", "preview": "vite preview --host 0.0.0.0 --port 3000"},
-  "dependencies": {"@vitejs/plugin-react": "latest", "vite": "latest", "typescript": "latest", "react": "latest", "react-dom": "latest", "lucide-react": "latest"},
-  "devDependencies": {"@types/react": "latest", "@types/react-dom": "latest", "@types/node": "latest", "vitest": "latest"}
+  "scripts": {
+    "dev": "tsx server.ts",
+    "start": "tsx server.ts",
+    "build": "tsc -b && vite build",
+    "lint": "tsc -b",
+    "test": "vitest run",
+    "preview": "vite preview --host 0.0.0.0 --port 3000"
+  },
+  "dependencies": {
+    "@google/genai": "^2.30.0",
+    "@vitejs/plugin-react": "latest",
+    "express": "^5.3.0",
+    "lucide-react": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "typescript": "latest",
+    "vite": "latest"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "tsx": "^4.23.15",
+    "vitest": "latest"
+  }
 }
