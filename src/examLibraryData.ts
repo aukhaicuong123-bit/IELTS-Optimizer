@@ -103,15 +103,8 @@ export interface FullIELTSExam {
   code: string // e.g. "IELTS-ACTUAL-2026-VOL1-TEST1"
   title: string
   volume: string
-  year: number
-  month: string
-  volumeNumber: number
   module: 'Academic' | 'General Training'
   difficulty: 'Standard Exam'
-  skills: Array<'Listening' | 'Reading' | 'Writing' | 'Speaking'>
-  tags: string[]
-  sourceLabel: string
-  status: 'available'
   completedCount: number
   averageBand: number
   reading: FullReadingPaper
@@ -173,15 +166,8 @@ export const IELTS_EXAM_COLLECTIONS: FullIELTSExam[] = [
     code: 'IELTS-ACTUAL-2026-VOL1-TEST1',
     title: 'IELTS Academic Practice Test 1',
     volume: 'Recent Actual Tests 2026 — Volume 1',
-    year: 2026,
-    month: 'Volume 1',
-    volumeNumber: 1,
     module: 'Academic',
     difficulty: 'Standard Exam',
-    skills: ['Listening', 'Reading', 'Writing', 'Speaking'],
-    tags: ['full-test', 'computer-delivered', 'original-content'],
-    sourceLabel: 'Original — IELTS Optimizer Editorial Team',
-    status: 'available',
     completedCount: 1420,
     averageBand: 6.5,
     listening: {

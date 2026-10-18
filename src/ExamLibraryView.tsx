@@ -7,7 +7,6 @@ import {
   Clock,
   Award,
   ArrowLeft,
-  ArrowRight,
   CheckCircle2,
   XCircle,
   Flag,
@@ -36,13 +35,6 @@ import {
   calculateAcademicReadingBand,
   calculateListeningBand
 } from './examLibraryData'
-import QuestionBankView from './QuestionBankView'
-import {
-  LIBRARY_SKILLS,
-  SKILL_PRACTICE_PACKS,
-  type LibrarySkill,
-  type SkillPracticePack
-} from './examLibraryCatalog'
 
 interface Props {
   store: Store
@@ -55,94 +47,23 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
   const [selectedExamId, setSelectedExamId] = useState<string | null>(null)
   const [activeExamMode, setActiveExamMode] = useState<'reading' | 'listening' | 'writing' | 'speaking' | null>(null)
   const [selectedModule, setSelectedModule] = useState<'All' | 'Academic' | 'General Training'>('All')
-  const [selectedSkill, setSelectedSkill] = useState<'All' | LibrarySkill>('All')
-  const [selectedYear, setSelectedYear] = useState<'All' | number>('All')
-  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'popular'>('newest')
   const [searchTerm, setSearchTerm] = useState('')
-  const [activeSkillPack, setActiveSkillPack] = useState<SkillPracticePack | null>(null)
 
   const activeExam = useMemo(() => {
     return IELTS_EXAM_COLLECTIONS.find(e => e.id === selectedExamId) || null
   }, [selectedExamId])
 
   const filteredExams = useMemo(() => {
-    const results = IELTS_EXAM_COLLECTIONS.filter(e => {
+    return IELTS_EXAM_COLLECTIONS.filter(e => {
       const matchMod = selectedModule === 'All' || e.module === selectedModule
-      const matchSkill = selectedSkill === 'All' || e.skills.includes(selectedSkill)
-      const matchYear = selectedYear === 'All' || e.year === selectedYear
       const matchSearch =
         !searchTerm.trim() ||
         e.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         e.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        e.volume.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        e.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-      return matchMod && matchSkill && matchYear && matchSearch
+        e.volume.toLowerCase().includes(searchTerm.toLowerCase())
+      return matchMod && matchSearch
     })
-    return [...results].sort((a, b) => {
-      if (sortOrder === 'popular') return b.completedCount - a.completedCount
-      return sortOrder === 'newest' ? b.year - a.year || b.volumeNumber - a.volumeNumber : a.year - b.year || a.volumeNumber - b.volumeNumber
-    })
-  }, [selectedModule, selectedSkill, selectedYear, searchTerm, sortOrder])
-
-  const filteredSkillPacks = useMemo(() => {
-    const normalizedSearch = searchTerm.trim().toLowerCase()
-    return SKILL_PRACTICE_PACKS.filter(pack => {
-      const matchMod = selectedModule === 'All' || pack.module === selectedModule
-      const matchSkill = selectedSkill === 'All' || pack.skill === selectedSkill
-      const matchYear = selectedYear === 'All' || pack.year === selectedYear
-      const matchSearch =
-        !normalizedSearch ||
-        [pack.title, pack.topic, pack.skill, pack.volume, pack.sourceLabel].some(value =>
-          value.toLowerCase().includes(normalizedSearch)
-        )
-      return matchMod && matchSkill && matchYear && matchSearch
-    }).sort((a, b) => sortOrder === 'oldest' ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title))
-  }, [selectedModule, selectedSkill, selectedYear, searchTerm, sortOrder])
-
-  const libraryYears = useMemo(() => {
-    return Array.from(new Set([
-      ...IELTS_EXAM_COLLECTIONS.map(exam => exam.year),
-      ...SKILL_PRACTICE_PACKS.map(pack => pack.year)
-    ])).sort((a, b) => b - a)
-  }, [])
-
-  const totalCatalogQuestions = IELTS_EXAM_COLLECTIONS.reduce(
-    (total, exam) => total + exam.reading.totalQuestions + exam.listening.totalQuestions + 2,
-    0
-  ) + SKILL_PRACTICE_PACKS.reduce((total, pack) => total + pack.questionCount, 0)
-
-  if (activeSkillPack) {
-    return (
-      <div className="stack" style={{ gap: 16 }}>
-        <button
-          type="button"
-          className="text-button"
-          onClick={() => setActiveSkillPack(null)}
-          style={{ justifySelf: 'start', display: 'inline-flex', alignItems: 'center', gap: 6 }}
-        >
-          <ArrowLeft size={14} /> Quay lại thư viện đề thi
-        </button>
-        <div className="hero-card" style={{ minHeight: 'auto', padding: '20px 24px' }}>
-          <div>
-            <span className="eyebrow">IELTS OPTIMIZER ORIGINALS · {activeSkillPack.skill.toUpperCase()}</span>
-            <h1 style={{ fontSize: 26, margin: '8px 0' }}>{activeSkillPack.title}</h1>
-            <p style={{ margin: 0, color: 'var(--muted)' }}>
-              {activeSkillPack.topic} · {activeSkillPack.difficulty} · {activeSkillPack.questionCount} câu luyện tập
-            </p>
-          </div>
-          <span className="badge" style={{ color: 'var(--mint)', background: '#92dcaa18' }}>Nội dung gốc</span>
-        </div>
-        <QuestionBankView
-          store={store}
-          setStore={setStore}
-          onNavigate={onNavigate}
-          addToast={addToast}
-          initialSkill={activeSkillPack.skill}
-          hideHeaderBanner
-        />
-      </div>
-    )
-  }
+  }, [selectedModule, searchTerm])
 
   // Router for active exam modes
   if (activeExam && activeExamMode === 'reading') {
@@ -224,15 +145,15 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
         <div className="header-meta" style={{ gap: 24 }}>
           <div style={{ textAlign: 'right' }}>
             <strong style={{ fontSize: 30, fontFamily: 'Space Grotesk', color: 'var(--mint)' }}>
-              {IELTS_EXAM_COLLECTIONS.length + SKILL_PRACTICE_PACKS.length}
+              {IELTS_EXAM_COLLECTIONS.length}
             </strong>
-            <small style={{ display: 'block', color: 'var(--muted)' }}>Bộ đề & pack luyện tập</small>
+            <small style={{ display: 'block', color: 'var(--muted)' }}>Bộ đề hoàn chỉnh</small>
           </div>
           <div style={{ textAlign: 'right' }}>
             <strong style={{ fontSize: 30, fontFamily: 'Space Grotesk', color: 'var(--accent)' }}>
-              {totalCatalogQuestions}+
+              160+
             </strong>
-            <small style={{ display: 'block', color: 'var(--muted)' }}>Câu hỏi gốc đã duyệt</small>
+            <small style={{ display: 'block', color: 'var(--muted)' }}>Câu hỏi chuẩn hóa</small>
           </div>
         </div>
       </div>
@@ -275,50 +196,6 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
           })}
         </div>
 
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', width: '100%' }}>
-          <span style={{ alignSelf: 'center', color: 'var(--muted)', fontSize: 11 }}>Kỹ năng:</span>
-          {LIBRARY_SKILLS.map(skill => {
-            const isActive = selectedSkill === skill
-            return (
-              <button
-                key={skill}
-                type="button"
-                onClick={() => setSelectedSkill(skill)}
-                style={{
-                  padding: '6px 11px',
-                  borderRadius: 7,
-                  fontSize: 12,
-                  border: '1px solid',
-                  borderColor: isActive ? 'var(--mint)' : 'var(--line)',
-                  background: isActive ? '#b9f2c318' : '#14201c',
-                  color: isActive ? 'var(--mint)' : 'var(--muted)'
-                }}
-              >
-                {skill === 'All' ? 'Tất cả' : skill}
-              </button>
-            )
-          })}
-          <select
-            aria-label="Lọc theo năm"
-            value={selectedYear}
-            onChange={e => setSelectedYear(e.target.value === 'All' ? 'All' : Number(e.target.value))}
-            style={{ marginLeft: 'auto', minWidth: 130, padding: '6px 9px', borderRadius: 7, background: '#14201c', color: '#dcebe0', border: '1px solid var(--line)', fontSize: 12 }}
-          >
-            <option value="All">Tất cả năm</option>
-            {libraryYears.map(year => <option key={year} value={year}>{year}</option>)}
-          </select>
-          <select
-            aria-label="Sắp xếp thư viện"
-            value={sortOrder}
-            onChange={e => setSortOrder(e.target.value as 'newest' | 'oldest' | 'popular')}
-            style={{ minWidth: 150, padding: '6px 9px', borderRadius: 7, background: '#14201c', color: '#dcebe0', border: '1px solid var(--line)', fontSize: 12 }}
-          >
-            <option value="newest">Mới nhất</option>
-            <option value="oldest">Cũ nhất</option>
-            <option value="popular">Phổ biến nhất</option>
-          </select>
-        </div>
-
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{ position: 'relative', minWidth: 240 }}>
             <Search size={14} style={{ position: 'absolute', left: 10, top: 10, color: 'var(--muted)' }} />
@@ -339,7 +216,7 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
             />
           </div>
           <span style={{ fontSize: 12, color: 'var(--muted)' }}>
-            {filteredExams.length + filteredSkillPacks.length} kết quả · Nội dung gốc, có kiểm duyệt
+            Chuẩn Computer-Delivered IELTS
           </span>
         </div>
       </div>
@@ -372,9 +249,7 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
                   marginBottom: 8
                 }}
               >
-                <span style={{ color: 'var(--accent)', fontWeight: 600 }}>
-                  {exam.year} · {exam.month} · {exam.volume}
-                </span>
+                <span style={{ color: 'var(--accent)', fontWeight: 600 }}>{exam.volume}</span>
                 <span style={{ fontFamily: 'monospace', background: '#1c2e27', padding: '2px 6px', borderRadius: 4 }}>
                   {exam.code}
                 </span>
@@ -382,13 +257,6 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
 
               {/* Title */}
               <h2 style={{ fontSize: 20, margin: '0 0 12px', color: '#f0f8f1' }}>{exam.title}</h2>
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
-                <span className="badge" style={{ color: 'var(--mint)', background: '#92dcaa18' }}>{exam.module}</span>
-                {exam.tags.filter(tag => tag !== 'original-content').map(tag => (
-                  <span key={tag} className="badge">{tag.replace(/-/g, ' ')}</span>
-                ))}
-                <span className="badge" style={{ color: 'var(--muted)' }}>{exam.sourceLabel}</span>
-              </div>
 
               {/* Exam specs summary */}
               <div style={{ display: 'grid', gap: 8, fontSize: 12, color: '#c5d3ca', marginBottom: 14 }}>
@@ -511,45 +379,6 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
             </div>
           </div>
         ))}
-      </div>
-
-      {/* Skill practice catalog sourced from approved original question-bank items */}
-      <div className="panel" style={{ padding: 22, background: '#121e1a' }}>
-        <div className="panel-title">
-          <div>
-            <span className="eyebrow">ORIGINAL SKILL PRACTICE · 4 KỸ NĂNG</span>
-            <h2 style={{ fontSize: 21, marginTop: 6 }}>Bộ luyện theo kỹ năng</h2>
-          </div>
-          <span style={{ color: 'var(--muted)', fontSize: 12 }}>{filteredSkillPacks.length} pack đang hiển thị</span>
-        </div>
-        <p className="muted" style={{ marginTop: 0 }}>
-          Các pack này dùng nội dung gốc đã được duyệt và mở trực tiếp vào trình luyện có lưu kết quả, lỗi và bằng chứng học tập.
-        </p>
-        {filteredSkillPacks.length === 0 ? (
-          <div className="empty" style={{ padding: '24px 10px' }}>
-            <Search size={24} className="empty-icon" />
-            <p>Không có pack phù hợp với bộ lọc hiện tại.</p>
-          </div>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
-            {filteredSkillPacks.map(pack => (
-              <article key={pack.id} style={{ border: '1px solid var(--line)', borderRadius: 10, padding: 15, background: '#18231f', display: 'grid', gap: 9 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'start' }}>
-                  <span className="badge" style={{ color: 'var(--mint)', background: '#92dcaa18' }}>{pack.skill}</span>
-                  <span style={{ color: 'var(--muted)', fontSize: 10 }}>{pack.year}</span>
-                </div>
-                <h3 style={{ fontSize: 15 }}>{pack.title}</h3>
-                <p style={{ margin: 0, color: 'var(--muted)', fontSize: 12 }}>{pack.topic} · {pack.difficulty}</p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, borderTop: '1px solid var(--line)', paddingTop: 9 }}>
-                  <span style={{ color: 'var(--muted)', fontSize: 11 }}>{pack.questionCount} câu · {pack.module}</span>
-                  <button type="button" className="secondary" style={{ padding: '7px 10px', fontSize: 11 }} onClick={() => setActiveSkillPack(pack)}>
-                    Luyện ngay <ArrowRight size={12} />
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   )
