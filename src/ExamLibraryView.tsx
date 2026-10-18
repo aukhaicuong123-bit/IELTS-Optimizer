@@ -1,5 +1,4 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
-import type { ReactNode } from 'react'
 import {
   BookOpen,
   Volume2,
@@ -47,18 +46,12 @@ interface Props {
 export default function ExamLibraryView({ store, setStore, onNavigate, addToast }: Props) {
   const [selectedExamId, setSelectedExamId] = useState<string | null>(null)
   const [activeExamMode, setActiveExamMode] = useState<'reading' | 'listening' | 'writing' | 'speaking' | null>(null)
-  const [fullExamSession, setFullExamSession] = useState<FullExamSessionState | null>(null)
   const [selectedModule, setSelectedModule] = useState<'All' | 'Academic' | 'General Training'>('All')
   const [searchTerm, setSearchTerm] = useState('')
 
   const activeExam = useMemo(() => {
     return IELTS_EXAM_COLLECTIONS.find(e => e.id === selectedExamId) || null
   }, [selectedExamId])
-
-  const sessionExam = useMemo(() => {
-    if (!fullExamSession) return null
-    return IELTS_EXAM_COLLECTIONS.find(e => e.id === fullExamSession.examId) || null
-  }, [fullExamSession])
 
   const filteredExams = useMemo(() => {
     return IELTS_EXAM_COLLECTIONS.filter(e => {
@@ -71,19 +64,6 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
       return matchMod && matchSearch
     })
   }, [selectedModule, searchTerm])
-
-  if (sessionExam && fullExamSession) {
-    return (
-      <FullExamSessionFlow
-        exam={sessionExam}
-        session={fullExamSession}
-        store={store}
-        setStore={setStore}
-        setSession={setFullExamSession}
-        addToast={addToast}
-      />
-    )
-  }
 
   // Router for active exam modes
   if (activeExam && activeExamMode === 'reading') {
@@ -328,27 +308,6 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
 
             {/* Action Buttons for Each Skill or Full Test */}
             <div style={{ display: 'grid', gap: 8 }}>
-              <button
-                type="button"
-                className="primary"
-                onClick={() => setFullExamSession({ examId: exam.id, phase: 'intro', startedAt: Date.now() })}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                  padding: '12px 10px',
-                  fontSize: 13,
-                  fontWeight: 800,
-                  background: 'linear-gradient(135deg, #b9f2c3, #79d69a)',
-                  color: '#102019'
-                }}
-              >
-                <Play size={15} /> Bắt đầu Full IELTS Test · khoảng 2 giờ 45 phút
-              </button>
-              <span style={{ fontSize: 11, color: 'var(--muted)', textAlign: 'center', margin: '0 0 2px' }}>
-                Mô phỏng một phiên thi hoàn chỉnh: Reading → Listening → Writing → Speaking
-              </span>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 <button
                   type="button"
@@ -425,115 +384,6 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
   )
 }
 
-type FullExamPhase = 'intro' | 'reading' | 'listening' | 'writing' | 'speaking' | 'results'
-
-interface FullExamSessionState {
-  examId: string
-  phase: FullExamPhase
-  startedAt: number
-  readingScore?: number
-  listeningScore?: number
-  writingCompleted?: boolean
-  speakingCompleted?: boolean
-}
-
-interface FullExamSessionFlowProps {
-  exam: FullIELTSExam
-  session: FullExamSessionState
-  store: Store
-  setStore: (updater: Store | ((prev: Store) => Store)) => void
-  setSession: (session: FullExamSessionState | null) => void
-  addToast: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void
-}
-
-function FullExamSessionFlow({ exam, session, store, setStore, setSession, addToast }: FullExamSessionFlowProps) {
-  const updateSession = (next: Partial<FullExamSessionState>) => setSession({ ...session, ...next })
-  const exitSession = () => setSession(null)
-
-  const steps = [
-    { key: 'reading', label: 'Reading', icon: BookOpen },
-    { key: 'listening', label: 'Listening', icon: Volume2 },
-    { key: 'writing', label: 'Writing', icon: PenTool },
-    { key: 'speaking', label: 'Speaking', icon: Mic }
-  ] as const
-
-  if (session.phase === 'intro') {
-    return (
-      <div className="stack" style={{ gap: 18, maxWidth: 980, margin: '0 auto' }}>
-        <button type="button" className="secondary" onClick={exitSession} style={{ alignSelf: 'flex-start', display: 'flex', gap: 6, alignItems: 'center' }}>
-          <ArrowLeft size={14} /> Quay lại thư viện đề thi
-        </button>
-        <div className="hero-card" style={{ minHeight: 'auto', padding: 30 }}>
-          <span className="eyebrow"><ShieldCheck size={14} /> FULL IELTS TEST — MÔ PHỎNG PHIÊN THI THẬT</span>
-          <h1 style={{ fontSize: 30, margin: '10px 0' }}>{exam.title}</h1>
-          <p style={{ color: 'var(--muted)', lineHeight: 1.7, maxWidth: 760, margin: 0 }}>
-            Đây là một phiên thi liên tục. Bạn sẽ hoàn thành từng kỹ năng theo đúng thứ tự, nộp bài trước khi chuyển sang phần kế tiếp và không thể quay lại phần đã nộp.
-          </p>
-        </div>
-        <div className="panel" style={{ padding: 24 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
-            {steps.map(({ key, label, icon: Icon }, index) => (
-              <div key={key} style={{ padding: 16, background: '#14201c', border: '1px solid var(--line)', borderRadius: 10 }}>
-                <div style={{ color: 'var(--mint)', display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700 }}><Icon size={16} /> {index + 1}. {label}</div>
-                <div style={{ color: 'var(--muted)', fontSize: 12, marginTop: 8 }}>
-                  {key === 'reading' ? '3 passages · 40 câu · 60 phút' : key === 'listening' ? '4 sections · 40 câu · 30 phút' : key === 'writing' ? 'Task 1 + Task 2 · 60 phút' : 'Part 1 + 2 + 3 · 11–14 phút'}
-                </div>
-              </div>
-            ))}
-          </div>
-          <div style={{ marginTop: 20, padding: 14, background: '#1c2e27', borderRadius: 8, color: '#c5d3ca', fontSize: 13, lineHeight: 1.6 }}>
-            <strong style={{ color: 'var(--mint)' }}>Trước khi bắt đầu:</strong> hãy chuẩn bị tai nghe, microphone, giấy nháp và dành khoảng 2 giờ 45 phút không bị gián đoạn. Writing và Speaking sẽ được lưu để tự đánh giá hoặc chấm thủ công; hệ thống chỉ tự chấm Reading và Listening.
-          </div>
-          <button type="button" className="primary" onClick={() => updateSession({ phase: 'reading' })} style={{ width: '100%', marginTop: 18, padding: 13, fontWeight: 800 }}>
-            <Play size={15} /> Bắt đầu Reading — 60 phút
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  if (session.phase === 'results') {
-    const elapsedMinutes = Math.max(1, Math.round((Date.now() - session.startedAt) / 60000))
-    return (
-      <div className="stack" style={{ gap: 18, maxWidth: 980, margin: '0 auto' }}>
-        <div className="hero-card" style={{ minHeight: 'auto', padding: 30 }}>
-          <span className="eyebrow"><Award size={14} /> FULL IELTS TEST — ĐÃ HOÀN TẤT</span>
-          <h1 style={{ fontSize: 28, margin: '10px 0' }}>Báo cáo phiên thi hoàn chỉnh</h1>
-          <p style={{ color: 'var(--muted)', margin: 0 }}>Bạn đã hoàn thành toàn bộ 4 kỹ năng trong khoảng {elapsedMinutes} phút.</p>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14 }}>
-          <div className="panel" style={{ padding: 22 }}><span className="eyebrow">READING</span><h2 style={{ margin: '8px 0 4px', color: 'var(--mint)' }}>{session.readingScore ?? 0}/40 · Band {calculateAcademicReadingBand(session.readingScore ?? 0).toFixed(1)}</h2><span style={{ color: 'var(--muted)', fontSize: 12 }}>Tự động chấm theo thang IELTS Academic</span></div>
-          <div className="panel" style={{ padding: 22 }}><span className="eyebrow">LISTENING</span><h2 style={{ margin: '8px 0 4px', color: 'var(--accent)' }}>{session.listeningScore ?? 0}/40 · Band {calculateListeningBand(session.listeningScore ?? 0).toFixed(1)}</h2><span style={{ color: 'var(--muted)', fontSize: 12 }}>Tự động chấm theo thang IELTS</span></div>
-          <div className="panel" style={{ padding: 22 }}><span className="eyebrow">WRITING</span><h2 style={{ margin: '8px 0 4px', color: 'var(--mint)' }}>Đã hoàn thành</h2><span style={{ color: 'var(--muted)', fontSize: 12 }}>Bài nộp đã lưu — cần tự đánh giá hoặc người chấm</span></div>
-          <div className="panel" style={{ padding: 22 }}><span className="eyebrow">SPEAKING</span><h2 style={{ margin: '8px 0 4px', color: '#e599f7' }}>Đã hoàn thành</h2><span style={{ color: 'var(--muted)', fontSize: 12 }}>Phiên luyện nói đã kết thúc — không tự bịa Band điểm</span></div>
-        </div>
-        <button type="button" className="primary" onClick={exitSession} style={{ padding: 13, fontWeight: 800 }}>Trở về thư viện đề thi</button>
-      </div>
-    )
-  }
-
-  const currentIndex = steps.findIndex(step => step.key === session.phase)
-  const renderStep = (content: ReactNode) => (
-    <div className="stack" style={{ gap: 12 }}>
-      <div className="panel" style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-        <strong style={{ fontSize: 12, color: 'var(--muted)', marginRight: 6 }}>FULL IELTS TEST</strong>
-        {steps.map(({ key, label }, index) => (
-          <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 6, color: index === currentIndex ? 'var(--mint)' : index < currentIndex ? '#7bbd91' : 'var(--muted)', fontSize: 12, fontWeight: index === currentIndex ? 800 : 600 }}>
-            {index > 0 && <span style={{ color: 'var(--line)' }}>→</span>} {index < currentIndex ? '✓' : `${index + 1}.`} {label}
-          </div>
-        ))}
-        <button type="button" className="secondary" onClick={exitSession} style={{ marginLeft: 'auto', fontSize: 11, padding: '6px 10px' }}>Thoát phiên thi</button>
-      </div>
-      {content}
-    </div>
-  )
-
-  if (session.phase === 'reading') return renderStep(<FullReadingExamSimulator exam={exam} store={store} setStore={setStore} onExit={exitSession} addToast={addToast} onComplete={score => updateSession({ phase: 'listening', readingScore: score })} />)
-  if (session.phase === 'listening') return renderStep(<FullListeningExamSimulator exam={exam} store={store} setStore={setStore} onExit={exitSession} addToast={addToast} onComplete={score => updateSession({ phase: 'writing', listeningScore: score })} />)
-  if (session.phase === 'writing') return renderStep(<FullWritingExamSimulator exam={exam} store={store} setStore={setStore} onExit={exitSession} addToast={addToast} onComplete={() => updateSession({ phase: 'speaking', writingCompleted: true })} />)
-  return renderStep(<FullSpeakingExamSimulator exam={exam} store={store} setStore={setStore} onExit={exitSession} addToast={addToast} onComplete={() => updateSession({ phase: 'results', speakingCompleted: true })} />)
-}
-
 // =========================================================================
 // 1. FULL READING EXAM SIMULATOR (40 Questions, 3 Passages, 60-Minute Countdown)
 // =========================================================================
@@ -543,11 +393,10 @@ interface ReadingSimulatorProps {
   store: Store
   setStore: (updater: Store | ((prev: Store) => Store)) => void
   onExit: () => void
-  onComplete?: (score: number) => void
   addToast: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void
 }
 
-function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast, onComplete }: ReadingSimulatorProps) {
+function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: ReadingSimulatorProps) {
   const [activePassageIndex, setActivePassageIndex] = useState<0 | 1 | 2>(0)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [flaggedQuestions, setFlaggedQuestions] = useState<Set<number>>(new Set())
@@ -659,7 +508,6 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast, onC
 
     setIsSubmitted(true)
     addToast(`Bài thi Reading hoàn tất! Điểm thô: ${rawScore}/40 — Đạt Band ${bandScore.toFixed(1)}`, 'success')
-    onComplete?.(rawScore)
   }
 
   const answeredCount = Object.keys(answers).length
@@ -1146,11 +994,10 @@ interface ListeningSimulatorProps {
   store: Store
   setStore: (updater: Store | ((prev: Store) => Store)) => void
   onExit: () => void
-  onComplete?: (score: number) => void
   addToast: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void
 }
 
-function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast, onComplete }: ListeningSimulatorProps) {
+function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }: ListeningSimulatorProps) {
   const [activeSectionIndex, setActiveSectionIndex] = useState<0 | 1 | 2 | 3>(0)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [flaggedQuestions, setFlaggedQuestions] = useState<Set<number>>(new Set())
@@ -1301,7 +1148,6 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast, o
 
     setIsSubmitted(true)
     addToast(`Bài thi Listening hoàn tất! Điểm thô: ${rawScore}/40 — Đạt Band ${bandScore.toFixed(1)}`, 'success')
-    onComplete?.(rawScore)
   }
 
   const answeredCount = Object.keys(answers).length
@@ -1822,11 +1668,10 @@ interface WritingSimulatorProps {
   store: Store
   setStore: (updater: Store | ((prev: Store) => Store)) => void
   onExit: () => void
-  onComplete?: () => void
   addToast: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void
 }
 
-function FullWritingExamSimulator({ exam, store, setStore, onExit, addToast, onComplete }: WritingSimulatorProps) {
+function FullWritingExamSimulator({ exam, store, setStore, onExit, addToast }: WritingSimulatorProps) {
   const [activeTask, setActiveTask] = useState<'task1' | 'task2'>('task1')
   const [task1Text, setTask1Text] = useState('')
   const [task2Text, setTask2Text] = useState('')
@@ -1884,7 +1729,6 @@ function FullWritingExamSimulator({ exam, store, setStore, onExit, addToast, onC
 
     setIsSubmitted(true)
     addToast('Bài thi Writing hoàn tất! Đã lưu bài nộp và mở bài mẫu tham khảo Band 8.0+', 'success')
-    onComplete?.()
   }
 
   if (isSubmitted) {
@@ -2186,11 +2030,10 @@ interface SpeakingSimulatorProps {
   store: Store
   setStore: (updater: Store | ((prev: Store) => Store)) => void
   onExit: () => void
-  onComplete?: () => void
   addToast: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void
 }
 
-function FullSpeakingExamSimulator({ exam, store, setStore, onExit, addToast, onComplete }: SpeakingSimulatorProps) {
+function FullSpeakingExamSimulator({ exam, store, setStore, onExit, addToast }: SpeakingSimulatorProps) {
   const [activePart, setActivePart] = useState<'part1' | 'part2' | 'part3'>('part1')
   const [prepSeconds, setPrepSeconds] = useState(60)
   const [prepActive, setPrepActive] = useState(false)
@@ -2340,8 +2183,7 @@ function FullSpeakingExamSimulator({ exam, store, setStore, onExit, addToast, on
           className="primary"
           onClick={() => {
             addToast('Đã hoàn thành phiên phỏng vấn Speaking!', 'success')
-            if (onComplete) onComplete()
-            else onExit()
+            onExit()
           }}
           style={{ padding: '8px 18px', fontWeight: 700 }}
         >
