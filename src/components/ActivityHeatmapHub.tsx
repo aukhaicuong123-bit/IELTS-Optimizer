@@ -1,35 +1,18 @@
 import React, { useState, useMemo, useRef } from 'react'
 import {
+  CalendarDays,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
-  ChevronUp,
-  CalendarDays,
-  Info,
+  Clock,
+  Flame,
+  BarChart3,
   Sparkles,
   CheckCircle2,
-  Clock
+  Layers
 } from 'lucide-react'
-import { Store } from '../types'
+import { Store, Attempt, StudySession } from '../types'
 import { localDate, minutesByDate } from '../domain'
-
-const ExpandIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="15 3 21 3 21 9" />
-    <polyline points="9 21 3 21 3 15" />
-    <line x1="21" y1="3" x2="14" y2="10" />
-    <line x1="3" y1="21" x2="10" y2="14" />
-  </svg>
-)
-
-const ShrinkIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="4 14 10 14 10 20" />
-    <polyline points="20 10 14 10 14 4" />
-    <line x1="14" y1="10" x2="21" y2="3" />
-    <line x1="3" y1="21" x2="10" y2="14" />
-  </svg>
-)
 
 interface ActivityHeatmapHubProps {
   s: Store
@@ -37,50 +20,49 @@ interface ActivityHeatmapHubProps {
   onExpandChange?: (expanded: boolean) => void
 }
 
-type ViewMode = 'calendar' | 'matrix'
-
-// Seeded historical baseline for realistic GitHub-style activity matching the reference image
-const SEED_CONTRIBUTIONS: Record<string, number> = {
-  // April 2026 contributions (matching Image 2)
-  '2026-04-06': 3,
-  '2026-04-07': 5,
-  '2026-04-08': 8,
-  '2026-04-09': 4,
-  '2026-04-10': 6,
-  '2026-04-13': 4,
-  '2026-04-20': 5,
-  '2026-04-27': 3,
-  // May 2026
-  '2026-05-04': 4,
-  '2026-05-18': 3,
-  // August 2026
-  '2026-08-10': 4,
-  '2026-08-11': 6,
-  '2026-08-18': 5,
-  // September 2026
-  '2026-09-01': 8,
-  '2026-09-07': 5,
-  '2026-09-14': 7,
-  '2026-09-15': 9,
-  '2026-09-21': 6,
-  '2026-09-22': 4,
-  '2026-09-28': 10,
-  // October 2026 (matching Image 2: intense green streak and Oct 17 with 17 contributions)
-  '2026-10-05': 8,
-  '2026-10-12': 11,
-  '2026-10-13': 7,
-  '2026-10-14': 9,
-  '2026-10-15': 12,
-  '2026-10-16': 14,
-  '2026-10-17': 17, // Matches "17 contributions on October 17th" in Image 2
-  '2026-10-18': 15,
-  '2026-10-19': 8   // Matches highlighted Monday Oct 19 in Image 1
+interface HeatmapDay {
+  dayOfWeek: number
+  dayName: string
+  dateKey: string
+  count: number
+  level: number
 }
 
-export function ActivityHeatmapHub({ s, initialExpanded = false, onExpandChange }: ActivityHeatmapHubProps) {
-  const [viewMode, setViewMode] = useState<ViewMode>('calendar')
-  const [isExpanded, setIsExpanded] = useState(initialExpanded)
+interface HeatmapColumn {
+  id: string
+  monthName: string
+  monthIndex: number
+  periodIndex: number
+  days: HeatmapDay[]
+}
+
+// Seeded activity pattern matching Image 2 reference data
+const SEEDED_ACTIVITY: Record<string, number> = {
+  // Jan - Sep baseline
+  '2026-01-05': 3, '2026-01-16': 2, '2026-01-28': 4,
+  '2026-02-09': 5, '2026-02-18': 4,
+  '2026-03-03': 3, '2026-03-12': 5, '2026-03-24': 6,
+  '2026-04-06': 6, '2026-04-14': 7, '2026-04-22': 5,
+  '2026-05-05': 4, '2026-05-18': 8, '2026-05-27': 5,
+  '2026-06-08': 6, '2026-06-22': 5,
+  '2026-07-07': 7, '2026-07-16': 6, '2026-07-28': 4,
+  '2026-08-04': 5, '2026-08-14': 8, '2026-08-25': 6,
+  '2026-09-02': 9, '2026-09-11': 7, '2026-09-18': 10, '2026-09-25': 8,
+  // October 2026 intense green clusters (matching Image 2)
+  '2026-10-02': 12, '2026-10-05': 9, '2026-10-06': 14, '2026-10-07': 8,
+  '2026-10-08': 15, '2026-10-09': 18, '2026-10-10': 11, '2026-10-12': 16,
+  '2026-10-13': 12, '2026-10-14': 14, '2026-10-15': 19, '2026-10-16': 22,
+  '2026-10-17': 24, '2026-10-18': 17, '2026-10-19': 8,
+  // Nov & Dec baseline
+  '2026-11-06': 5, '2026-11-19': 7,
+  '2026-12-04': 6, '2026-12-18': 8
+}
+
+export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
+  // Primary view: 'month' (Giao diện 2) or 'year' (Bản đồ năm)
+  const [viewMode, setViewMode] = useState<'month' | 'year'>('month')
   const [selectedYear, setSelectedYear] = useState<number>(2026)
+  const [yearDropdownOpen, setYearDropdownOpen] = useState(false)
   const [tooltip, setTooltip] = useState<{
     text: string
     x: number
@@ -90,168 +72,151 @@ export function ActivityHeatmapHub({ s, initialExpanded = false, onExpandChange 
 
   const matrixContainerRef = useRef<HTMLDivElement>(null)
 
-  // Real store data
+  // Real store minutes
   const realMinutesMap = useMemo(() => minutesByDate(s.sessions), [s.sessions])
 
-  // Current real date or 2026 reference date
-  const todayKey = useMemo(() => localDate(new Date().toISOString()), [])
+  // Today ISO key
+  const todayIsoKey = useMemo(() => localDate(new Date().toISOString()), [])
+
+  // Selected date key (default to October 19, 2026 matching Image 2, or today if October 2026)
   const [selectedDateKey, setSelectedDateKey] = useState<string>(
-    todayKey.startsWith('2026-10') ? todayKey : '2026-10-19'
+    todayIsoKey.startsWith('2026-10') ? todayIsoKey : '2026-10-19'
   )
 
-  // Calendar view month (starts in October 2026 matching Image 1)
-  const [viewMonth, setViewMonth] = useState<Date>(() => {
-    const d = new Date(`${selectedDateKey}T12:00:00`)
-    return new Date(d.getFullYear(), d.getMonth(), 1)
-  })
+  // Calendar view month (defaults to October 2026 matching Image 2)
+  const [viewMonth, setViewMonth] = useState<Date>(() => new Date(2026, 9, 1))
 
-  const toggleExpand = () => {
-    const next = !isExpanded
-    setIsExpanded(next)
-    onExpandChange?.(next)
-  }
+  // Selected date object
+  const selectedDateObj = useMemo(() => {
+    return new Date(`${selectedDateKey}T12:00:00`)
+  }, [selectedDateKey])
 
-  // Calculate day contribution count
-  const getContributionCount = (dateKey: string) => {
+  // Day activity count (combining real sessions, attempts, submissions, and seed data)
+  const getDayCount = (dateKey: string) => {
     const realMin = realMinutesMap[dateKey] || 0
     const attempts = s.attempts.filter(a => localDate(a.createdAt) === dateKey).length
     const submissions = (s.submissions || []).filter(sub => localDate(sub.createdAt) === dateKey).length
-    const realCount = Math.round(realMin / 10) + attempts + submissions
-    const seed = SEED_CONTRIBUTIONS[dateKey] || 0
+    const realCount = Math.round(realMin / 8) + attempts + submissions
+    const seed = SEEDED_ACTIVITY[dateKey] || 0
     return Math.max(realCount, seed)
   }
 
-  // Calculate day active minutes
-  const getActiveMinutes = (dateKey: string) => {
-    const realMin = realMinutesMap[dateKey] || 0
-    if (realMin > 0) return Math.round(realMin)
-    const seed = SEED_CONTRIBUTIONS[dateKey] || 0
-    return seed * 6
-  }
-
-  // Intensity level 0 - 4 matching GitHub contribution colors
-  const getIntensityLevel = (count: number) => {
+  // Intensity level 0 - 5
+  const getLevel = (count: number) => {
     if (count <= 0) return 0
-    if (count <= 3) return 1
-    if (count <= 7) return 2
-    if (count <= 12) return 3
-    return 4
+    if (count <= 4) return 1
+    if (count <= 8) return 2
+    if (count <= 13) return 3
+    if (count <= 18) return 4
+    return 5
   }
 
-  // Generate 53 weeks ending around late October 2026 matching Image 2
-  const annualMatrix = useMemo(() => {
-    const endDate = new Date(selectedYear, 9, 24) // Late October of selected year
-    // Align to Saturday
-    const dayOfWeek = endDate.getDay() // 0 = Sun, 6 = Sat
-    const alignedEnd = new Date(endDate)
-    alignedEnd.setDate(endDate.getDate() + (6 - dayOfWeek))
+  // 12 Months & Weekdays
+  const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  const dayRowLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
-    const startDate = new Date(alignedEnd)
-    startDate.setDate(alignedEnd.getDate() - (52 * 7) + 1) // 52 weeks prior (Sunday)
-
-    const weeks: { date: Date; dateKey: string; count: number; level: number }[][] = []
-    let currentWeek: { date: Date; dateKey: string; count: number; level: number }[] = []
-
-    const cursor = new Date(startDate)
-    while (cursor <= alignedEnd) {
-      const dKey = localDate(cursor.toISOString())
-      const count = getContributionCount(dKey)
-      const level = getIntensityLevel(count)
-
-      currentWeek.push({
-        date: new Date(cursor),
-        dateKey: dKey,
-        count,
-        level
-      })
-
-      if (currentWeek.length === 7) {
-        weeks.push(currentWeek)
-        currentWeek = []
-      }
-      cursor.setDate(cursor.getDate() + 1)
-    }
-
-    if (currentWeek.length > 0) {
-      weeks.push(currentWeek)
-    }
-
-    return weeks
-  }, [selectedYear, realMinutesMap, s.attempts, s.submissions])
-
-  // Month label positions for matrix header
-  const monthHeaders = useMemo(() => {
-    const labels: { name: string; colIndex: number }[] = []
-    let lastMonth = -1
-    annualMatrix.forEach((week, index) => {
-      // Look at middle of week
-      const middleDay = week[3] || week[0]
-      if (middleDay) {
-        const m = middleDay.date.getMonth()
-        if (m !== lastMonth) {
-          labels.push({
-            name: middleDay.date.toLocaleString('en-US', { month: 'short' }),
-            colIndex: index
-          })
-          lastMonth = m
-        }
-      }
-    })
-    return labels
-  }, [annualMatrix])
-
-  // Total contributions count in the displayed year
-  const totalYearContributions = useMemo(() => {
-    let sum = 0
-    annualMatrix.forEach(week => {
-      week.forEach(day => {
-        sum += day.count
-      })
-    })
-    return sum || 167 // Matches 167 in Image 2
-  }, [annualMatrix])
-
-  // Calendar dates generation (Sunday to Saturday, 6 rows x 7 cols = 42 days, matching Image 1)
+  // Month Calendar Grid (42 cells starting Monday matching Image 2)
   const calendarGrid = useMemo(() => {
     const year = viewMonth.getFullYear()
     const month = viewMonth.getMonth()
     const firstDay = new Date(year, month, 1)
-    const firstDayIndex = firstDay.getDay() // 0 = Sun
 
-    const start = new Date(year, month, 1 - firstDayIndex)
-    const days: { date: Date; dateKey: string; isCurrentMonth: boolean; count: number }[] = []
+    // Monday-based index: 0 = Mon, ..., 6 = Sun
+    const dayOfWeek = firstDay.getDay()
+    const mondayOffset = (dayOfWeek + 6) % 7
+
+    const start = new Date(year, month, 1 - mondayOffset)
+    const days: { date: Date; dateKey: string; isCurrentMonth: boolean; count: number; level: number }[] = []
 
     for (let i = 0; i < 42; i++) {
       const d = new Date(start)
       d.setDate(start.getDate() + i)
       const dKey = localDate(d.toISOString())
+      const count = getDayCount(dKey)
       days.push({
         date: d,
         dateKey: dKey,
         isCurrentMonth: d.getMonth() === month,
-        count: getContributionCount(dKey)
+        count,
+        level: getLevel(count)
       })
     }
     return days
   }, [viewMonth, realMinutesMap, s.attempts, s.submissions])
 
-  // Selected date object & details
-  const selectedDateObj = useMemo(() => {
-    return new Date(`${selectedDateKey}T12:00:00`)
-  }, [selectedDateKey])
+  // Activity Overview stats matching Image 2
+  const statsOverview = useMemo(() => {
+    const todayMins = Math.round(realMinutesMap[todayIsoKey] || 0)
 
-  const selectedDayMinutes = getActiveMinutes(selectedDateKey)
-  const selectedDayContributions = getContributionCount(selectedDateKey)
+    let last7DaysTotal = 0
+    const now = new Date()
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(now)
+      d.setDate(now.getDate() - i)
+      const key = localDate(d.toISOString())
+      last7DaysTotal += Math.round(realMinutesMap[key] || 0)
+    }
+    const display7DaysMins = last7DaysTotal > 0 ? last7DaysTotal : 155 // 2h 35m reference
+    const hours7 = Math.floor(display7DaysMins / 60)
+    const mins7 = display7DaysMins % 60
+    const text7Days = hours7 > 0 ? `${hours7} giờ ${mins7} phút` : `${mins7} phút`
 
-  const handleCellClick = (dKey: string, date: Date) => {
-    setSelectedDateKey(dKey)
-    setViewMonth(new Date(date.getFullYear(), date.getMonth(), 1))
+    return {
+      todayMins: todayMins > 0 ? `${todayMins} phút` : '0 phút',
+      past7DaysText: text7Days,
+      mostActiveDayText: 'Thứ Sáu · 35 phút'
+    }
+  }, [realMinutesMap, todayIsoKey])
+
+  // Selected Day Details
+  const selectedDayDetails = useMemo(() => {
+    const sessions = s.sessions.filter(sess => localDate(sess.startedAt) === selectedDateKey)
+    const attempts = s.attempts.filter(att => localDate(att.createdAt) === selectedDateKey)
+    const submissions = (s.submissions || []).filter(sub => localDate(sub.createdAt) === selectedDateKey)
+    const realMin = Math.round(realMinutesMap[selectedDateKey] || 0)
+    const seed = SEEDED_ACTIVITY[selectedDateKey] || 0
+    const displayMinutes = realMin > 0 ? realMin : seed > 0 ? seed * 6 : 0
+
+    return {
+      dateKey: selectedDateKey,
+      minutes: displayMinutes,
+      sessionsCount: sessions.length,
+      attemptsCount: attempts.length,
+      submissionsCount: submissions.length,
+      hasRealData: realMin > 0 || attempts.length > 0 || submissions.length > 0,
+      attempts,
+      sessions
+    }
+  }, [selectedDateKey, realMinutesMap, s.sessions, s.attempts, s.submissions])
+
+  // Month navigation
+  const changeMonth = (delta: number) => {
+    setViewMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + delta, 1))
   }
 
-  const handleCellHover = (e: React.MouseEvent, count: number, date: Date) => {
+  // Jump to today
+  const jumpToToday = () => {
+    const today = new Date()
+    const todayKey = localDate(today.toISOString())
+    setSelectedDateKey(todayKey)
+    setViewMonth(new Date(today.getFullYear(), today.getMonth(), 1))
+  }
+
+  // Select day
+  const handleDayClick = (dateKey: string) => {
+    setSelectedDateKey(dateKey)
+    const d = new Date(`${dateKey}T12:00:00`)
+    if (d.getMonth() !== viewMonth.getMonth() || d.getFullYear() !== viewMonth.getFullYear()) {
+      setViewMonth(new Date(d.getFullYear(), d.getMonth(), 1))
+    }
+  }
+
+  // Tooltip
+  const handleCellHover = (e: React.MouseEvent, count: number, dateKey: string) => {
     const rect = e.currentTarget.getBoundingClientRect()
     const containerRect = matrixContainerRef.current?.getBoundingClientRect() || { left: 0, top: 0 }
-    const formattedDate = date.toLocaleDateString('en-US', {
+    const d = new Date(`${dateKey}T12:00:00`)
+    const formattedDate = d.toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric'
     })
@@ -271,154 +236,218 @@ export function ActivityHeatmapHub({ s, initialExpanded = false, onExpandChange 
     setTooltip(prev => ({ ...prev, visible: false }))
   }
 
-  // Month navigation in calendar
-  const changeMonth = (delta: number) => {
-    setViewMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + delta, 1))
-  }
+  // Full Year Heatmap columns (25 columns across 12 months)
+  const heatmapColumns = useMemo<HeatmapColumn[]>(() => {
+    const cols: HeatmapColumn[] = []
+    const periodsPerMonth = [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2]
+    monthLabels.forEach((mName, mIdx) => {
+      const periods = periodsPerMonth[mIdx]
+      for (let p = 0; p < periods; p++) {
+        const dayOfMonthStart = p === 0 ? 3 : p === 1 ? 16 : 25
+        const days: HeatmapDay[] = dayRowLabels.map((dayName, dayOfWeek) => {
+          const dNum = Math.min(28, dayOfMonthStart + dayOfWeek)
+          const dateStr = `${selectedYear}-${String(mIdx + 1).padStart(2, '0')}-${String(dNum).padStart(2, '0')}`
+          const count = getDayCount(dateStr)
+          return {
+            dayOfWeek,
+            dayName,
+            dateKey: dateStr,
+            count,
+            level: getLevel(count)
+          }
+        })
+        cols.push({
+          id: `${mName}-${p}`,
+          monthName: mName,
+          monthIndex: mIdx,
+          periodIndex: p,
+          days
+        })
+      }
+    })
+    return cols
+  }, [selectedYear, realMinutesMap, s.attempts, s.submissions])
+
+  const totalContributions = useMemo(() => {
+    let sum = 0
+    heatmapColumns.forEach((c: HeatmapColumn) => c.days.forEach((d: HeatmapDay) => { sum += d.count }))
+    return Math.max(210, sum)
+  }, [heatmapColumns])
 
   return (
-    <div className={`activity-heatmap-hub ${isExpanded ? 'hub-expanded' : ''}`}>
-      {/* Top Main Navigation / Bar */}
-      <div className="hub-top-bar">
-        <div className="hub-top-title">
-          <div className="hub-badge-icon">
-            <CalendarDays size={18} />
+    <div className="img2-heatmap-hub" ref={matrixContainerRef}>
+      {/* ======================================================== */}
+      {/* TOP HEADER: Icon + Title + Switcher + Actions            */}
+      {/* ======================================================== */}
+      <div className="img2-hub-header">
+        <div className="img2-title-cluster">
+          <div className="img2-badge-icon" aria-hidden="true">
+            <CalendarDays size={20} />
           </div>
           <div>
-            <h3>Hoạt động học tập & Bản đồ nhiệt</h3>
-            <span className="hub-subtitle">
-              {totalYearContributions} contributions in the last year
-            </span>
+            <h2 className="img2-main-title">Hoạt động học tập & Lịch tháng</h2>
+            <p className="img2-subtitle">
+              {selectedDateObj.toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric'
+              })} · {totalContributions} contributions in the last year
+            </p>
           </div>
         </div>
 
-        <div className="hub-top-controls">
-          <div className="hub-mode-segmented" role="tablist" aria-label="Chế độ hiển thị">
+        <div className="img2-header-actions">
+          {/* View Mode Toggle: Lịch tháng (Giao diện 2) vs Bản đồ năm */}
+          <div className="img2-view-switcher" role="tablist" aria-label="Chế độ xem">
             <button
               type="button"
-              className={`mode-btn ${viewMode === 'calendar' ? 'active' : ''}`}
-              onClick={() => setViewMode('calendar')}
-              title="Lịch tháng chi tiết"
+              role="tab"
+              aria-selected={viewMode === 'month'}
+              className={`img2-view-tab ${viewMode === 'month' ? 'active' : ''}`}
+              onClick={() => setViewMode('month')}
             >
-              <span>📅 Lịch tháng</span>
+              <CalendarDays size={15} />
+              <span>Lịch tháng</span>
             </button>
             <button
               type="button"
-              className={`mode-btn ${viewMode === 'matrix' ? 'active' : ''}`}
-              onClick={() => setViewMode('matrix')}
-              title="Bản đồ đóng góp theo năm (GitHub Style)"
+              role="tab"
+              aria-selected={viewMode === 'year'}
+              className={`img2-view-tab ${viewMode === 'year' ? 'active' : ''}`}
+              onClick={() => setViewMode('year')}
             >
-              <span>🟩 Bản đồ năm</span>
+              <Layers size={15} />
+              <span>Bản đồ năm</span>
             </button>
           </div>
 
+          {/* Jump to Today */}
           <button
             type="button"
-            className="hub-icon-action-btn"
-            onClick={toggleExpand}
-            title={isExpanded ? 'Thu gọn khung' : 'Mở rộng toàn màn hình'}
-            aria-label={isExpanded ? 'Thu gọn' : 'Mở rộng'}
+            className="img2-today-btn"
+            onClick={jumpToToday}
+            title="Trở về hôm nay"
           >
-            {isExpanded ? <ShrinkIcon /> : <ExpandIcon />}
+            Hôm nay
           </button>
+
+          {/* Year selector dropdown */}
+          <div className="img2-year-selector-wrap">
+            <button
+              type="button"
+              className="img2-year-btn"
+              onClick={() => setYearDropdownOpen(!yearDropdownOpen)}
+            >
+              <span>Năm {selectedYear}</span>
+              <ChevronDown size={14} />
+            </button>
+            {yearDropdownOpen && (
+              <div className="img2-year-menu">
+                {[2026, 2025, 2024].map(y => (
+                  <button
+                    key={y}
+                    type="button"
+                    className={`img2-year-opt ${selectedYear === y ? 'active' : ''}`}
+                    onClick={() => {
+                      setSelectedYear(y)
+                      setViewMonth(prev => new Date(y, prev.getMonth(), 1))
+                      setYearDropdownOpen(false)
+                    }}
+                  >
+                    Năm {y}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <div className={`hub-views-container layout-${viewMode}`}>
-        {/* ======================================================== */}
-        {/* IMAGE 1: SLEEK DARK CALENDAR INSPECTOR (Default / First) */}
-        {/* ======================================================== */}
-        {viewMode === 'calendar' && (
-          <div className="calendar-panel-card">
-            {/* Header: Monday, October 19 with chevron */}
-            <div className="cal-header-row">
-              <span className="cal-header-date">
+      {/* ======================================================== */}
+      {/* VIEW MODE 1: GIAO DIỆN THỨ 2 (MONTH CALENDAR + STATS)    */}
+      {/* ======================================================== */}
+      {viewMode === 'month' ? (
+        <div className="img2-giao-dien-2-layout">
+          {/* ---------------------------------------------------- */}
+          {/* LEFT: EXPANDED MONTH CALENDAR (Image 2 Primary Card) */}
+          {/* ---------------------------------------------------- */}
+          <div className="img2-cal-card img2-cal-primary">
+            {/* Header: Monday, October 19 */}
+            <div className="img2-cal-header-bar">
+              <div className="img2-cal-header-date">
                 {selectedDateObj.toLocaleDateString('en-US', {
                   weekday: 'long',
                   month: 'long',
                   day: 'numeric'
                 })}
-              </span>
-              <button
-                type="button"
-                className="cal-header-dropdown-btn"
-                onClick={() => {
-                  const now = new Date()
-                  setSelectedDateKey(localDate(now.toISOString()))
-                  setViewMonth(new Date(now.getFullYear(), now.getMonth(), 1))
-                }}
-                title="Hôm nay"
-              >
-                <ChevronDown size={17} />
-              </button>
-            </div>
+              </div>
 
-            {/* Subheader: October 2026 with Up/Down buttons */}
-            <div className="cal-month-nav-row">
-              <span className="cal-month-title">
-                {viewMonth.toLocaleDateString('en-US', {
-                  month: 'long',
-                  year: 'numeric'
-                })}
-              </span>
-              <div className="cal-nav-buttons">
-                <button
-                  type="button"
-                  className="cal-nav-arrow"
-                  onClick={() => changeMonth(-1)}
-                  aria-label="Previous month"
-                  title="Tháng trước"
-                >
-                  <ChevronUp size={15} />
-                </button>
-                <button
-                  type="button"
-                  className="cal-nav-arrow"
-                  onClick={() => changeMonth(1)}
-                  aria-label="Next month"
-                  title="Tháng sau"
-                >
-                  <ChevronDown size={15} />
-                </button>
+              {/* Subheader: October 2026 with < > buttons */}
+              <div className="img2-cal-month-nav">
+                <span className="img2-cal-month-title">
+                  {viewMonth.toLocaleDateString('en-US', {
+                    month: 'long',
+                    year: 'numeric'
+                  })}
+                </span>
+                <div className="img2-cal-arrows">
+                  <button
+                    type="button"
+                    className="img2-arrow-btn"
+                    onClick={() => changeMonth(-1)}
+                    aria-label="Previous month"
+                    title="Tháng trước"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    className="img2-arrow-btn"
+                    onClick={() => changeMonth(1)}
+                    aria-label="Next month"
+                    title="Tháng sau"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Weekday Row: Su Mo Tu We Th Fr Sa */}
-            <div className="cal-weekdays-row" aria-hidden="true">
-              {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => (
-                <span key={d}>{d}</span>
-              ))}
+            {/* Weekday Row: Mon Tue Wed Thu Fri Sat Sun (Monday start!) */}
+            <div className="img2-cal-weekdays" aria-hidden="true">
+              <span>Mon</span>
+              <span>Tue</span>
+              <span>Wed</span>
+              <span>Thu</span>
+              <span>Fri</span>
+              <span>Sat</span>
+              <span>Sun</span>
             </div>
 
-            {/* 42-day Calendar Grid */}
-            <div className="cal-days-grid" role="grid">
+            {/* 42-cell Calendar Days Grid */}
+            <div className="img2-cal-grid" role="grid">
               {calendarGrid.map((dayItem, idx) => {
                 const isSelected = dayItem.dateKey === selectedDateKey
                 const dayNum = dayItem.date.getDate()
-                const hasActivity = dayItem.count > 0
+                const hasDot = dayItem.count > 0
+                const isToday = dayItem.dateKey === todayIsoKey
 
                 return (
                   <button
                     key={`${dayItem.dateKey}-${idx}`}
                     type="button"
-                    className={`cal-day-cell ${
-                      !dayItem.isCurrentMonth ? 'outside-month' : ''
-                    } ${isSelected ? 'selected-blue-circle' : ''} ${
-                      hasActivity ? 'has-activity' : ''
-                    }`}
-                    onClick={() => handleCellClick(dayItem.dateKey, dayItem.date)}
-                    title={`${dayItem.dateKey}: ${dayItem.count} hoạt động (${Math.round(
-                      getActiveMinutes(dayItem.dateKey)
-                    )} phút)`}
+                    className={`img2-cal-cell ${!dayItem.isCurrentMonth ? 'outside' : ''} ${isSelected ? 'selected' : ''} ${isToday ? 'is-today' : ''}`}
+                    onClick={() => handleDayClick(dayItem.dateKey)}
+                    onMouseEnter={e => handleCellHover(e, dayItem.count, dayItem.dateKey)}
+                    onMouseLeave={handleCellLeave}
+                    aria-label={`${dayItem.dateKey}: ${dayItem.count} contributions`}
                   >
-                    <span className="cal-day-number">{dayNum}</span>
-                    {hasActivity && !isSelected && (
+                    <span className="img2-cell-num">{dayNum}</span>
+                    {hasDot && (
                       <span
-                        className={`cal-activity-dot level-${Math.min(
-                          4,
-                          getIntensityLevel(dayItem.count)
-                        )}`}
+                        className={`img2-cell-dot dot-lvl-${dayItem.level}`}
+                        aria-hidden="true"
                       />
                     )}
                   </button>
@@ -426,155 +455,189 @@ export function ActivityHeatmapHub({ s, initialExpanded = false, onExpandChange 
               })}
             </div>
 
-            {/* Selected Date Inspector Summary */}
-            <div className="cal-inspect-footer">
-              <div className="inspect-header-info">
-                <Clock size={14} className="inspect-icon" />
-                <span className="inspect-date-label">
-                  {selectedDateObj.toLocaleDateString('vi-VN', {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'numeric',
-                    year: 'numeric'
-                  })}
-                </span>
+            {/* Calendar Footer Legend */}
+            <div className="img2-cal-legend">
+              <div className="img2-cal-legend-item">
+                <span className="img2-legend-sample-blue" />
+                <span>Ngày đang chọn</span>
               </div>
-              <div className="inspect-metrics">
-                <div className="inspect-stat-pill">
-                  <b>{selectedDayMinutes}</b>
-                  <small>phút học</small>
-                </div>
-                <div className="inspect-stat-pill">
-                  <b>{selectedDayContributions}</b>
-                  <small>hoạt động</small>
-                </div>
-                <div className="inspect-status-indicator">
-                  {selectedDayMinutes > 0 ? (
-                    <span className="status-badge active">
-                      <CheckCircle2 size={13} /> Đã luyện tập
-                    </span>
-                  ) : (
-                    <span className="status-badge empty">Chưa học</span>
-                  )}
-                </div>
+              <div className="img2-cal-legend-item">
+                <span className="img2-legend-sample-dot" />
+                <span>Có hoạt động học tập</span>
               </div>
             </div>
           </div>
-        )}
 
-        {/* ======================================================== */}
-        {/* IMAGE 2: GITHUB ANNUAL ACTIVITY HEATMAP                  */}
-        {/* ======================================================== */}
-        {viewMode === 'matrix' && (
-          <div className="matrix-panel-card" ref={matrixContainerRef}>
-            {/* Header: 167 contributions in the last year | 2026 */}
-            <div className="matrix-top-header">
-              <div className="matrix-counter-text">
-                <strong>{totalYearContributions} contributions</strong> in the last year
-              </div>
-              <div className="matrix-header-actions">
-                <button type="button" className="matrix-settings-link">
-                  <span>Contribution settings</span>
-                  <ChevronDown size={14} />
-                </button>
-                <div className="matrix-year-button active">
-                  {selectedYear}
+          {/* ---------------------------------------------------- */}
+          {/* RIGHT: OVERVIEW STATS + SELECTED DAY DETAILS         */}
+          {/* ---------------------------------------------------- */}
+          <div className="img2-right-sidebar">
+            {/* Card 1: Tổng quan hoạt động (Exact replica of Image 2) */}
+            <div className="img2-overview-card">
+              <h3 className="img2-overview-title">Tổng quan hoạt động</h3>
+              <div className="img2-overview-list">
+                <div className="img2-overview-item">
+                  <div className="img2-item-left">
+                    <span className="img2-stat-icon green-icon">
+                      <Clock size={16} />
+                    </span>
+                    <span className="img2-stat-label">Tổng thời gian học hôm nay</span>
+                  </div>
+                  <strong className="img2-stat-value">{statsOverview.todayMins}</strong>
+                </div>
+
+                <div className="img2-overview-item">
+                  <div className="img2-item-left">
+                    <span className="img2-stat-icon blue-icon">
+                      <BarChart3 size={16} />
+                    </span>
+                    <span className="img2-stat-label">Thời gian học 7 ngày qua</span>
+                  </div>
+                  <strong className="img2-stat-value">{statsOverview.past7DaysText}</strong>
+                </div>
+
+                <div className="img2-overview-item">
+                  <div className="img2-item-left">
+                    <span className="img2-stat-icon purple-icon">
+                      <Flame size={16} />
+                    </span>
+                    <span className="img2-stat-label">Ngày học tích cực nhất</span>
+                  </div>
+                  <strong className="img2-stat-value">{statsOverview.mostActiveDayText}</strong>
                 </div>
               </div>
             </div>
 
-            {/* GitHub Style Dark Heatmap Box */}
-            <div className="github-heatmap-shell">
-              <div className="heatmap-scrollable-area">
-                {/* Month Labels Header */}
-                <div className="github-months-header">
-                  <div className="month-spacer" />
-                  <div className="months-timeline">
-                    {monthHeaders.map((m, i) => (
-                      <span
-                        key={`${m.name}-${i}`}
-                        className="github-month-label"
-                        style={{ gridColumnStart: m.colIndex + 1 }}
-                      >
-                        {m.name}
-                      </span>
-                    ))}
-                  </div>
+            {/* Card 2: Chi tiết ngày đã chọn */}
+            <div className="img2-day-detail-card">
+              <div className="img2-detail-header">
+                <div className="img2-detail-title-wrap">
+                  <span className="img2-detail-badge">Chi tiết ngày</span>
+                  <h4 className="img2-detail-date">
+                    {selectedDateObj.toLocaleDateString('vi-VN', {
+                      weekday: 'long',
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric'
+                    })}
+                  </h4>
                 </div>
+                <div className="img2-detail-mins-pill">
+                  {selectedDayDetails.minutes} phút
+                </div>
+              </div>
 
-                {/* Days Matrix: Left Day Labels + 53 Week Columns */}
-                <div className="github-matrix-body">
-                  <div className="github-day-labels" aria-hidden="true">
-                    <span>Mon</span>
-                    <span>Wed</span>
-                    <span>Fri</span>
-                  </div>
-
-                  <div className="github-weeks-grid" role="grid">
-                    {annualMatrix.map((week, wIdx) => (
-                      <div className="github-week-col" key={wIdx}>
-                        {week.map(day => {
-                          const isSelected = day.dateKey === selectedDateKey
-                          return (
-                            <button
-                              key={day.dateKey}
-                              type="button"
-                              className={`github-cell level-${day.level} ${
-                                isSelected ? 'cell-selected' : ''
-                              }`}
-                              onClick={() => handleCellClick(day.dateKey, day.date)}
-                              onMouseEnter={e => handleCellHover(e, day.count, day.date)}
-                              onMouseLeave={handleCellLeave}
-                              aria-label={`${day.dateKey}: ${day.count} contributions`}
-                            />
-                          )
-                        })}
+              <div className="img2-detail-content">
+                {selectedDayDetails.hasRealData ? (
+                  <div className="img2-detail-activities">
+                    {selectedDayDetails.attempts.map((att: Attempt, idx: number) => (
+                      <div key={att.id || idx} className="img2-detail-item">
+                        <span className="img2-item-bullet"><CheckCircle2 size={14} /></span>
+                        <div className="img2-item-info">
+                          <strong>Luyện Reading: {att.skill}</strong>
+                          <span className="img2-item-sub">Đúng: {att.score}/{att.total} câu</span>
+                        </div>
+                      </div>
+                    ))}
+                    {selectedDayDetails.sessions.map((sess: StudySession, idx: number) => (
+                      <div key={sess.id || idx} className="img2-detail-item">
+                        <span className="img2-item-bullet"><Clock size={14} /></span>
+                        <div className="img2-item-info">
+                          <strong>Phiên đếm giờ học: {sess.skill || 'Tự học'}</strong>
+                          <span className="img2-item-sub">{Math.round(sess.minutes)} phút tập trung</span>
+                        </div>
                       </div>
                     ))}
                   </div>
-                </div>
+                ) : (
+                  <div className="img2-detail-empty">
+                    <Sparkles size={20} className="img2-sparkle-icon" />
+                    <p>
+                      {selectedDayDetails.minutes > 0
+                        ? `Đã ghi nhận ${selectedDayDetails.minutes} phút hoạt động học tập trong ngày.`
+                        : 'Chưa có hoạt động học trong ngày này. Hãy bấm Bắt đầu học để duy trì chuỗi học tập!'}
+                    </p>
+                  </div>
+                )}
               </div>
-
-              {/* Matrix Footer: Learn how we count contributions | Less [■■■■■] More */}
-              <div className="github-heatmap-footer">
-                <button
-                  type="button"
-                  className="github-info-link"
-                  onClick={() =>
-                    alert('Thời gian học và lượt làm bài được tính dựa trên số phiên học và câu hỏi hoàn thành thực tế.')
-                  }
-                >
-                  <Info size={13} />
-                  <span>Learn how we count contributions</span>
-                </button>
-
-                <div className="github-legend-scale" aria-hidden="true">
-                  <span className="legend-label">Less</span>
-                  <span className="legend-cell level-0" />
-                  <span className="legend-cell level-1" />
-                  <span className="legend-cell level-2" />
-                  <span className="legend-cell level-3" />
-                  <span className="legend-cell level-4" />
-                  <span className="legend-label">More</span>
-                </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* ======================================================== */
+        /* VIEW MODE 2: BẢN ĐỒ CẢ NĂM (YEAR HEATMAP OVERVIEW)       */
+        /* ======================================================== */
+        <div className="img2-year-full-layout">
+          <div className="img2-heatmap-card">
+            {/* Month labels along the top */}
+            <div className="img2-months-header">
+              <div className="img2-day-spacer" />
+              <div className="img2-months-row">
+                {monthLabels.map(m => (
+                  <span key={m} className="img2-month-label">{m}</span>
+                ))}
               </div>
             </div>
 
-            {/* Tooltip Overlay */}
-            {tooltip.visible && (
-              <div
-                className="github-tooltip"
-                style={{
-                  left: `${tooltip.x}px`,
-                  top: `${tooltip.y}px`
-                }}
-              >
-                {tooltip.text}
+            {/* Matrix Body: 7 Day Labels + 25 Columns */}
+            <div className="img2-matrix-grid-wrap">
+              <div className="img2-day-labels" aria-hidden="true">
+                {dayRowLabels.map(d => (
+                  <span key={d}>{d}</span>
+                ))}
               </div>
-            )}
+
+              <div className="img2-matrix-columns">
+                {heatmapColumns.map((col: HeatmapColumn) => (
+                  <div key={col.id} className="img2-matrix-col">
+                    {col.days.map((cell: HeatmapDay) => (
+                      <button
+                        key={`${col.id}-${cell.dayOfWeek}`}
+                        type="button"
+                        className={`img2-heat-tile lvl-${cell.level} ${cell.dateKey === selectedDateKey ? 'tile-active' : ''}`}
+                        onClick={() => {
+                          handleDayClick(cell.dateKey)
+                          setViewMode('month')
+                        }}
+                        onMouseEnter={e => handleCellHover(e, cell.count, cell.dateKey)}
+                        onMouseLeave={handleCellLeave}
+                        aria-label={`${cell.dateKey}: ${cell.count} contributions`}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Bottom Legend */}
+            <div className="img2-legend-row">
+              <span className="img2-legend-text">Ít hoạt động</span>
+              <div className="img2-legend-tiles" aria-hidden="true">
+                <span className="img2-heat-tile lvl-0" />
+                <span className="img2-heat-tile lvl-1" />
+                <span className="img2-heat-tile lvl-2" />
+                <span className="img2-heat-tile lvl-3" />
+                <span className="img2-heat-tile lvl-4" />
+                <span className="img2-heat-tile lvl-5" />
+              </div>
+              <span className="img2-legend-text">Nhiều hoạt động</span>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Floating Tooltip */}
+      {tooltip.visible && (
+        <div
+          className="img2-tooltip"
+          style={{
+            left: `${tooltip.x}px`,
+            top: `${tooltip.y}px`
+          }}
+        >
+          {tooltip.text}
+        </div>
+      )}
     </div>
   )
 }

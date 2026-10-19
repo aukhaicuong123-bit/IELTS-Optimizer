@@ -938,16 +938,16 @@ function Dashboard({
 
       <LearnerProfileCard s={s} go={go} />
 
+      <DashboardTimerCard s={s} setS={setS} note={note} />
+
+      <RecentEvidence s={s} go={go} />
+
       <section className="dashboard-card activity-card activity-hub-card full-width-default">
         <ActivityHeatmapHub
           s={s}
           initialExpanded={true}
         />
       </section>
-
-      <DashboardTimerCard s={s} setS={setS} note={note} />
-
-      <RecentEvidence s={s} go={go} />
     </div>
   )
 }

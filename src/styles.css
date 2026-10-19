@@ -145,8 +145,8 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 .profile-edit-btn{margin-top:14px;border:1px solid #d7ded2;background:#f9fbf6;border-radius:12px;padding:12px 18px;color:#17332c;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all .15s;width:100%;box-sizing:border-box}
 .profile-edit-btn:hover{background:#ebf5e4;border-color:#b4ceaa;color:#094c43}
 
-/* Activity Card */
-.activity-card{grid-column:1;grid-row:2;min-height:340px}
+/* Activity Card - Row 3 Full Width */
+.activity-card{grid-column:1 / -1;grid-row:3;min-height:340px}
 .card-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:17px}
 .card-heading h2{font-size:22px;letter-spacing:-.02em;margin:0}
 .card-heading>svg{color:#273e63}
@@ -168,8 +168,8 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 .legend-high{background:#0d6556}
 .activity-note{margin:16px 10px 0;color:#637692;font-size:12px}
 
-/* Timer Card - Expanded */
-.timer-card{grid-column:2;grid-row:2;min-height:340px;display:flex;flex-direction:column;justify-content:space-between}
+/* Timer Card - Row 2 Col 1 */
+.timer-card{grid-column:1;grid-row:2;min-height:340px;display:flex;flex-direction:column;justify-content:space-between}
 .expanded-timer-card{gap:14px}
 .timer-heading-title{display:flex;align-items:center;gap:12px}
 .timer-status-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:14px;font-size:11px;font-weight:700}
@@ -211,8 +211,8 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 .stat-label{font-size:10px;color:#677b94;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
 .stat-val{font-size:13px;color:#12243a;font-weight:700}
 
-/* Evidence Card - Full Width Span */
-.evidence-card{grid-column:1 / -1;grid-row:3;min-height:220px}
+/* Evidence Card - Row 2 Col 2 */
+.evidence-card{grid-column:2;grid-row:2;min-height:340px}
 .card-link{display:flex;align-items:center;gap:4px;border:0;background:transparent;color:#284f7e;font-size:13px;font-weight:600;cursor:pointer}
 .evidence-main{display:grid;grid-template-columns:46px 1fr auto;gap:16px;align-items:center;padding:4px 0 16px}
 .evidence-icon{width:46px;height:46px;border-radius:50%;background:#eff6dc;color:#0c5a50;display:grid;place-items:center}
@@ -420,169 +420,148 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 @media(max-width:520px){.workspace-theme main>header h1{font-size:30px}.workspace-theme .panel{padding:18px}.workspace-theme .skill-quick-bar{border-radius:11px}.workspace-theme .skill-quick-btn{padding:9px 11px;font-size:12px}.workspace-theme .header-right-tools{gap:7px}.workspace-theme .form-grid{grid-template-columns:1fr}.workspace-theme .record-grid{grid-template-columns:1fr 1fr}}
 
 /* ======================================================== */
-/* ACTIVITY HEATMAP & CALENDAR HUB (Combined Image 1 + 2)    */
+/* IMAGE 2: EXACT REPLICA OF ACTIVITY HEATMAP & CALENDAR    */
 /* ======================================================== */
-.activity-card.activity-hub-card{background:#0d1117!important;border:1px solid #30363d!important;color:#f0f6fc!important;padding:20px!important;box-shadow:0 8px 24px rgba(0,0,0,.35)!important;border-radius:16px!important;overflow:hidden!important}
-.activity-card.activity-hub-card.full-width-default{grid-column:1 / -1!important;width:100%!important}
+.activity-card.activity-hub-card{background:#0c1017!important;border:1px solid #1e2633!important;border-radius:16px!important;padding:22px 24px!important;color:#f0f6fc!important;box-shadow:0 8px 32px rgba(0,0,0,.45)!important;width:100%!important;box-sizing:border-box;overflow:visible!important}
+.activity-card.activity-hub-card.full-width-default{grid-column:1 / -1!important;grid-row:3!important;width:100%!important}
 
-.activity-heatmap-hub{display:flex;flex-direction:column;gap:16px;width:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif}
-.hub-top-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding-bottom:12px;border-bottom:1px solid #21262d}
-.hub-top-title{display:flex;align-items:center;gap:10px}
-.hub-badge-icon{width:32px;height:32px;border-radius:8px;background:#21262d;color:#58a6ff;display:grid;place-items:center;border:1px solid #30363d}
-.hub-top-title h3{margin:0;font-size:16px;font-weight:700;color:#f0f6fc;letter-spacing:-.01em;font-family:'Space Grotesk',sans-serif}
-.hub-subtitle{font-size:12px;color:#8b949e;margin-top:2px;display:block}
+.img2-heatmap-hub{display:flex;flex-direction:column;gap:20px;width:100%;position:relative;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
 
-.hub-top-controls{display:flex;align-items:center;gap:8px}
-.hub-mode-segmented{display:inline-flex;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:2px;gap:2px}
-.mode-btn{background:transparent;border:0;color:#8b949e;padding:5px 10px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
-.mode-btn:hover{color:#f0f6fc}
-.mode-btn.active{background:#21262d;color:#f0f6fc;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+/* Top Header */
+.img2-hub-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.img2-title-cluster{display:flex;align-items:center;gap:14px}
+.img2-badge-icon{width:42px;height:42px;border-radius:12px;background:#162235;color:#38bdf8;display:grid;place-items:center;border:1px solid #23344d;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.img2-main-title{margin:0;font-size:20px;font-weight:700;color:#f0f6fc;font-family:'Space Grotesk',sans-serif;letter-spacing:-.015em}
+.img2-subtitle{margin:3px 0 0;font-size:13px;color:#8b949e;font-weight:400}
 
-.hub-icon-action-btn{width:30px;height:30px;border-radius:6px;background:#161b22;border:1px solid #30363d;color:#8b949e;display:grid;place-items:center;cursor:pointer;transition:all .15s}
-.hub-icon-action-btn:hover{background:#21262d;color:#f0f6fc}
+/* Header Actions & View Switcher */
+.img2-header-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.img2-view-switcher{display:flex;background:#131b26;border:1px solid #222d3d;border-radius:9px;padding:3px;gap:3px}
+.img2-view-tab{display:flex;align-items:center;gap:6px;border:0;background:transparent;color:#8b949e;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.img2-view-tab:hover{color:#f0f6fc}
+.img2-view-tab.active{background:#1f2c3f;color:#38bdf8;box-shadow:0 1px 4px rgba(0,0,0,.35)}
 
-/* Layout Views */
-.hub-views-container{width:100%;display:grid;gap:16px}
-.hub-views-container.layout-calendar{grid-template-columns:1fr;max-width:480px;margin:0 auto;width:100%}
-.hub-views-container.layout-matrix{grid-template-columns:1fr;width:100%}
+.img2-today-btn{background:#161f2e;border:1px solid #2d3848;color:#c9d1d9;font-size:12px;font-weight:600;padding:6px 14px;border-radius:8px;cursor:pointer;transition:all .15s}
+.img2-today-btn:hover{background:#223046;color:#fff;border-color:#38bdf8}
 
-/* ======================================================== */
-/* IMAGE 1: SLEEK DARK CALENDAR INSPECTOR                   */
-/* ======================================================== */
-.calendar-panel-card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:14px;box-shadow:0 4px 16px rgba(0,0,0,.25)}
-.cal-header-row{display:flex;justify-content:space-between;align-items:center}
-.cal-header-date{font-size:18px;font-weight:700;color:#f0f6fc;letter-spacing:-.015em}
-.cal-header-dropdown-btn{width:28px;height:28px;border-radius:6px;background:#21262d;border:1px solid #30363d;color:#c9d1d9;display:grid;place-items:center;cursor:pointer;transition:background .15s}
-.cal-header-dropdown-btn:hover{background:#30363d;color:#fff}
-
-.cal-month-nav-row{display:flex;justify-content:space-between;align-items:center}
-.cal-month-title{font-size:15px;font-weight:700;color:#f0f6fc}
-.cal-nav-buttons{display:flex;gap:4px}
-.cal-nav-arrow{width:24px;height:24px;border-radius:4px;border:0;background:transparent;color:#8b949e;display:grid;place-items:center;cursor:pointer;transition:all .15s}
-.cal-nav-arrow:hover{background:#21262d;color:#f0f6fc}
-
-.cal-weekdays-row{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;color:#8b949e;font-size:13px;font-weight:700;padding:0 2px}
-.cal-days-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;align-items:center;justify-items:center}
-.cal-day-cell{width:36px;height:36px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:transparent;border:0;color:#f0f6fc;font-size:14px;font-weight:500;cursor:pointer;position:relative;transition:all .15s}
-.cal-day-cell:hover:not(.selected-blue-circle){background:#21262d}
-.cal-day-cell.outside-month{color:#484f58}
-
-/* ACTIVE BLUE CIRCLE REPLICA FROM IMAGE 1 (Day 19) */
-.cal-day-cell.selected-blue-circle{background:#38bdf8!important;color:#0b1727!important;font-weight:800!important;box-shadow:0 0 16px rgba(56,189,248,.55);transform:scale(1.05)}
-.cal-day-cell.selected-blue-circle .cal-day-number{color:#0b1727!important;font-weight:800}
-
-.cal-activity-dot{position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%}
-.cal-activity-dot.level-1{background:#0e4429}
-.cal-activity-dot.level-2{background:#006d32}
-.cal-activity-dot.level-3{background:#26a641}
-.cal-activity-dot.level-4{background:#39d353;box-shadow:0 0 4px #39d353}
-
-.cal-inspect-footer{background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
-.inspect-header-info{display:flex;align-items:center;gap:6px;color:#8b949e;font-size:12px}
-.inspect-icon{color:#58a6ff}
-.inspect-date-label{font-weight:600;color:#c9d1d9}
-.inspect-metrics{display:flex;align-items:center;gap:12px}
-.inspect-stat-pill{display:flex;flex-direction:column}
-.inspect-stat-pill b{font-size:15px;color:#f0f6fc;line-height:1}
-.inspect-stat-pill small{font-size:10px;color:#8b949e}
-.inspect-status-indicator{margin-left:auto}
-.status-badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:12px;display:inline-flex;align-items:center;gap:4px}
-.status-badge.active{background:#0e4429;color:#39d353;border:1px solid #006d32}
-.status-badge.empty{background:#21262d;color:#8b949e;border:1px solid #30363d}
+.img2-year-selector-wrap{position:relative}
+.img2-year-btn{display:flex;align-items:center;gap:8px;background:#161f2e;border:1px solid #2d3848;color:#f0f6fc;font-size:12px;font-weight:600;padding:6px 14px;border-radius:8px;cursor:pointer;transition:all .15s}
+.img2-year-btn:hover{background:#202b3d;border-color:#3e4d63}
+.img2-year-menu{position:absolute;right:0;top:100%;margin-top:6px;background:#161f2e;border:1px solid #2d3848;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.6);z-index:50;overflow:hidden;display:flex;flex-direction:column;min-width:110px}
+.img2-year-opt{border:0;background:transparent;padding:8px 14px;text-align:left;color:#c9d1d9;font-size:13px;cursor:pointer;transition:background .15s}
+.img2-year-opt:hover{background:#223046;color:#fff}
+.img2-year-opt.active{color:#38bdf8;font-weight:700}
 
 /* ======================================================== */
-/* IMAGE 2: GITHUB ANNUAL ACTIVITY HEATMAP                  */
+/* GIAO DIỆN THỨ 2 (PRIMARY MONTH CALENDAR + STATS)        */
 /* ======================================================== */
-.matrix-panel-card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:12px;position:relative;min-width:0;box-shadow:0 4px 16px rgba(0,0,0,.25)}
-.matrix-top-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
-.matrix-counter-text{font-size:15px;color:#8b949e}
-.matrix-counter-text strong{color:#f0f6fc;font-size:16px;font-weight:700}
-.matrix-header-actions{display:flex;align-items:center;gap:10px}
-.matrix-settings-link{display:flex;align-items:center;gap:4px;color:#8b949e;font-size:12px;background:transparent;border:0;cursor:pointer;transition:color .15s}
-.matrix-settings-link:hover{color:#f0f6fc}
-.matrix-year-button{background:#1f6feb;color:#fff;font-size:13px;font-weight:700;padding:5px 14px;border-radius:6px;box-shadow:0 2px 6px rgba(31,111,235,.4)}
+.img2-giao-dien-2-layout{display:grid;grid-template-columns:minmax(0,1.38fr) minmax(320px,1fr);gap:20px;align-items:stretch}
 
-.github-heatmap-shell{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px 18px;overflow-x:auto}
-.heatmap-scrollable-area{min-width:640px}
+@media(max-width:980px){
+  .img2-giao-dien-2-layout{grid-template-columns:1fr}
+}
 
-.github-months-header{display:flex;align-items:center;gap:10px;margin-bottom:6px}
-.month-spacer{width:26px;flex-shrink:0}
-.months-timeline{display:grid;grid-template-columns:repeat(53,11px);column-gap:3px;font-size:10px;color:#8b949e}
-.github-month-label{white-space:nowrap}
+/* Primary Month Calendar Card (Image 2 Replica) */
+.img2-cal-card{background:#131b26;border:1px solid #222d3d;border-radius:14px;padding:22px 24px;display:flex;flex-direction:column;gap:16px;box-shadow:0 4px 18px rgba(0,0,0,.25)}
+.img2-cal-primary{min-height:380px;justify-content:space-between}
 
-.github-matrix-body{display:flex;gap:10px;align-items:flex-start}
-.github-day-labels{display:grid;grid-template-rows:repeat(7,10px);row-gap:3px;font-size:9px;color:#8b949e;width:26px;text-align:left;line-height:10px;flex-shrink:0}
-.github-weeks-grid{display:flex;gap:3px;flex:1;min-width:0}
-.github-week-col{display:grid;grid-template-rows:repeat(7,10px);gap:3px;flex-shrink:0}
+.img2-cal-header-bar{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #1e293b}
+.img2-cal-header-date{font-size:18px;font-weight:700;color:#f0f6fc;letter-spacing:-.01em}
 
-.github-cell{width:10px;height:10px;border-radius:2px;border:0;padding:0;cursor:pointer;transition:transform .1s,outline .1s}
-.github-cell.level-0{background:#161b22;outline:1px solid rgba(255,255,255,.05)}
-.github-cell.level-1{background:#0e4429}
-.github-cell.level-2{background:#006d32}
-.github-cell.level-3{background:#26a641}
-.github-cell.level-4{background:#39d353}
-.github-cell:hover{transform:scale(1.35);outline:1px solid #f0f6fc;z-index:10}
-.github-cell.cell-selected{outline:2px solid #38bdf8!important;outline-offset:1px;z-index:5}
+.img2-cal-month-nav{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.img2-cal-month-title{font-size:14px;font-weight:600;color:#c9d1d9}
+.img2-cal-arrows{display:flex;gap:6px}
+.img2-arrow-btn{width:28px;height:28px;border-radius:6px;background:#1c2738;border:1px solid #2a374d;color:#c9d1d9;display:grid;place-items:center;cursor:pointer;transition:all .15s}
+.img2-arrow-btn:hover{background:#26354c;color:#fff;border-color:#38bdf8}
 
-.github-heatmap-footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:10px;font-size:11px;flex-wrap:wrap;gap:10px}
-.github-info-link{display:flex;align-items:center;gap:5px;color:#8b949e;background:transparent;border:0;cursor:pointer;font-size:11px;transition:color .15s}
-.github-info-link:hover{color:#58a6ff}
+.img2-cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:12px;font-weight:600;color:#8b949e;padding:4px 0}
+.img2-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;align-items:center;justify-items:center}
 
-.github-legend-scale{display:flex;align-items:center;gap:4px;color:#8b949e;font-size:11px}
-.legend-cell{width:10px;height:10px;border-radius:2px}
-.legend-cell.level-0{background:#161b22;outline:1px solid rgba(255,255,255,.05)}
-.legend-cell.level-1{background:#0e4429}
-.legend-cell.level-2{background:#006d32}
-.legend-cell.level-3{background:#26a641}
-.legend-cell.level-4{background:#39d353}
+.img2-cal-cell{width:38px;height:38px;border-radius:50%;border:0;background:transparent;color:#f0f6fc;font-size:13px;font-weight:500;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;cursor:pointer;transition:all .15s}
+.img2-cal-cell:hover:not(.selected){background:#1f2c3f}
+.img2-cal-cell.outside{color:#485261}
+.img2-cal-cell.is-today:not(.selected){outline:1px dashed #38bdf8;outline-offset:1px}
+.img2-cal-cell.selected{background:#38bdf8!important;color:#0b1727!important;font-weight:800!important;box-shadow:0 0 16px rgba(56,189,248,.45);transform:scale(1.05)}
+.img2-cal-cell.selected .img2-cell-num{color:#0b1727!important;font-weight:800!important}
 
-/* TOOLTIP MATCHING IMAGE 2 */
-.github-tooltip{position:absolute;transform:translate(-50%,-100%);background:#24292f;color:#f0f6fc;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;white-space:nowrap;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.6);border:1px solid #30363d;z-index:99}
-.github-tooltip:after{content:'';position:absolute;bottom:-4px;left:50%;transform:translateX(-50%) rotate(45deg);width:8px;height:8px;background:#24292f;border-right:1px solid #30363d;border-bottom:1px solid #30363d}
+.img2-cell-dot{position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:#3fb950;box-shadow:0 0 4px rgba(63,185,80,.6)}
+.img2-cell-dot.dot-lvl-4,.img2-cell-dot.dot-lvl-5{background:#bef264;box-shadow:0 0 6px #bef264}
+.img2-cal-cell.selected .img2-cell-dot{background:#0b1727;box-shadow:none}
 
-/* ===== YEAR HEATMAP ===== */
-.heatmap-panel.year-view{padding:0}
-.heatmap-year-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 24px 12px;border-bottom:1px solid var(--line)}
-.heatmap-year-title{display:flex;align-items:center;gap:12px;flex-shrink:0}
-.heatmap-year-title .eyebrow{font:600 10px 'DM Sans';color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
-.heatmap-year-title h2{font:700 20px 'Space Grotesk';color:#e9f0ec;letter-spacing:-.02em}
-.heatmap-year-stats{display:flex;gap:16px;color:var(--muted);font-size:12px;font:500 'DM Sans'}
-.heatmap-year-stats .stat b{color:#dceee1;font-size:13px}
-.heatmap-year-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;padding:24px}
-.heatmap-month-block{display:flex;flex-direction:column;gap:10px;align-items:center;padding:16px;background:#1d2925;border:1px solid var(--line);border-radius:12px;transition:border-color .2s ease,transform .2s ease}
-.heatmap-month-block:hover{border-color:#4d94ff;transform:translateY(-2px)}
-.heatmap-month-name{font:700 12px 'DM Sans';color:var(--muted);letter-spacing:.1em;text-transform:uppercase;text-align:center;margin-bottom:4px}
-.heatmap-month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-.heatmap-month-grid .heat{width:12px;height:12px;aspect-ratio:1;border-radius:3px;background:#14231d;border:0;position:relative;transition:background .15s ease,transform .15s ease}
-.heatmap-month-grid .heat:hover{transform:scale(1.3);z-index:10;border-radius:4px;box-shadow:0 0 0 2px var(--bg)}
-.heatmap-month-grid .heat.outside-month{background:#0f1916;opacity:.2}
-.heatmap-month-grid .heat.rest-day{box-shadow:inset 0 0 0 1px rgba(111,145,125,.35)}
-.heatmap-month-grid .heat.heat-l0{background:#161b22}
-.heatmap-month-grid .heat.heat-l1{background:#0e4429}
-.heatmap-month-grid .heat.heat-l2{background:#006d32}
-.heatmap-month-grid .heat.heat-l3{background:#26a641}
-.heatmap-month-grid .heat.heat-l4{background:#39d353}
-.heatmap-month-grid .heat.heat-l5{background:#56e36f}
-.heatmap-year-legend{display:flex;align-items:center;justify-content:center;gap:10px;padding:12px 24px 16px;border-top:1px solid var(--line);color:var(--muted);font-size:11px;font:500 'DM Sans'}
-.heatmap-year-legend span{color:var(--muted)}
-.heatmap-year-legend i{width:12px;height:12px;border-radius:2px;display:inline-block}
-.heatmap-year-legend i.heat-l0{background:#161b22}
-.heatmap-year-legend i.heat-l1{background:#0e4429}
-.heatmap-year-legend i.heat-l2{background:#006d32}
-.heatmap-year-legend i.heat-l3{background:#26a641}
-.heatmap-year-legend i.heat-l4{background:#39d353}
-.heatmap-year-legend i.heat-l5{background:#56e36f}
-.heatmap-year-summary{padding:10px 24px 20px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;display:flex;gap:20px;justify-content:center}
+.img2-cal-legend{display:flex;align-items:center;gap:18px;font-size:12px;color:#8b949e;padding-top:10px;border-top:1px solid #1a2332}
+.img2-cal-legend-item{display:flex;align-items:center;gap:6px}
+.img2-legend-sample-blue{width:12px;height:12px;border-radius:50%;background:#38bdf8;display:inline-block}
+.img2-legend-sample-dot{width:8px;height:8px;border-radius:50%;background:#3fb950;display:inline-block}
 
-/* Responsive: fewer month columns on narrow screens */
-@media(max-width:900px){.heatmap-year-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:640px){.heatmap-year-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.heatmap-year-header{flex-direction:column;align-items:flex-start;gap:10px;padding-left:16px;padding-right:16px}.heatmap-year-stats{flex-wrap:wrap}}
+/* Right Sidebar: Overview + Day Details */
+.img2-right-sidebar{display:flex;flex-direction:column;gap:16px;min-width:0}
 
-/* Ensure year-view heat cells use the correct colors (override general heat styles) */
-.heatmap-panel.year-view .heat.heat-l0{background:#161b22!important}
-.heatmap-panel.year-view .heat.heat-l1{background:#0e4429!important}
-.heatmap-panel.year-view .heat.heat-l2{background:#006d32!important}
-.heatmap-panel.year-view .heat.heat-l3{background:#26a641!important}
-.heatmap-panel.year-view .heat.heat-l4{background:#39d353!important}
-.heatmap-panel.year-view .heat.heat-l5{background:#56e36f!important}
+/* Overview Card (Exact Replica of Image 2) */
+.img2-overview-card{background:#131b26;border:1px solid #222d3d;border-radius:14px;padding:20px 22px;box-shadow:0 4px 18px rgba(0,0,0,.25)}
+.img2-overview-title{margin:0 0 16px;font-size:15px;font-weight:700;color:#f0f6fc;letter-spacing:-.01em}
+.img2-overview-list{display:flex;flex-direction:column;gap:14px}
+.img2-overview-item{display:flex;align-items:center;justify-content:space-between;font-size:13px}
+.img2-item-left{display:flex;align-items:center;gap:12px}
+.img2-stat-icon{width:32px;height:32px;border-radius:8px;display:grid;place-items:center}
+.img2-stat-icon.green-icon{background:rgba(63,185,80,.15);color:#3fb950}
+.img2-stat-icon.blue-icon{background:rgba(56,189,248,.15);color:#38bdf8}
+.img2-stat-icon.purple-icon{background:rgba(192,132,252,.15);color:#c084fc}
+.img2-stat-label{color:#c9d1d9}
+.img2-stat-value{font-weight:700;color:#f0f6fc;font-size:13px}
+
+/* Selected Day Detail Card */
+.img2-day-detail-card{background:#131b26;border:1px solid #222d3d;border-radius:14px;padding:18px 22px;display:flex;flex-direction:column;gap:12px;box-shadow:0 4px 18px rgba(0,0,0,.25)}
+.img2-detail-header{display:flex;justify-content:space-between;align-items:center}
+.img2-detail-title-wrap{display:flex;flex-direction:column;gap:2px}
+.img2-detail-badge{font-size:11px;font-weight:600;color:#8b949e;text-transform:uppercase;letter-spacing:.05em}
+.img2-detail-date{margin:0;font-size:14px;font-weight:700;color:#f0f6fc}
+.img2-detail-mins-pill{background:#162438;color:#38bdf8;border:1px solid #23354f;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700}
+
+.img2-detail-content{min-height:64px;display:flex;align-items:center}
+.img2-detail-empty{display:flex;align-items:center;gap:10px;color:#8b949e;font-size:12px;line-height:1.5}
+.img2-sparkle-icon{color:#eab308;flex-shrink:0}
+.img2-detail-activities{display:flex;flex-direction:column;gap:8px;width:100%}
+.img2-detail-item{display:flex;align-items:center;gap:10px;background:#172233;border:1px solid #233247;border-radius:8px;padding:8px 12px;font-size:12px}
+.img2-item-bullet{color:#3fb950;display:grid;place-items:center}
+.img2-item-info{display:flex;flex-direction:column}
+.img2-item-info strong{color:#f0f6fc;font-weight:600}
+.img2-item-sub{color:#8b949e;font-size:11px}
+
+/* ======================================================== */
+/* VIEW MODE 2: BẢN ĐỒ CẢ NĂM (YEAR HEATMAP OVERVIEW)       */
+/* ======================================================== */
+.img2-year-full-layout{width:100%}
+.img2-heatmap-card{background:#0d121a;border:1px solid #1e2633;border-radius:14px;padding:22px;display:flex;flex-direction:column;justify-content:space-between;gap:16px;min-width:0;width:100%;box-sizing:border-box}
+.img2-months-header{display:flex;align-items:center;margin-bottom:2px}
+.img2-day-spacer{width:34px;flex-shrink:0}
+.img2-months-row{display:flex;justify-content:space-between;flex:1;padding:0 4px}
+.img2-month-label{font-size:12px;font-weight:600;color:#8b949e}
+
+.img2-matrix-grid-wrap{display:flex;gap:10px;align-items:center;flex:1}
+.img2-day-labels{display:grid;grid-template-rows:repeat(7,1fr);gap:4px;width:34px;flex-shrink:0;font-size:11px;color:#8b949e;font-weight:600;align-items:center}
+.img2-matrix-columns{display:grid;grid-template-columns:repeat(25,1fr);gap:4px;flex:1;min-width:0}
+.img2-matrix-col{display:grid;grid-template-rows:repeat(7,1fr);gap:4px}
+
+.img2-heat-tile{width:100%;aspect-ratio:1;border-radius:3px;border:0;padding:0;cursor:pointer;transition:transform .12s,outline .12s}
+.img2-heat-tile:hover{transform:scale(1.35);outline:1px solid #fff;z-index:10}
+.img2-heat-tile.tile-active{outline:2px solid #38bdf8!important;outline-offset:1px;z-index:5}
+
+/* Color levels */
+.img2-heat-tile.lvl-0{background:#161f2c;outline:1px solid rgba(255,255,255,.03)}
+.img2-heat-tile.lvl-1{background:#0d3a22}
+.img2-heat-tile.lvl-2{background:#196c2e}
+.img2-heat-tile.lvl-3{background:#2ea043}
+.img2-heat-tile.lvl-4{background:#56d364}
+.img2-heat-tile.lvl-5{background:#bef264}
+
+.img2-legend-row{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:#8b949e}
+.img2-legend-text{color:#8b949e;font-size:12px}
+.img2-legend-tiles{display:flex;gap:4px}
+.img2-legend-tiles .img2-heat-tile{width:14px;height:14px;border-radius:3px;cursor:default}
+.img2-legend-tiles .img2-heat-tile:hover{transform:none;outline:none}
+
+/* Tooltip matching Image 2 */
+.img2-tooltip{position:absolute;transform:translate(-50%,-100%);background:#24292f;color:#f0f6fc;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;white-space:nowrap;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.6);border:1px solid #30363d;z-index:99}
+.img2-tooltip:after{content:'';position:absolute;bottom:-4px;left:50%;transform:translateX(-50%) rotate(45deg);width:8px;height:8px;background:#24292f;border-right:1px solid #30363d;border-bottom:1px solid #30363d}
+
 
