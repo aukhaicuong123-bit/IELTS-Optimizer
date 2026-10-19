@@ -8,7 +8,7 @@ interface ActivityHeatmapHubProps {
   initialExpanded?: boolean
 }
 
-export default function ActivityHeatmapHub({ s, initialExpanded = true }: ActivityHeatmapHubProps) {
+export function ActivityHeatmapHub({ s, initialExpanded = true }: ActivityHeatmapHubProps) {
   const [expanded, setExpanded] = useState(initialExpanded)
 
   if (!expanded) {
@@ -118,8 +118,8 @@ function MonthlyHeatmap({ s }: { s: Store }) {
       </div>
       <div className="heatmap-detail">
         <b style={{color: '#dceee1'}}>{selected}</b>
-        <span style={{fontSize: '12px'}}>{Math.round(minutes)} active minutes{goal ? ` · ${Math.round(minutes / goal * 100)}% of ${goal}-minute goal` : ''}</span>
-        <span style={{fontSize: '12px'}}>{completed ? `${completed} completed activities · ${skills.join(', ')}` : 'No recorded activities'}</span>
+        <span style={{fontSize: '12px'}}>{Math.round(minutes)} active minutes{goal ? ` ï¿½ ${Math.round(minutes / goal * 100)}% of ${goal}-minute goal` : ''}</span>
+        <span style={{fontSize: '12px'}}>{completed ? `${completed} completed activities ï¿½ ${skills.join(', ')}` : 'No recorded activities'}</span>
         <span style={{fontSize: '12px'}}>{s.profile.daysOff.includes(selected) ? 'Planned rest day' : ''}</span>
       </div>
     </section>
