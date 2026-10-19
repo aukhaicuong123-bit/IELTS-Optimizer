@@ -938,11 +938,10 @@ function Dashboard({
 
       <LearnerProfileCard s={s} go={go} />
 
-      <section className={`dashboard-card activity-card activity-hub-card ${heatmapExpanded ? 'expanded-full-width' : ''}`}>
+      <section className="dashboard-card activity-card activity-hub-card full-width-default">
         <ActivityHeatmapHub
           s={s}
-          initialExpanded={heatmapExpanded}
-          onExpandChange={setHeatmapExpanded}
+          initialExpanded={true}
         />
       </section>
 
