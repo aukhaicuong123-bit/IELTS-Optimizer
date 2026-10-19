@@ -48,6 +48,17 @@ describe('IELTS Optimizer learning domain', () => {
     const running: ActiveSession = { ...paused, paused: false }
     expect(snapshotActiveSession(running, 'invalid')).toBe(running)
   })
+  it('correctly resumes session with preserved accumulatedSeconds and no negative elapsed drift', () => {
+    const running: ActiveSession = { id: 'timer', startedAt: '2026-01-01T10:00:00Z', lastResumedAt: '2026-01-01T10:00:00Z', accumulatedSeconds: 0, paused: false }
+    const paused = { ...snapshotActiveSession(running, '2026-01-01T10:00:25Z'), paused: true }
+    expect(paused.accumulatedSeconds).toBe(25)
+    const resumedAt = '2026-01-01T10:10:00Z'
+    const resumed: ActiveSession = { ...paused, lastResumedAt: resumedAt, paused: false }
+    const staleNowMs = Date.parse('2026-01-01T10:00:25Z')
+    const runningElapsed = Math.max(0, (staleNowMs - Date.parse(resumed.lastResumedAt)) / 1000)
+    expect(runningElapsed).toBe(0)
+    expect(resumed.accumulatedSeconds + runningElapsed).toBe(25)
+  })
   it('aligns heatmap weeks to Sunday for every month boundary', () => {
     const start = startOfLocalWeek(new Date(2026, 2, 1))
     expect(start.getDay()).toBe(0)

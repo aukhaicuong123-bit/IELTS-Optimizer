@@ -46,6 +46,7 @@ import {
   Flame
 } from 'lucide-react'
 import ExamLibraryView from './ExamLibraryView'
+import { ActivityHeatmapHub } from './components/ActivityHeatmapHub'
 import { passages } from './content'
 import {
   heatLevel,
@@ -148,9 +149,10 @@ export default function App() {
 
   useEffect(() => {
     if (!store.activeSession || store.activeSession.paused) return
+    setHeaderNow(Date.now())
     const t = setInterval(() => setHeaderNow(Date.now()), 1000)
     return () => clearInterval(t)
-  }, [store.activeSession])
+  }, [store.activeSession?.paused, store.activeSession?.lastResumedAt, store.activeSession?.id])
 
   useEffect(() => {
     const pauseWhenHidden = () => {
@@ -195,8 +197,11 @@ export default function App() {
     e => deriveReadingStates(store.errors, store.attempts, passages).statesByDifficulty[readingDifficultyId(e)]?.status === 'open'
   )
 
+  const headerRunningElapsed = store.activeSession && !store.activeSession.paused
+    ? Math.max(0, (headerNow - new Date(store.activeSession.lastResumedAt).getTime()) / 1000)
+    : 0
   const activeSec = store.activeSession
-    ? Math.max(0, store.activeSession.accumulatedSeconds + (store.activeSession.paused ? 0 : (headerNow - new Date(store.activeSession.lastResumedAt).getTime()) / 1000))
+    ? Math.max(0, store.activeSession.accumulatedSeconds + headerRunningElapsed)
     : 0
 
   useEffect(() => {
@@ -915,6 +920,8 @@ function Dashboard({
   const projection = deriveReadingStates(s.errors, s.attempts, passages)
   const rec = recommendations(s.profile, s.attempts, s.errors, s.plan, projection.statesByDifficulty)
 
+  const [heatmapExpanded, setHeatmapExpanded] = useState(false)
+
   return (
     <div className="dashboard-shell">
       <section className="dashboard-hero">
@@ -931,11 +938,12 @@ function Dashboard({
 
       <LearnerProfileCard s={s} go={go} />
 
-      <section className="dashboard-card activity-card">
-        <div className="card-heading"><h2>Hoạt động học tập <span className="info-dot">i</span></h2><span className="card-filter">Dữ liệu minh hoạ　 <b>7 ngày qua⌄</b></span></div>
-        <ActivityGrid s={s} today={today} />
-        <div className="activity-legend"><span><i className="legend-low" /> Ít thời gian</span><span><i className="legend-high" /> Nhiều thời gian</span></div>
-        <p className="activity-note">Thời gian học, không phải mức độ thành thạo.</p>
+      <section className={`dashboard-card activity-card activity-hub-card ${heatmapExpanded ? 'expanded-full-width' : ''}`}>
+        <ActivityHeatmapHub
+          s={s}
+          initialExpanded={heatmapExpanded}
+          onExpandChange={setHeatmapExpanded}
+        />
       </section>
 
       <DashboardTimerCard s={s} setS={setS} note={note} />
@@ -1144,16 +1152,19 @@ function DashboardTimerCard({
 }) {
   const active = s.activeSession
   const [now, setNow] = useState(Date.now())
-  const [selectedPreset, setSelectedPreset] = useState<number | null>(null)
 
   useEffect(() => {
     if (!active || active.paused) return
+    setNow(Date.now())
     const timer = setInterval(() => setNow(Date.now()), 1000)
     return () => clearInterval(timer)
-  }, [active])
+  }, [active?.paused, active?.lastResumedAt, active?.id])
 
+  const runningElapsed = active && !active.paused
+    ? Math.max(0, (now - new Date(active.lastResumedAt).getTime()) / 1000)
+    : 0
   const seconds = active
-    ? Math.max(0, active.accumulatedSeconds + (active.paused ? 0 : (now - new Date(active.lastResumedAt).getTime()) / 1000))
+    ? Math.max(0, active.accumulatedSeconds + runningElapsed)
     : 0
 
   const minutesMap = minutesByDate(s.sessions)
@@ -1166,9 +1177,10 @@ function DashboardTimerCard({
   const activeDaysCount = Object.keys(minutesMap).filter(k => minutesMap[k] > 0).length
   const currentStreak = Math.max(activeDaysCount > 0 ? 1 : 0, Math.min(activeDaysCount, 7))
 
-  const start = (presetMins?: number) => {
-    const time = new Date().toISOString()
-    if (presetMins !== undefined) setSelectedPreset(presetMins)
+  const start = () => {
+    const nowMs = Date.now()
+    setNow(nowMs)
+    const time = new Date(nowMs).toISOString()
     setS({
       ...s,
       activeSession: {
@@ -1184,13 +1196,17 @@ function DashboardTimerCard({
 
   const pause = () => {
     if (active) {
-      setS({ ...s, activeSession: { ...snapshotActiveSession(active, new Date().toISOString()), paused: true } })
+      const nowMs = Date.now()
+      setNow(nowMs)
+      setS({ ...s, activeSession: { ...snapshotActiveSession(active, new Date(nowMs).toISOString()), paused: true } })
     }
   }
 
   const resume = () => {
     if (active) {
-      setS({ ...s, activeSession: { ...active, lastResumedAt: new Date().toISOString(), paused: false } })
+      const nowMs = Date.now()
+      setNow(nowMs)
+      setS({ ...s, activeSession: { ...active, lastResumedAt: new Date(nowMs).toISOString(), paused: false } })
     }
   }
 
@@ -1215,24 +1231,15 @@ function DashboardTimerCard({
         }
       ]
     })
-    setSelectedPreset(null)
     note(`Đã lưu ${earnedMinutes} phút học vào Nhật ký & Bảng tổng quan.`)
   }
 
   const resetTimer = () => {
     if (active) {
       setS({ ...s, activeSession: undefined })
-      setSelectedPreset(null)
       note('Đã đặt lại bộ đếm giờ.')
     }
   }
-
-  const presets = [
-    { label: 'Pomodoro', mins: 25, icon: '🍅' },
-    { label: 'Tập trung', mins: 45, icon: '⚡' },
-    { label: 'Luyện đề', mins: 60, icon: '📝' },
-    { label: 'Tự do', mins: 0, icon: '⏱️' }
-  ]
 
   const hours = Math.floor(seconds / 3600).toString().padStart(2, '0')
   const mins = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0')
@@ -1261,35 +1268,13 @@ function DashboardTimerCard({
       <div className="timer-screen-container">
         <div className="timer-clock-badge">
           <Clock3 size={18} />
-          <span>{active ? (active.paused ? 'Phiên đang tạm dừng' : 'Phiên học đang tính giờ thực tế') : 'Chọn chế độ và bấm Bắt đầu để tính giờ'}</span>
+          <span>{active ? (active.paused ? 'Phiên đang tạm dừng' : 'Phiên học đang tính giờ thực tế') : 'Bấm Bắt đầu để tính giờ học'}</span>
         </div>
 
         <div className="timer-display-frame">
           <strong className="timer-digits-expanded">
             {hours}:{mins}:{secs}
           </strong>
-        </div>
-
-        <div className="timer-presets-row" role="group" aria-label="Chế độ học nhanh">
-          {presets.map(p => (
-            <button
-              key={p.label}
-              type="button"
-              className={`timer-preset-btn ${selectedPreset === p.mins ? 'selected' : ''}`}
-              onClick={() => {
-                if (!active) {
-                  start(p.mins)
-                } else {
-                  setSelectedPreset(p.mins)
-                }
-              }}
-              title={`Chế độ ${p.label} (${p.mins ? `${p.mins} phút` : 'Tự do'})`}
-            >
-              <span className="preset-icon">{p.icon}</span>
-              <span className="preset-name">{p.label}</span>
-              {p.mins > 0 && <small className="preset-mins">{p.mins}p</small>}
-            </button>
-          ))}
         </div>
       </div>
 
@@ -1420,9 +1405,10 @@ function DashboardRecord({
 
   useEffect(() => {
     if (!active || active.paused) return
+    setNow(Date.now())
     const timer = setInterval(() => setNow(Date.now()), 1000)
     return () => clearInterval(timer)
-  }, [active])
+  }, [active?.paused, active?.lastResumedAt, active?.id])
 
   useEffect(() => {
     if (!active || active.paused) return
@@ -1433,13 +1419,17 @@ function DashboardRecord({
     return () => clearInterval(timer)
   }, [active, s, setS])
 
+  const runningElapsed = active && !active.paused
+    ? Math.max(0, (now - new Date(active.lastResumedAt).getTime()) / 1000)
+    : 0
   const seconds = active
-    ? Math.max(0, active.accumulatedSeconds + (active.paused ? 0 : (now - new Date(active.lastResumedAt).getTime()) / 1000))
+    ? Math.max(0, active.accumulatedSeconds + runningElapsed)
     : 0
 
   const start = () => {
-    const time = new Date().toISOString()
-    setNow(Date.now())
+    const nowMs = Date.now()
+    setNow(nowMs)
+    const time = new Date(nowMs).toISOString()
     setS({
       ...s,
       activeSession: {
@@ -1456,18 +1446,21 @@ function DashboardRecord({
 
   const pause = () => {
     if (!active) return
+    const nowMs = Date.now()
+    setNow(nowMs)
     setS({
       ...s,
-      activeSession: { ...snapshotActiveSession(active, new Date().toISOString()), paused: true }
+      activeSession: { ...snapshotActiveSession(active, new Date(nowMs).toISOString()), paused: true }
     })
   }
 
   const resume = () => {
     if (active) {
-      setNow(Date.now())
+      const nowMs = Date.now()
+      setNow(nowMs)
       setS({
         ...s,
-        activeSession: { ...active, lastResumedAt: new Date().toISOString(), paused: false }
+        activeSession: { ...active, lastResumedAt: new Date(nowMs).toISOString(), paused: false }
       })
     }
   }
@@ -1634,104 +1627,19 @@ function DashboardRecord({
       ) : (
         <p className="muted">Your saved practice, reflections and study time will appear here.</p>
       )}
+
+      <div style={{ marginTop: '24px' }}>
+        <Heatmap s={s} />
+      </div>
     </section>
   )
 }
 
 function Heatmap({ s }: { s: Store }) {
-  const map = minutesByDate(s.sessions)
-  const key = (date: Date) => localDate(date.toISOString())
-  const today = new Date()
-  const selected = key(today)
-  const [month, setMonth] = useState(new Date(today.getFullYear(), today.getMonth(), 1))
-  const selectedDate = new Date(`${selected}T12:00:00`)
-  const minutes = map[selected] || 0
-  const goal = s.profile.dailyGoalMinutes || 0
-
-  const firstDay = new Date(month.getFullYear(), month.getMonth(), 1)
-  const gridStart = new Date(month.getFullYear(), month.getMonth(), 1 - firstDay.getDay())
-  const days = Array.from({ length: 42 }, (_, index) => {
-    const date = new Date(gridStart)
-    date.setDate(gridStart.getDate() + index)
-    return date
-  })
-  const weeks = Array.from({ length: 6 }, (_, index) => days.slice(index * 7, index * 7 + 7))
-  const move = (delta: number) => setMonth(new Date(month.getFullYear(), month.getMonth() + delta, 1))
-
-  const attempts = s.attempts.filter(attempt => localDate(attempt.createdAt) === selected)
-  const submissions = (s.submissions || []).filter(submission => localDate(submission.createdAt) === selected)
-  const completed = attempts.length + submissions.length
-  const skills = [
-    ...new Set([...attempts.map(attempt => attempt.skill), ...submissions.map(submission => submission.skill)])
-  ]
-
   return (
-    <section className="panel heatmap-panel">
-      <div className="heatmap-selected">
-        <span className="eyebrow">SELECTED DATE</span>
-        <h2>{selectedDate.toLocaleString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</h2>
-      </div>
-      <div className="heatmap-heading">
-        <h3>{month.toLocaleString('en-US', { month: 'long', year: 'numeric' })}</h3>
-        <div className="heatmap-nav">
-          <button aria-label="Previous month" onClick={() => move(-1)}>
-            <ChevronLeft size={18} />
-          </button>
-          <button aria-label="Next month" onClick={() => move(1)}>
-            <ChevronRight size={18} />
-          </button>
-        </div>
-      </div>
-      <div className="heatmap-calendar">
-        <div className="weekday-labels">
-          {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map(day => (
-            <span key={day}>{day}</span>
-          ))}
-        </div>
-        <div className="heatmap-grid">
-          {weeks.map((week, weekIndex) => (
-            <div className="heatmap-week" key={weekIndex}>
-              {week.map(date => {
-                const dateKey = key(date)
-                const value = map[dateKey] || 0
-                const outside = date.getMonth() !== month.getMonth()
-                const rest = s.profile.daysOff.includes(dateKey)
-                const dayAttempts = s.attempts.filter(attempt => localDate(attempt.createdAt) === dateKey)
-                const daySubmissions = (s.submissions || []).filter(
-                  submission => localDate(submission.createdAt) === dateKey
-                )
-                const dayCompleted = dayAttempts.length + daySubmissions.length
-                return (
-                  <div
-                    key={dateKey}
-                    aria-label={`${dateKey}: ${Math.round(value)} active minutes, ${dayCompleted} completed activities${rest ? ', planned rest day' : ''}`}
-                    title={`${dateKey}: ${Math.round(value)} active minutes`}
-                    className={`heat l${heatLevel(value, goal)} ${outside ? 'outside-month' : ''} ${rest ? 'rest-day' : ''}`}
-                  >
-                    {date.getDate()}
-                  </div>
-                )
-              })}
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="heatmap-legend">
-        <span>Less</span>
-        {[0, 1, 2, 3, 4, 5].map(level => (
-          <i className={`heat l${level}`} key={level} aria-label={`Intensity ${level}`} />
-        ))}
-        <span>More active time</span>
-      </div>
-      <div className="heatmap-detail">
-        <b>{selected}</b>
-        <span>
-          {Math.round(minutes)} active minutes{goal ? ` · ${Math.round((minutes / goal) * 100)}% of ${goal}-minute goal` : ''}
-        </span>
-        <span>{completed ? `${completed} completed activities · ${skills.join(', ')}` : 'No recorded activities'}</span>
-        <span>{s.profile.daysOff.includes(selected) ? 'Planned rest day' : ''}</span>
-      </div>
-    </section>
+    <div className="record-heatmap-wrapper" style={{ marginTop: '16px' }}>
+      <ActivityHeatmapHub s={s} initialExpanded={true} />
+    </div>
   )
 }
 
