@@ -941,7 +941,6 @@ function Dashboard({
       <section className="dashboard-card activity-card activity-hub-card full-width-default">
         <ActivityHeatmapHub
           s={s}
-          initialExpanded={true}
         />
       </section>
 
@@ -1637,7 +1636,7 @@ function DashboardRecord({
 function Heatmap({ s }: { s: Store }) {
   return (
     <div className="record-heatmap-wrapper" style={{ marginTop: '16px' }}>
-      <ActivityHeatmapHub s={s} initialExpanded={true} />
+      <ActivityHeatmapHub s={s} />
     </div>
   )
 }
