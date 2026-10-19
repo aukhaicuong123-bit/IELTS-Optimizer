@@ -1643,6 +1643,103 @@ function Heatmap({ s }: { s: Store }) {
   )
 }
 
+/* ===== YEAR HEATMAP ===== */
+/**
+ * Yearly heatmap: all 12 months in a wrapped grid, no horizontal scrolling.
+ * Each month is a compact sub-grid of weeks × 7 day-cells.
+ */
+function YearHeatmap({ s }: { s: Store }) {
+  const map = minutesByDate(s.sessions)
+  const key = (date: Date) => localDate(date.toISOString())
+  const today = new Date()
+  const year = today.getFullYear()
+  const goal = s.profile.dailyGoalMinutes || 0
+
+  const monthNames = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  ]
+  const monthVietnamese = [
+    'Th1', 'Th2', 'Th3', 'Th4', 'Th5', 'Th6',
+    'Th7', 'Th8', 'Th9', 'Th10', 'Th11', 'Th12'
+  ]
+
+  const monthBlocks = monthNames.map((mName, mIndex) => {
+    const monthStart = new Date(year, mIndex, 1)
+    const leadingBlanks = monthStart.getDay()
+    const daysInMonth = new Date(year, mIndex + 1, 0).getDate()
+    const totalCells = leadingBlanks + daysInMonth
+    const weekCount = Math.ceil(totalCells / 7)
+
+    const cells = []
+    for (let i = 0; i < weekCount * 7; i++) {
+      const absoluteDay = i - leadingBlanks + 1
+      const isOutside = absoluteDay < 1 || absoluteDay > daysInMonth
+      const date = isOutside ? null : new Date(year, mIndex, absoluteDay)
+      cells.push({ date, isOutside })
+    }
+    return { mName, mVietnamese: monthVietnamese[mIndex], mIndex, cells, weekCount }
+  })
+
+  const yearTotal = Object.values(map).reduce((a, b) => a + b, 0)
+  const activeDays = Object.values(map).filter(v => v > 0).length
+
+  return (
+    <section className="panel heatmap-panel year-view">
+      <div className="heatmap-year-header">
+        <div className="heatmap-year-title">
+          <span className="eyebrow">BẢN ĐỒ NĂNG SUẤT NĂM</span>
+          <h2>{year}</h2>
+        </div>
+        <div className="heatmap-year-stats">
+          <span className="stat"><b>{yearTotal.toFixed(0)}</b> phút hoạt động</span>
+          <span className="stat"><b>{activeDays}</b> ngày có hoạt động</span>
+        </div>
+      </div>
+
+      <div className="heatmap-year-grid">
+        {monthBlocks.map(block => (
+          <div key={block.mIndex} className="heatmap-month-block">
+            <div className="heatmap-month-name">{block.mVietnamese}</div>
+            <div className="heatmap-month-grid">
+              {block.cells.map((cell, i) => {
+                if (cell.isOutside) {
+                  return <div key={i} className="heat heat-l0 outside-month" />
+                }
+                const dateKey = key(cell.date!)
+                const value = map[dateKey] || 0
+                const rest = s.profile.daysOff.includes(dateKey)
+                return (
+                  <div
+                    key={i}
+                    aria-label={`${dateKey}: ${Math.round(value)} phút hoạt động${rest ? ', ngày nghỉ đã kế hoạch' : ''}`}
+                    title={`${dateKey}: ${Math.round(value)} phút`}
+                    className={`heat heat-l${heatLevel(value, goal)} ${rest ? 'rest-day' : ''}`}
+                  />
+                )
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="heatmap-year-legend">
+        <span>Ít</span>
+        {[0, 1, 2, 3, 4, 5].map(level => (
+          <i key={level} className={`heat heat-l${level}`} aria-label={`Mức ${level}`} />
+        ))}
+        <span>Nhiều</span>
+      </div>
+
+      <div className="heatmap-year-summary">
+        <span><b>{yearTotal.toFixed(0)}</b> tổng phút hoạt động trong năm {year}</span>
+        <span><b>{activeDays}</b> / 365 ngày có hoạt động</span>
+      </div>
+    </section>
+  )
+}
+
+
 /**
  * Reading Practice with Topic Filtering and Retest Support
  */
