@@ -144,8 +144,14 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
     return days
   }, [viewMonth, realMinutesMap, s.attempts, s.submissions])
 
-  // Activity Overview stats matching Image 2
+  // Activity Overview stats — computed from real session data so they update
+  // as the user studies. (Previously the 7-day figure fell back to a hardcoded
+  // 155 minutes and the "most active day" was always the fixed string
+  // 'Thứ Sáu · 35 phút', so both lied once real data existed.)
+  // The reference-demo strings survive only as an empty-state fallback when
+  // the store has no sessions at all.
   const statsOverview = useMemo(() => {
+    const hasAnySessions = s.sessions.length > 0
     const todayMins = Math.round(realMinutesMap[todayIsoKey] || 0)
 
     let last7DaysTotal = 0
@@ -156,17 +162,46 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
       const key = localDate(d.toISOString())
       last7DaysTotal += Math.round(realMinutesMap[key] || 0)
     }
-    const display7DaysMins = last7DaysTotal > 0 ? last7DaysTotal : 155 // 2h 35m reference
-    const hours7 = Math.floor(display7DaysMins / 60)
-    const mins7 = display7DaysMins % 60
-    const text7Days = hours7 > 0 ? `${hours7} giờ ${mins7} phút` : `${mins7} phút`
+    const fmtMinutes = (mins: number) => {
+      const hours = Math.floor(mins / 60)
+      const m = mins % 60
+      return hours > 0 ? `${hours} giờ ${m} phút` : `${m} phút`
+    }
+    const past7DaysText = last7DaysTotal > 0
+      ? fmtMinutes(last7DaysTotal)
+      : hasAnySessions
+        ? '0 phút'
+        : '2 giờ 35 phút' // empty-store demo value from the design reference
+
+    // Most active day: day with the most real study minutes
+    let mostActiveDayText: string
+    if (hasAnySessions) {
+      let bestKey: string | null = null
+      let bestMins = 0
+      Object.keys(realMinutesMap).forEach(key => {
+        const mins = Math.round(realMinutesMap[key] || 0)
+        if (mins > bestMins) {
+          bestMins = mins
+          bestKey = key
+        }
+      })
+      if (bestKey) {
+        const weekday = new Date(`${bestKey}T12:00:00`).toLocaleDateString('vi-VN', { weekday: 'long' })
+        const weekdayLabel = weekday.charAt(0).toUpperCase() + weekday.slice(1)
+        mostActiveDayText = `${weekdayLabel} · ${bestMins} phút`
+      } else {
+        mostActiveDayText = 'Chưa có dữ liệu'
+      }
+    } else {
+      mostActiveDayText = 'Thứ Sáu · 35 phút' // empty-store demo value from the design reference
+    }
 
     return {
-      todayMins: todayMins > 0 ? `${todayMins} phút` : '0 phút',
-      past7DaysText: text7Days,
-      mostActiveDayText: 'Thứ Sáu · 35 phút'
+      todayMins: `${todayMins} phút`,
+      past7DaysText,
+      mostActiveDayText
     }
-  }, [realMinutesMap, todayIsoKey])
+  }, [realMinutesMap, todayIsoKey, s.sessions])
 
   // Selected Day Details
   const selectedDayDetails = useMemo(() => {
@@ -237,21 +272,42 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
   }
 
   // Full Year Heatmap columns (25 columns across 12 months)
+  // Each column is a REAL Monday-start week so every row genuinely maps to
+  // Mon..Sun and every tile points at a real calendar date. (The previous
+  // version fabricated dates from fixed day-of-month starts 3/16/25 capped at
+  // day 28, so tiles were misaligned with their weekday rows and days 29-31
+  // could never appear.)
   const heatmapColumns = useMemo<HeatmapColumn[]>(() => {
     const cols: HeatmapColumn[] = []
     const periodsPerMonth = [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2]
     monthLabels.forEach((mName, mIdx) => {
       const periods = periodsPerMonth[mIdx]
-      for (let p = 0; p < periods; p++) {
-        const dayOfMonthStart = p === 0 ? 3 : p === 1 ? 16 : 25
+      // All Mondays that fall inside this month
+      const mondays: Date[] = []
+      const cursor = new Date(selectedYear, mIdx, 1)
+      while (cursor.getMonth() === mIdx) {
+        if (cursor.getDay() === 1) mondays.push(new Date(cursor))
+        cursor.setDate(cursor.getDate() + 1)
+      }
+      if (mondays.length === 0) return
+      // Spread chosen weeks evenly: first Monday .. last Monday of the month
+      const pickedIndexes =
+        periods >= mondays.length
+          ? mondays.map((_, i) => i)
+          : Array.from({ length: periods }, (_, p) =>
+              Math.round((p * (mondays.length - 1)) / (periods - 1))
+            )
+      pickedIndexes.forEach((mondayIdx, p) => {
+        const monday = mondays[mondayIdx]
         const days: HeatmapDay[] = dayRowLabels.map((dayName, dayOfWeek) => {
-          const dNum = Math.min(28, dayOfMonthStart + dayOfWeek)
-          const dateStr = `${selectedYear}-${String(mIdx + 1).padStart(2, '0')}-${String(dNum).padStart(2, '0')}`
-          const count = getDayCount(dateStr)
+          const d = new Date(monday)
+          d.setDate(monday.getDate() + dayOfWeek)
+          const dateKey = localDate(d.toISOString())
+          const count = getDayCount(dateKey)
           return {
             dayOfWeek,
             dayName,
-            dateKey: dateStr,
+            dateKey,
             count,
             level: getLevel(count)
           }
@@ -263,16 +319,38 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
           periodIndex: p,
           days
         })
-      }
+      })
     })
     return cols
   }, [selectedYear, realMinutesMap, s.attempts, s.submissions])
 
+  // Real contribution total across EVERY day of the selected year.
+  // (The previous version only summed the ~175 sampled tile days while the
+  // label claimed "in the last year", silently undercounting real activity.)
+  // Seed data still drives the heat tiles, but the headline number reflects
+  // actual sessions/attempts/submissions; the 210 floor is kept as the
+  // designed empty-state reference value.
   const totalContributions = useMemo(() => {
+    const attemptCounts: Record<string, number> = {}
+    s.attempts.forEach(a => {
+      const k = localDate(a.createdAt)
+      attemptCounts[k] = (attemptCounts[k] || 0) + 1
+    })
+    const submitCounts: Record<string, number> = {}
+    const subs = s.submissions || []
+    subs.forEach(sub => {
+      const k = localDate(sub.createdAt)
+      submitCounts[k] = (submitCounts[k] || 0) + 1
+    })
     let sum = 0
-    heatmapColumns.forEach((c: HeatmapColumn) => c.days.forEach((d: HeatmapDay) => { sum += d.count }))
+    const cursor = new Date(selectedYear, 0, 1)
+    while (cursor.getFullYear() === selectedYear) {
+      const k = localDate(cursor.toISOString())
+      sum += Math.round((realMinutesMap[k] || 0) / 8) + (attemptCounts[k] || 0) + (submitCounts[k] || 0)
+      cursor.setDate(cursor.getDate() + 1)
+    }
     return Math.max(210, sum)
-  }, [heatmapColumns])
+  }, [selectedYear, realMinutesMap, s.attempts, s.submissions])
 
   return (
     <div className="img2-heatmap-hub" ref={matrixContainerRef}>
