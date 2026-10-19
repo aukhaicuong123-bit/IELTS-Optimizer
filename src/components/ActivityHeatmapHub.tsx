@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react'
+import React, { useState, useEffect, useMemo, useRef } from 'react'
 import {
   CalendarDays,
   ChevronLeft,
@@ -71,6 +71,19 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
   }>({ text: '', x: 0, y: 0, visible: false })
 
   const matrixContainerRef = useRef<HTMLDivElement>(null)
+  const yearMenuRef = useRef<HTMLDivElement>(null)
+
+  // Close the year dropdown when clicking outside of it
+  useEffect(() => {
+    if (!yearDropdownOpen) return
+    const onDocPointerDown = (e: MouseEvent) => {
+      if (yearMenuRef.current && !yearMenuRef.current.contains(e.target as Node)) {
+        setYearDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', onDocPointerDown)
+    return () => document.removeEventListener('mousedown', onDocPointerDown)
+  }, [yearDropdownOpen])
 
   // Real store minutes
   const realMinutesMap = useMemo(() => minutesByDate(s.sessions), [s.sessions])
@@ -144,14 +157,10 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
     return days
   }, [viewMonth, realMinutesMap, s.attempts, s.submissions])
 
-  // Activity Overview stats — computed from real session data so they update
-  // as the user studies. (Previously the 7-day figure fell back to a hardcoded
-  // 155 minutes and the "most active day" was always the fixed string
-  // 'Thứ Sáu · 35 phút', so both lied once real data existed.)
-  // The reference-demo strings survive only as an empty-state fallback when
-  // the store has no sessions at all.
+  // Activity Overview stats — always computed from real session data.
+  // No hardcoded demo strings: an empty store shows real zeroes /
+  // 'Chưa có dữ liệu' rather than fabricated reference values.
   const statsOverview = useMemo(() => {
-    const hasAnySessions = s.sessions.length > 0
     const todayMins = Math.round(realMinutesMap[todayIsoKey] || 0)
 
     let last7DaysTotal = 0
@@ -167,41 +176,30 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
       const m = mins % 60
       return hours > 0 ? `${hours} giờ ${m} phút` : `${m} phút`
     }
-    const past7DaysText = last7DaysTotal > 0
-      ? fmtMinutes(last7DaysTotal)
-      : hasAnySessions
-        ? '0 phút'
-        : '2 giờ 35 phút' // empty-store demo value from the design reference
 
     // Most active day: day with the most real study minutes
-    let mostActiveDayText: string
-    if (hasAnySessions) {
-      let bestKey: string | null = null
-      let bestMins = 0
-      Object.keys(realMinutesMap).forEach(key => {
-        const mins = Math.round(realMinutesMap[key] || 0)
-        if (mins > bestMins) {
-          bestMins = mins
-          bestKey = key
-        }
-      })
-      if (bestKey) {
-        const weekday = new Date(`${bestKey}T12:00:00`).toLocaleDateString('vi-VN', { weekday: 'long' })
-        const weekdayLabel = weekday.charAt(0).toUpperCase() + weekday.slice(1)
-        mostActiveDayText = `${weekdayLabel} · ${bestMins} phút`
-      } else {
-        mostActiveDayText = 'Chưa có dữ liệu'
+    let bestKey: string | null = null
+    let bestMins = 0
+    Object.keys(realMinutesMap).forEach(key => {
+      const mins = Math.round(realMinutesMap[key] || 0)
+      if (mins > bestMins) {
+        bestMins = mins
+        bestKey = key
       }
-    } else {
-      mostActiveDayText = 'Thứ Sáu · 35 phút' // empty-store demo value from the design reference
+    })
+    let mostActiveDayText = 'Chưa có dữ liệu'
+    if (bestKey) {
+      const weekday = new Date(`${bestKey}T12:00:00`).toLocaleDateString('vi-VN', { weekday: 'long' })
+      const weekdayLabel = weekday.charAt(0).toUpperCase() + weekday.slice(1)
+      mostActiveDayText = `${weekdayLabel} · ${bestMins} phút`
     }
 
     return {
       todayMins: `${todayMins} phút`,
-      past7DaysText,
+      past7DaysText: fmtMinutes(last7DaysTotal),
       mostActiveDayText
     }
-  }, [realMinutesMap, todayIsoKey, s.sessions])
+  }, [realMinutesMap, todayIsoKey])
 
   // Selected Day Details
   const selectedDayDetails = useMemo(() => {
@@ -411,7 +409,7 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
           </button>
 
           {/* Year selector dropdown */}
-          <div className="img2-year-selector-wrap">
+          <div className="img2-year-selector-wrap" ref={yearMenuRef}>
             <button
               type="button"
               className="img2-year-btn"
