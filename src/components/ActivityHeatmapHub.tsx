@@ -13,10 +13,28 @@ import {
 import { Store } from '../types'
 import { localDate, minutesByDate } from '../domain'
 
+const ExpandIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="15 3 21 3 21 9" />
+    <polyline points="9 21 3 21 3 15" />
+    <line x1="21" y1="3" x2="14" y2="10" />
+    <line x1="3" y1="21" x2="10" y2="14" />
+  </svg>
+)
 
+const ShrinkIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="4 14 10 14 10 20" />
+    <polyline points="20 10 14 10 14 4" />
+    <line x1="14" y1="10" x2="21" y2="3" />
+    <line x1="3" y1="21" x2="10" y2="14" />
+  </svg>
+)
 
 interface ActivityHeatmapHubProps {
   s: Store
+  initialExpanded?: boolean
+  onExpandChange?: (expanded: boolean) => void
 }
 
 type ViewMode = 'calendar' | 'matrix'
@@ -59,8 +77,9 @@ const SEED_CONTRIBUTIONS: Record<string, number> = {
   '2026-10-19': 8   // Matches highlighted Monday Oct 19 in Image 1
 }
 
-export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
+export function ActivityHeatmapHub({ s, initialExpanded = false, onExpandChange }: ActivityHeatmapHubProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('calendar')
+  const [isExpanded, setIsExpanded] = useState(initialExpanded)
   const [selectedYear, setSelectedYear] = useState<number>(2026)
   const [tooltip, setTooltip] = useState<{
     text: string
@@ -85,6 +104,12 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
     const d = new Date(`${selectedDateKey}T12:00:00`)
     return new Date(d.getFullYear(), d.getMonth(), 1)
   })
+
+  const toggleExpand = () => {
+    const next = !isExpanded
+    setIsExpanded(next)
+    onExpandChange?.(next)
+  }
 
   // Calculate day contribution count
   const getContributionCount = (dateKey: string) => {
@@ -252,7 +277,7 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
   }
 
   return (
-    <div className="activity-heatmap-hub">
+    <div className={`activity-heatmap-hub ${isExpanded ? 'hub-expanded' : ''}`}>
       {/* Top Main Navigation / Bar */}
       <div className="hub-top-bar">
         <div className="hub-top-title">
@@ -287,7 +312,17 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
             </button>
           </div>
 
-        </div>\n      </div>
+          <button
+            type="button"
+            className="hub-icon-action-btn"
+            onClick={toggleExpand}
+            title={isExpanded ? 'Thu gọn khung' : 'Mở rộng toàn màn hình'}
+            aria-label={isExpanded ? 'Thu gọn' : 'Mở rộng'}
+          >
+            {isExpanded ? <ShrinkIcon /> : <ExpandIcon />}
+          </button>
+        </div>
+      </div>
 
       {/* Main Content Area */}
       <div className={`hub-views-container layout-${viewMode}`}>
