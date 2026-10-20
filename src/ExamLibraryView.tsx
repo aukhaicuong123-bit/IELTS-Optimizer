@@ -485,7 +485,7 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
       total: allQuestions.length,
       kind: 'practice',
       createdAt: new Date().toISOString(),
-      objectiveIds: allQuestions.map(q => `reading:passage-${q.passageNumber || 1}`)
+      objectiveIds: allQuestions.map(q => `reading:${exam.id}:passage-${q.passageNumber || 1}`)
     }
 
     const engineQuestions: Question[] = allQuestions.map(q => ({
@@ -495,7 +495,7 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
       options: q.options || [],
       answer: q.answerKey,
       explanation: q.explanation,
-      objective: `reading:passage-${q.passageNumber || 1}`
+      objective: `reading:${exam.id}:passage-${q.passageNumber || 1}`
     }))
     const nextErrors = mergeAttemptErrors(store.errors, newAttempt, engineQuestions)
     setStore(prev => ({
@@ -864,6 +864,32 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
                     </div>
                   )}
 
+                  {q.type === 'sentence-completion' && !q.options && (
+                    <div className="options">
+                      <label style={{ display: 'block' }}>
+                        <span style={{ display: 'block', fontSize: 11, color: 'var(--muted)', marginBottom: 6 }}>
+                          Nhập câu trả lời (không phân biệt hoa thường)
+                        </span>
+                        <input
+                          type="text"
+                          name={q.id}
+                          value={userAns}
+                          onChange={event => setAnswers(prev => ({ ...prev, [q.id]: event.target.value }))}
+                          placeholder="Nhập câu trả lời…"
+                          style={{
+                            width: '100%',
+                            padding: '9px 12px',
+                            borderRadius: 7,
+                            border: '1px solid var(--line)',
+                            background: '#14201c',
+                            color: '#e7f3e9',
+                            fontSize: 13
+                          }}
+                        />
+                      </label>
+                    </div>
+                  )}
+
                   {q.type === 'sentence-completion' && q.options && (
                     <div className="options">
                       {q.options.map((opt, optIndex) => {
@@ -881,6 +907,60 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
                           </label>
                         )
                       })}
+                    </div>
+                  )}
+
+                  {q.type === 'matching-headings' && (
+                    <div className="options">
+                      <span style={{ display: 'block', fontSize: 11, color: 'var(--muted)', marginBottom: 6 }}>
+                        Chọn heading phù hợp nhất cho đoạn văn/{q.prompt}
+                      </span>
+                      {(activePassage.headingBank || []).map((h) => {
+                        const isChosen = userAns === h.label
+                        return (
+                          <label key={h.label} className={isChosen ? 'chosen' : ''}>
+                            <input
+                              type="radio"
+                              name={q.id}
+                              value={h.label}
+                              checked={isChosen}
+                              onChange={() => setAnswers(prev => ({ ...prev, [q.id]: h.label }))}
+                            />
+                            <span>{h.label.toUpperCase()}. {h.text}</span>
+                          </label>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  {q.type === 'summary-completion' && (
+                    <div className="options">
+                      {q.promptDetail && (
+                        <p style={{ margin: '0 0 8px', fontSize: 13, color: '#c5d3ca', fontStyle: 'italic' }}>
+                          {q.promptDetail}
+                        </p>
+                      )}
+                      <label style={{ display: 'block' }}>
+                        <span style={{ display: 'block', fontSize: 11, color: 'var(--muted)', marginBottom: 6 }}>
+                          Nhập câu trả lời (không phân biệt hoa thường)
+                        </span>
+                        <input
+                          type="text"
+                          name={q.id}
+                          value={userAns}
+                          onChange={event => setAnswers(prev => ({ ...prev, [q.id]: event.target.value }))}
+                          placeholder="Nhập câu trả lời…"
+                          style={{
+                            width: '100%',
+                            padding: '9px 12px',
+                            borderRadius: 7,
+                            border: '1px solid var(--line)',
+                            background: '#14201c',
+                            color: '#e7f3e9',
+                            fontSize: 13
+                          }}
+                        />
+                      </label>
                     </div>
                   )}
                 </div>
@@ -1122,7 +1202,7 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
       total: allQuestions.length,
       kind: 'practice',
       createdAt: new Date().toISOString(),
-      objectiveIds: allQuestions.map(q => `listening:section-${q.sectionNumber || 1}`)
+      objectiveIds: allQuestions.map(q => `listening:${exam.id}:section-${q.sectionNumber || 1}`)
     }
 
     const engineQuestions: Question[] = allQuestions.map(q => ({
@@ -1132,7 +1212,7 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
       options: q.options || [],
       answer: q.answerKey,
       explanation: q.explanation,
-      objective: `listening:section-${q.sectionNumber || 1}`
+      objective: `listening:${exam.id}:section-${q.sectionNumber || 1}`
     }))
     const nextErrors = mergeAttemptErrors(store.errors, newAttempt, engineQuestions)
     setStore(prev => ({
@@ -1533,6 +1613,32 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
                         </label>
                       )
                     })}
+                  </div>
+                )}
+
+                {q.type === 'sentence-completion' && !q.options && (
+                  <div className="options">
+                    <label style={{ display: 'block' }}>
+                      <span style={{ display: 'block', fontSize: 11, color: 'var(--muted)', marginBottom: 6 }}>
+                        Nhập câu trả lời (không phân biệt hoa thường)
+                      </span>
+                      <input
+                        type="text"
+                        name={q.id}
+                        value={userAns}
+                        onChange={event => setAnswers(prev => ({ ...prev, [q.id]: event.target.value }))}
+                        placeholder="Nhập câu trả lời…"
+                        style={{
+                          width: '100%',
+                          padding: '9px 12px',
+                          borderRadius: 7,
+                          border: '1px solid var(--line)',
+                          background: '#14201c',
+                          color: '#e7f3e9',
+                          fontSize: 13
+                        }}
+                      />
+                    </label>
                   </div>
                 )}
 

@@ -8,12 +8,16 @@
  * - Full Writing Test: Task 1 + Task 2, 60 minutes
  * - Full Speaking Test: Parts 1, 2, 3 (11-14 minutes)
  */
+import { academicTest1Reading } from './examLibrary/academic/reading'
+import { academicTest1Listening } from './examLibrary/academic/listening'
+
 
 export interface ExamQuestion {
   id: string
   number: number // 1 to 40
-  type: 'multiple-choice' | 'true-false-not-given' | 'yes-no-not-given' | 'sentence-completion' | 'matching-headings'
+  type: 'multiple-choice' | 'true-false-not-given' | 'yes-no-not-given' | 'sentence-completion' | 'summary-completion' | 'matching-headings'
   prompt: string
+  promptDetail?: string
   options?: string[]
   answerKey: string
   explanation: string
@@ -28,6 +32,8 @@ export interface ExamPassage {
   wordCount: number
   text: string
   questions: ExamQuestion[]
+  /** Shared heading bank for `matching-headings` questions in this passage. */
+  headingBank?: { label: string; text: string }[]
 }
 
 export interface FullReadingPaper {
@@ -1415,8 +1421,105 @@ const freshExam3 = buildFreshExam(3, {
   speaking: { part1Topic: 'Weather and Seasons', part1: ['Which season do you enjoy most?', 'Does the weather affect your daily plans?', 'Have weather patterns changed in your area?'], part2Topic: 'A journey you remember', part2: 'Describe a journey that you remember well.', part2Bullets: ['where you went', 'how you travelled', 'what happened during the journey', 'and explain why you remember it'], part3Topic: 'Travel and the Environment', part3: ['How can tourism benefit local communities?', 'What problems can mass tourism create?', 'Should governments limit visitors to fragile natural areas?'] }
 })
 
+const academicTest1Exam: FullIELTSExam = {
+  id: 'ielts-exam-acad-test1',
+  code: 'IELTS-ACADEMIC-TEST-1',
+  title: 'IELTS Academic Test 1',
+  volume: 'Recent Actual Tests 2026 — Volume 1',
+  module: 'Academic',
+  difficulty: 'Standard Exam',
+  completedCount: 1500,
+  averageBand: 6.6,
+  reading: academicTest1Reading,
+  listening: academicTest1Listening,
+  writing: {
+    id: 'writing-paper-acad-t1',
+    title: 'Academic Writing — Test 1',
+    timeAllowedMinutes: 60,
+    task1: {
+      title: 'Task 1: Internet Users by Region (20 Minutes)',
+      prompt: 'The bar chart shows the percentage of internet users in four world regions between 2010 and 2022. Summarise the information by selecting and reporting the main features, and make comparisons where relevant. Write at least 150 words.',
+      type: 'academic_task1',
+      stimulusType: 'chart',
+      stimulusDescription: 'North America rose from about 70% to 92%; Europe from 60% to 85%; Asia from 25% to 65%; Africa from 5% to 40%.',
+      minimumWords: 150,
+      modelAnswer: `The bar chart compares the proportion of internet users across four world regions — North America, Europe, Asia and Africa — between 2010 and 2022.
+
+Overall, internet usage increased in every region, with North America remaining the most connected and Africa the least connected, although Africa recorded the most rapid relative growth.
+
+In 2010, North America had the highest penetration at roughly 70%, followed by Europe at around 60%. Asia lagged considerably at about 25%, while Africa had the lowest figure at approximately 5%. By 2022, North America had risen to roughly 92% and Europe to about 85%. Asia experienced strong growth to roughly 65%, and Africa expanded to around 40%, representing an eightfold increase over the period.
+
+In conclusion, while the digital divide narrowed somewhat, significant regional disparities remained in 2022.`
+    },
+
+    task2: {
+      title: 'Task 2: Space Exploration vs Earthly Problems (40 Minutes)',
+      prompt: 'Some people believe that government spending on space exploration is a waste of money and that funds should instead be spent on urgent problems on Earth. To what extent do you agree or disagree? Write at least 250 words.',
+      minimumWords: 250,
+      modelAnswer: `Government expenditure on space exploration is frequently criticised at a time when pressing terrestrial problems demand attention. I partly agree that priorities must be scrutinised, but I do not believe space programmes should be abandoned altogether.
+
+On the one hand, it is difficult to justify costly space missions when millions lack basic healthcare, education and clean water. In low-income countries, limited budgets are better directed toward vaccination programmes, infrastructure and disaster relief, which yield immediate and tangible benefits. Space exploration, by contrast, can appear abstract and remote, offering little short-term relief to those in poverty.
+
+On the other hand, space research has generated valuable spin-off technologies, from satellite communications and weather forecasting to medical imaging and environmental monitoring. These applications directly support agriculture, climate science and emergency response — areas that also address urgent problems on Earth. Moreover, space programmes drive scientific innovation, inspire future generations and may ultimately be essential for long-term human survival.
+
+In conclusion, while spending must be balanced against immediate needs, I disagree that space exploration is a waste of money. A modest, carefully targeted space budget complements rather than competes with investment in earthly problems.`
+    }
+  },
+  speaking: {
+    id: 'speaking-paper-acad-t1',
+    title: 'Speaking Interview — Test 1',
+    part1: {
+      topic: 'Home and Hometown',
+      questions: [
+        'Can you tell me about the place where you live?',
+        'What do you like most about your hometown?',
+        'Has your hometown changed much since you were a child?',
+        'Do you plan to continue living there in the future?'
+      ],
+      modelAnswers: [
+        'I live in a medium-sized coastal city that combines a busy port with several quiet residential neighbourhoods.',
+        'What I appreciate most is the mix of old and new — there is a historic market district alongside modern cafés and parks.',
+        'Yes, it has changed considerably. New roads and shopping centres have been built, and the waterfront has been redeveloped for leisure.',
+        'For now, yes, because my family and work are based there, though I might consider moving abroad for further study.'
+      ]
+    },
+    part2: {
+      topic: 'A memorable journey',
+      prompt: 'Describe a journey that you remember well.',
+      cueCardBullets: [
+        'where you went',
+        'how you travelled',
+        'what happened during the journey',
+        'and explain why you remember it'
+      ],
+      prepTimeSeconds: 60,
+      speakingTimeSeconds: 120,
+      modelAnswer: `I would like to talk about a train journey I took to the mountains two years ago with a group of close friends. We travelled overnight in a sleeper carriage, departing just after sunset and arriving at dawn.
+
+The journey itself was memorable because the scenery changed dramatically as we climbed higher: the flat farmland gave way to pine forests, and finally to snow-dusted peaks. We spent much of the night talking, playing cards and watching the landscape pass by outside the window.
+
+I remember this trip vividly because it was the first time I had travelled without my family, and we reached a remote village where we hiked to a lake at sunrise. The sense of independence, friendship and natural beauty made it an experience I still think about often.`
+    },
+
+    part3: {
+      topic: 'Travel and tourism',
+      questions: [
+        'How has tourism changed in your country over the last few decades?',
+        'What are the benefits and drawbacks of mass tourism?',
+        'Should governments limit the number of visitors to fragile natural sites?'
+      ],
+      modelAnswers: [
+        'Tourism has grown enormously. Budget airlines and online booking have made travel more accessible, and many rural areas now depend on visitors for income.',
+        'Mass tourism creates jobs and boosts local businesses, but it can also lead to overcrowding, environmental damage and rising living costs for residents.',
+        'Yes, I believe visitor numbers should be capped at delicate sites such as coral reefs or ancient monuments to prevent irreversible damage, while still allowing sustainable tourism.'
+      ]
+    }
+  }
+}
+
 export const IELTS_EXAM_COLLECTIONS: FullIELTSExam[] = [
   firstAcademicExam,
   freshExam2,
-  freshExam3
+  freshExam3,
+  academicTest1Exam
 ]
