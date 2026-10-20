@@ -270,14 +270,17 @@ main {
 }
 
 .topic-band-target {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 4px;
-  background: #13241b;
-  border: 1px solid #2d4536;
-  color: var(--mint);
-  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #eef6ec;
+  border: 1px solid #c2dec3;
+  color: #176548;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(23, 101, 72, 0.06);
 }
 
 .topic-header-title h2 {

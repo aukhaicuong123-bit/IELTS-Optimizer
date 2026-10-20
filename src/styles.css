@@ -349,7 +349,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 .workspace-theme .topic-toggle-btn,.workspace-theme .topic-card-btn,.workspace-theme .topic-header-card,.workspace-theme .topic-lexicon-helper,.workspace-theme .grammar-box,.workspace-theme .network-card,.workspace-theme .design-row{background:#fffefa!important;border-color:#e5e3da!important;color:#152337}
 .workspace-theme .topic-toggle-btn:hover,.workspace-theme .topic-card-btn:hover,.workspace-theme .topic-card-btn.active{background:#edf5e5!important;border-color:#a9ca99!important}
 .workspace-theme .topic-en,.workspace-theme .topic-header-title h2,.workspace-theme .grammar-box h3{color:#172236}
-.workspace-theme .topic-vi,.workspace-theme .topic-header-meta,.workspace-theme .topic-band-target,.workspace-theme .topic-progress-badge{color:#65748a}
+.workspace-theme .topic-vi,.workspace-theme .topic-header-meta,.workspace-theme .topic-progress-badge{color:#65748a}
 .workspace-theme .stat-pill,.workspace-theme .lexicon-chip,.workspace-theme .card-colloc-tag{background:#f0f5e8!important;border-color:#d8e5cc!important;color:#45665c!important}
 .workspace-theme .flashcard-box{background:#fffefa!important;border-color:#e5e3da!important;color:#172236;box-shadow:0 12px 30px rgba(30,45,45,.08)}
 .workspace-theme .flashcard-box h3,.workspace-theme .card-term,.workspace-theme .card-meaning{color:#172236}
@@ -409,7 +409,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 .workspace-theme .exam-code-badge{background:#e9f1e3!important;color:#39705e!important;border:1px solid #d5e3ca}
 .workspace-theme .topic-toggle-btn{background:#fffefa!important;border-color:#dfe5d9!important;color:#36536b!important}
 .workspace-theme .topic-toggle-btn:hover{background:#edf5e5!important;border-color:#a9ca99!important;color:#075d52!important}
-.workspace-theme .topic-band-target{background:#0b5e54!important;color:#fff!important;border-radius:5px;padding:4px 8px}
+.workspace-theme .topic-band-target{background:#eef6ec!important;color:#176548!important;border:1px solid #c2dec3!important;border-radius:999px!important;padding:3px 10px!important;font-size:11px!important;font-weight:700!important;letter-spacing:.02em!important;display:inline-flex!important;align-items:center!important;box-shadow:0 1px 3px rgba(23,101,72,.06)!important}
 .workspace-theme .grammar-level{background:#0b5e54!important;color:#fff!important}
 .workspace-theme .daily-plan-day{background:#f5f7f0!important;border-color:#dfe5d9!important;color:#425671!important}
 .workspace-theme .test-blueprint{background:#f4f7ef!important;border-left-color:#d7a843!important}
@@ -418,6 +418,24 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 @media(max-width:1080px){.workspace-theme main{padding-left:24px;padding-right:24px}.workspace-theme .profile-layout{grid-template-columns:1fr}.workspace-theme .roadmap-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:850px){.workspace-theme > aside.app-sidebar{width:64px;min-width:64px;padding:16px 6px}.workspace-theme .brand{margin:0 auto 28px}.workspace-theme .brand div{display:none}.workspace-theme .brand-mark{flex-basis:34px;width:34px!important}.workspace-theme nav button:not(.active){font-size:0}.workspace-theme .nav-group-label{display:none}.workspace-theme nav button{justify-content:center;padding:11px}.workspace-theme .sidebar-note{display:none}.workspace-theme main{padding:20px 16px 42px}.workspace-theme main>header h1{font-size:36px}.workspace-theme .skill-quick-bar{margin-left:0;margin-right:0}.workspace-theme .roadmap-grid{grid-template-columns:1fr}.workspace-theme .header-meta{display:none}}
 @media(max-width:520px){.workspace-theme main>header h1{font-size:30px}.workspace-theme .panel{padding:18px}.workspace-theme .skill-quick-bar{border-radius:11px}.workspace-theme .skill-quick-btn{padding:9px 11px;font-size:12px}.workspace-theme .header-right-tools{gap:7px}.workspace-theme .form-grid{grid-template-columns:1fr}.workspace-theme .record-grid{grid-template-columns:1fr 1fr}}
+
+/* Listening Quiz Section - Harmonious Theme */
+.listening-quiz-section{margin-top:24px;border-top:1px solid #e4eae0;padding-top:20px}
+.listening-quiz-section h4{margin:0 0 16px;font-size:16px;font-weight:700;color:#172236!important}
+.listening-quiz-card{margin:14px 0;padding:18px 20px;background:#f8faf6;border:1px solid #dce4d7;border-radius:14px;box-shadow:0 2px 8px rgba(20,40,30,.03);transition:border-color .15s}
+.listening-quiz-card:hover{border-color:#b9d1b4}
+.listening-quiz-prompt{margin:0 0 14px!important;font-weight:700!important;font-size:14px!important;color:#172236!important;line-height:1.5!important}
+.listening-quiz-options{display:flex;flex-direction:column;gap:8px}
+.quiz-option-label{display:flex;align-items:center;gap:12px;padding:11px 16px;background:#fffefa!important;border:1px solid #d9dfd8!important;border-radius:10px!important;color:#2c3e50!important;font-size:13px!important;font-weight:500;cursor:pointer;transition:all .15s;margin:0!important}
+.quiz-option-label:hover{background:#f1f7ed!important;border-color:#9dc792!important;color:#14382c!important}
+.quiz-option-label.chosen{background:#e7f4e3!important;border-color:#075d52!important;color:#075d52!important;font-weight:700!important;box-shadow:0 0 0 1.5px #075d52 inset!important}
+.quiz-option-label input[type="radio"]{accent-color:#075d52;margin:0;cursor:pointer}
+.quiz-option-label span{color:inherit!important;font-size:13px}
+.audio-speed-select{background:#fffefa!important;color:#172236!important;border:1px solid #d9dfd8!important;border-radius:8px!important;padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer}
+.transcript-summary-toggle{cursor:pointer;color:#075d52!important;font-weight:700;font-size:13px}
+.transcript-summary-toggle:hover{text-decoration:underline}
+.result-summary-box{background:#f3f8ef!important;border:1px solid #d2e4c8!important;border-radius:12px!important;padding:16px!important;text-align:center!important;color:#172236!important}
+.result-summary-box b{color:#075d52!important;font-size:16px}
 
 /* ======================================================== */
 /* IMAGE 2: EXACT REPLICA OF ACTIVITY HEATMAP & CALENDAR    */

@@ -703,7 +703,7 @@ function DailyReadingDrill() {
       {!showResult ? (
         <button className="primary" disabled={!answered} onClick={() => setShowResult(true)}>Kiểm tra đáp án</button>
       ) : (
-        <div className="panel" style={{ background: '#14221b', textAlign: 'center' }}>
+        <div className="result-summary-box">
           <b>{correct}/{drill.questions.length} câu đúng</b>
           <p className="muted" style={{ margin: '6px 0 0' }}>{correct === drill.questions.length ? 'Xuất sắc!' : 'Ôn lại phần explanation ở trên nhé.'}</p>
         </div>
@@ -761,7 +761,7 @@ function DailyListeningDrill({ note }: { note: (msg: string) => void }) {
       {!showResult ? (
         <button className="primary" disabled={!answered} onClick={() => setShowResult(true)}>Kiểm tra đáp án</button>
       ) : (
-        <div className="panel" style={{ background: '#14221b', textAlign: 'center' }}>
+        <div className="result-summary-box">
           <b>{correct}/{drill.questions.length} câu đúng</b>
         </div>
       )}
@@ -854,7 +854,7 @@ function DailyGrammarDrill() {
       {!showResult ? (
         <button className="primary" disabled={!answered} onClick={() => setShowResult(true)}>Kiểm tra đáp án</button>
       ) : (
-        <div className="panel" style={{ background: '#14221b', textAlign: 'center' }}>
+        <div className="result-summary-box">
           <b>{correct}/{drills.length} câu đúng</b>
         </div>
       )}
@@ -896,7 +896,7 @@ function DailyVocabDrill() {
       {!showResult ? (
         <button className="primary" disabled={!answered} onClick={() => setShowResult(true)}>Kiểm tra đáp án</button>
       ) : (
-        <div className="panel" style={{ background: '#14221b', textAlign: 'center' }}>
+        <div className="result-summary-box">
           <b>{correct}/{drills.length} từ đúng</b>
         </div>
       )}
@@ -2317,7 +2317,7 @@ function SkillPractice({
               value={playbackSpeed}
               onChange={e => setPlaybackSpeed(parseFloat(e.target.value))}
               aria-label="Speed"
-              style={{ background: '#18241f', color: '#e7f3e9', border: '1px solid #2e3d37', borderRadius: '6px', padding: '6px' }}
+              className="audio-speed-select"
             >
               <option value="0.9">0.9x Speed</option>
               <option value="1.0">1.0x Normal</option>
@@ -2335,7 +2335,7 @@ function SkillPractice({
           </div>
 
           <details style={{ margin: '14px 0' }}>
-            <summary style={{ cursor: 'pointer', color: 'var(--mint)', fontWeight: 600 }}>
+            <summary className="transcript-summary-toggle">
               Hiện phụ đề bài nghe (Transcript fallback)
             </summary>
             <p className="callout" style={{ marginTop: '8px' }}>
@@ -2344,16 +2344,16 @@ function SkillPractice({
           </details>
 
           {/* Listening Comprehension Check */}
-          <div style={{ marginTop: '20px', borderTop: '1px solid #2e3d37', paddingTop: '16px' }}>
+          <div className="listening-quiz-section">
             <h4>Kiểm tra mức độ nghe hiểu ({currentTopic.listening.questions.length} câu)</h4>
             {currentTopic.listening.questions.map((q, qIndex) => (
-              <div key={q.id} style={{ margin: '12px 0', padding: '12px', background: '#131f1a', borderRadius: '8px' }}>
-                <p style={{ margin: '0 0 8px', fontWeight: 600 }}>
+              <div key={q.id} className="listening-quiz-card">
+                <p className="listening-quiz-prompt">
                   {qIndex + 1}. {q.prompt}
                 </p>
-                <div className="options">
+                <div className="listening-quiz-options">
                   {q.options.map(opt => (
-                    <label key={opt} className={quizAnswers[q.id] === opt ? 'chosen' : ''}>
+                    <label key={opt} className={`quiz-option-label ${quizAnswers[q.id] === opt ? 'chosen' : ''}`}>
                       <input
                         type="radio"
                         name={q.id}
@@ -2365,7 +2365,7 @@ function SkillPractice({
                   ))}
                 </div>
                 {showQuizResult && (
-                  <div className={`feedback ${quizAnswers[q.id] === q.answer ? 'correct' : 'incorrect'}`} style={{ marginTop: '8px' }}>
+                  <div className={`feedback ${quizAnswers[q.id] === q.answer ? 'correct' : 'incorrect'}`} style={{ marginTop: '10px' }}>
                     <b>{quizAnswers[q.id] === q.answer ? '✓ Đúng' : '✗ Chưa đúng'}</b>
                     <span>Đáp án: {q.answer}</span>
                     <small>{q.explanation}</small>
@@ -2373,7 +2373,7 @@ function SkillPractice({
                 )}
               </div>
             ))}
-            <button className="secondary" onClick={() => setShowQuizResult(true)}>
+            <button className="primary" onClick={() => setShowQuizResult(true)}>
               Kiểm tra đáp án nghe hiểu
             </button>
           </div>
