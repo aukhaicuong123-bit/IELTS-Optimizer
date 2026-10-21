@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { heatLevel, localDate, makeErrors, mergeAttemptErrors, measuredMinutes, minutesByDate, recommendations, scoreAttempt, snapshotActiveSession, startOfLocalWeek } from './domain'
+import { heatLevel, localDate, makeErrors, measuredMinutes, measuredStreak, mergeAttemptErrors, minutesByDate, recommendations, scoreAttempt, snapshotActiveSession, startOfLocalWeek } from './domain'
 import type { ActiveSession, Attempt, Profile, StudySession } from './types'
 
 const profile: Profile = { daysOff: [], priority: 'Reading', dailyGoalMinutes: 30 }
@@ -34,6 +34,15 @@ describe('IELTS Optimizer learning domain', () => {
   })
   it('counts only measured intervals, never legacy estimated minutes', () => {
     expect(measuredMinutes({ id: 'legacy', startedAt: 'x', endedAt: 'y', minutes: 30 })).toBe(0)
+  })
+  it('counts only consecutive measured study days for the current streak', () => {
+    const sessions: StudySession[] = [
+      { id: 'today', startedAt: '2026-01-03T10:00:00Z', endedAt: '2026-01-03T10:30:00Z', minutes: 30, activeIntervals: [{ startedAt: '2026-01-03T10:00:00Z', endedAt: '2026-01-03T10:30:00Z' }] },
+      { id: 'yesterday', startedAt: '2026-01-02T10:00:00Z', endedAt: '2026-01-02T10:20:00Z', minutes: 20, activeIntervals: [{ startedAt: '2026-01-02T10:00:00Z', endedAt: '2026-01-02T10:20:00Z' }] },
+      { id: 'older-gap', startedAt: '2025-12-30T10:00:00Z', endedAt: '2025-12-30T10:20:00Z', minutes: 20, activeIntervals: [{ startedAt: '2025-12-30T10:00:00Z', endedAt: '2025-12-30T10:20:00Z' }] }
+    ]
+    expect(measuredStreak(sessions, new Date('2026-01-03T12:00:00'))).toBe(2)
+    expect(measuredStreak(sessions, new Date('2026-01-01T12:00:00'))).toBe(0)
   })
   it('snapshots active time into non-overlapping intervals', () => {
     const session: ActiveSession = { id: 'timer', startedAt: '2026-01-01T10:00:00Z', lastResumedAt: '2026-01-01T10:00:00Z', accumulatedSeconds: 0, paused: false }

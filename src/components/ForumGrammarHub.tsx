@@ -116,18 +116,7 @@ export const ForumGrammarHub: React.FC<ForumGrammarHubProps> = ({
 
     setS({
       ...s,
-      submissions: [...(s.submissions || []), submission],
-      sessions: [
-        ...s.sessions,
-        {
-          id: uid('session'),
-          startedAt: new Date().toISOString(),
-          endedAt: new Date().toISOString(),
-          minutes: 10,
-          skill: 'Grammar',
-          activity: `Grammar Drill · ${ruleTitle}`
-        }
-      ]
+      submissions: [...(s.submissions || []), submission]
     })
     note(`+25 XP · Đã lưu bài luyện ngữ pháp vào Learning Record!`)
   }

@@ -54,6 +54,7 @@ import {
   mergeAttemptErrors,
   minutesByDate,
   measuredMinutes,
+  measuredStreak,
   recommendations,
   scoreAttempt,
   snapshotActiveSession
@@ -305,7 +306,7 @@ export default function App() {
             {page === 'dashboard' && <p className="dashboard-subtitle">Theo dõi thời gian học, xem lại lỗi và tiến trình gần đây của bạn.</p>}
           </div>
           <div className="header-right-tools">
-            {page === 'dashboard' && <span className="dashboard-date"><CalendarDays size={18} /> Thứ Hai, 19 tháng 10, 2026</span>}
+            {page === 'dashboard' && <span className="dashboard-date"><CalendarDays size={18} /> {new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>}
             {store.activeSession && (
               <div className="timer-live-badge" onClick={() => go('record')} title="Nhấp để xem nhật ký" role="button" tabIndex={0}>
                 <span className="timer-pulse-dot" />
@@ -1001,7 +1002,7 @@ function LearnerProfileCard({ s, go }: { s: Store; go: (page: Page) => void }) {
     ? Math.max(0, Math.ceil((new Date(examDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
     : null
 
-  const totalMinutesAllTime = Math.round(s.sessions.reduce((acc, sess) => acc + (sess.minutes || 0), 0))
+  const totalMinutesAllTime = Math.round(s.sessions.reduce((acc, sess) => acc + measuredMinutes(sess), 0))
   const totalHours = Math.floor(totalMinutesAllTime / 60)
   const totalMinsRem = totalMinutesAllTime % 60
   const dailyGoal = s.profile.dailyGoalMinutes || 60
@@ -1142,10 +1143,16 @@ function ActivityGrid({ s, today }: { s: Store; today: number }) {
 }
 
 function RecentEvidence({ s, go }: { s: Store; go: (page: Page) => void }) {
-  const latestAttempt = s.attempts.slice().reverse()[0]
-  const latestSubmission = (s.submissions || []).slice().reverse()[0]
-  const label = latestAttempt ? 'Reading' : latestSubmission ? latestSubmission.skill : 'Reading'
-  const date = latestAttempt?.createdAt || latestSubmission?.createdAt
+  const latestAttempt = s.attempts.slice().sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))[0]
+  const latestSubmission = (s.submissions || []).slice().sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))[0]
+  const latestEvidence = [
+    latestAttempt ? { kind: 'attempt' as const, createdAt: latestAttempt.createdAt } : null,
+    latestSubmission ? { kind: 'submission' as const, createdAt: latestSubmission.createdAt } : null
+  ].filter(Boolean).sort((a, b) => Date.parse(b!.createdAt) - Date.parse(a!.createdAt))[0]
+  const showAttempt = latestEvidence?.kind === 'attempt'
+  const label = showAttempt ? 'Reading' : latestSubmission ? latestSubmission.skill : 'Chưa có dữ liệu'
+  const date = latestEvidence?.createdAt
+  const attemptNeedsReview = Boolean(latestAttempt && latestAttempt.total > 0 && latestAttempt.score < latestAttempt.total)
   return (
     <section className="dashboard-card evidence-card">
       <div className="card-heading">
@@ -1157,11 +1164,11 @@ function RecentEvidence({ s, go }: { s: Store; go: (page: Page) => void }) {
       <div className="evidence-main">
         <span className="evidence-icon"><BookOpen size={23} /></span>
         <div>
-          <small>{label}　·　{date ? new Date(date).toLocaleDateString('vi-VN') : '18/10/2026'}</small>
-          <h3>{latestAttempt ? 'Nhận diện paraphrase' : 'Bắt đầu bài học đầu tiên'}</h3>
-          <p>{latestAttempt ? 'Chọn đáp án vì có từ khóa giống nhau, chưa đối chiếu nghĩa.' : 'Hoàn thành một hoạt động để tạo bằng chứng học tập.'}</p>
+          <small>{label}　·　{date ? new Date(date).toLocaleDateString('vi-VN') : 'Chưa có dữ liệu'}</small>
+          <h3>{showAttempt ? 'Kết quả Reading gần nhất' : latestSubmission ? 'Hoạt động gần nhất đã lưu' : 'Bắt đầu bài học đầu tiên'}</h3>
+          <p>{showAttempt ? 'Dùng kết quả này để chọn nội dung ôn tập tiếp theo.' : latestSubmission ? 'Bằng chứng học tập đã được lưu vào hồ sơ.' : 'Hoàn thành một hoạt động để tạo bằng chứng học tập.'}</p>
         </div>
-        <span className="evidence-status">{latestAttempt ? 'Cần retest' : 'Mới'}</span>
+        <span className="evidence-status">{showAttempt ? (attemptNeedsReview ? 'Cần xem lại' : 'Đã hoàn thành') : latestSubmission ? 'Đã lưu' : 'Mới'}</span>
       </div>
       <div className="evidence-detail">
         <div className="evidence-detail-col">
@@ -1214,8 +1221,7 @@ function DashboardTimerCard({
   const dailyGoal = s.profile.dailyGoalMinutes || 60
   const progressPercent = Math.min(100, Math.round((totalTodayMinutes / dailyGoal) * 100))
 
-  const activeDaysCount = Object.keys(minutesMap).filter(k => minutesMap[k] > 0).length
-  const currentStreak = Math.max(activeDaysCount > 0 ? 1 : 0, Math.min(activeDaysCount, 7))
+  const currentStreak = measuredStreak(s.sessions)
 
   const start = () => {
     const nowMs = Date.now()
@@ -1621,7 +1627,7 @@ function DashboardRecord({
         destination list labels context; it does not grant background tracking permission.
       </p>
       <div className="record-summary">
-        <b>{s.sessions.reduce((total, item) => total + item.minutes, 0)} min</b>
+        <b>{Math.round(s.sessions.reduce((total, item) => total + measuredMinutes(item), 0))} min</b>
         <span>measured study time</span>
         <b>{s.attempts.length + (s.submissions || []).length}</b>
         <span>saved activities</span>
@@ -1660,7 +1666,7 @@ function DashboardRecord({
                 <b>{item.activity || 'Study session'}</b>
                 <small>{new Date(item.startedAt).toLocaleString()}</small>
               </div>
-              <strong>{item.minutes} min</strong>
+              <strong>{Math.round(measuredMinutes(item))} min</strong>
             </div>
           ))}
         </div>
@@ -1875,19 +1881,7 @@ function Practice({
     setS({
       ...s,
       attempts: [...s.attempts, attempt],
-      errors: nextErrors,
-      sessions: [
-        ...s.sessions,
-        {
-          id: uid('session'),
-          startedAt: timestamp,
-          endedAt: timestamp,
-          minutes: passage.minutes,
-          activeIntervals: [],
-          skill: 'Reading',
-          activity: `${isRetestMode ? 'Retest' : 'Reading'} · ${passage.title}`
-        }
-      ]
+      errors: nextErrors
     })
     setSubmitted(true)
     note(isRetestMode ? 'Retest evidence recorded.' : 'Reading attempt saved.')
@@ -2349,18 +2343,7 @@ function SkillPractice({
     }
     setS({
       ...s,
-      submissions: [...(s.submissions || []), submission],
-      sessions: [
-        ...s.sessions,
-        {
-          id: uid('session'),
-          startedAt: new Date().toISOString(),
-          endedAt: new Date().toISOString(),
-          minutes: 15,
-          skill,
-          activity: `${skill} · ${currentTopic.titleEn}`
-        }
-      ]
+      submissions: [...(s.submissions || []), submission]
     })
     note(`${skill} evidence saved to Learning Record.`)
   }
@@ -3216,18 +3199,7 @@ function GrammarHub({
     }
     setS({
       ...s,
-      submissions: [...(s.submissions || []), submission],
-      sessions: [
-        ...s.sessions,
-        {
-          id: uid('session'),
-          startedAt: new Date().toISOString(),
-          endedAt: new Date().toISOString(),
-          minutes: 10,
-          skill: 'Grammar',
-          activity: `Grammar Drill · ${rule.title}`
-        }
-      ]
+      submissions: [...(s.submissions || []), submission]
     })
     note('Đã lưu bài luyện ngữ pháp vào Learning Record.')
   }

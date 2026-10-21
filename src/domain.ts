@@ -47,6 +47,17 @@ export const localDate=(iso:string)=>new Date(iso).toLocaleDateString('en-CA')
 export const startOfLocalWeek=(date:Date)=>{const d=new Date(date);d.setHours(0,0,0,0);d.setDate(d.getDate()-d.getDay());return d}
 export const minutesByDate=(sessions:StudySession[])=>sessions.reduce<Record<string,number>>((a,s)=>{const addInterval=(startedAt:string,endedAt:string)=>{const startMs=new Date(startedAt).getTime(),endMs=new Date(endedAt).getTime();if(!Number.isFinite(startMs)||!Number.isFinite(endMs)||endMs<=startMs)return;let cursor=startMs;while(cursor<endMs){const current=new Date(cursor),nextDay=new Date(current.getFullYear(),current.getMonth(),current.getDate()+1).getTime(),chunk=Math.min(endMs,nextDay)-cursor,date=localDate(current.toISOString());a[date]=(a[date]||0)+chunk/60000;cursor+=chunk}};if(s.activeIntervals?.length)s.activeIntervals.forEach(interval=>addInterval(interval.startedAt,interval.endedAt));return a},{})
 export const measuredMinutes=(session:StudySession)=>session.activeIntervals?.reduce((total,interval)=>{const seconds=(Date.parse(interval.endedAt)-Date.parse(interval.startedAt))/1000;return total+(Number.isFinite(seconds)&&seconds>0?seconds/60:0)},0)||0
+export const measuredStreak=(sessions:StudySession[], today=new Date())=>{
+  const minutes=minutesByDate(sessions)
+  const cursor=new Date(today)
+  cursor.setHours(12,0,0,0)
+  let streak=0
+  while((minutes[localDate(cursor.toISOString())]||0)>0){
+    streak+=1
+    cursor.setDate(cursor.getDate()-1)
+  }
+  return streak
+}
 // Level 0 is always empty. With a valid goal, levels 1-5 represent <=25%,
 // <=50%, <=75%, <100%, and >=100% of that goal. Without one, use fixed
 // measured-minute buckets so intensity still reflects actual study time.
