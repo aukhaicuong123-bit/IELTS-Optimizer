@@ -14,6 +14,7 @@ import {
   Layers
 } from 'lucide-react'
 import { CEFR_GRAMMAR_RULES, type CefrLevel, type CefrGrammarRule } from '../data/cefrGrammarData'
+import { TOTAL_FORUM_VOCAB_COUNT } from '../data/forumVocab25Topics'
 import { TOPICS, type TopicId } from '../topicData'
 import { ForumStudyTree } from './ForumStudyTree'
 import type { Store } from '../types'
@@ -150,7 +151,7 @@ export const ForumGrammarHub: React.FC<ForumGrammarHubProps> = ({
           }
         }}
         knownVocabCount={0}
-        totalVocabCount={64}
+        totalVocabCount={TOTAL_FORUM_VOCAB_COUNT}
         completedGrammarCount={completedGrammarCount}
         totalGrammarCount={CEFR_GRAMMAR_RULES.length}
       />

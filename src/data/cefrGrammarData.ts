@@ -917,5 +917,72 @@ export const CEFR_GRAMMAR_RULES: CefrGrammarRule[] = [
     },
     drillPrompt: 'Viết câu sử dụng "albeit" miêu tả giải pháp công nghệ mang lại kết quả nhưng tốn kém.',
     sampleTransform: 'Solar desalination represents a viable freshwater remedy for arid territories, albeit financially prohibitive for developing municipalities.'
+  },
+  // ===================== EXPANSION: ONE ADDITIONAL LESSON PER TIER =====================
+  {
+    id: 'cefr-a1-05', title: 'There is / There are (Mô tả sự tồn tại)', cefrLevel: 'A1', category: 'Sentence Foundations',
+    descriptionVi: 'Dùng there is và there are để giới thiệu người, vật hoặc địa điểm đang tồn tại.', formula: 'There is + singular noun | There are + plural noun',
+    formulaTokens: [{ role: 'Mở câu', token: 'There are', tag: 'Existential', color: '#7c3aed' }, { role: 'Danh từ số nhiều', token: 'several practical solutions.', tag: 'Plural N', color: '#15803d' }],
+    explanationVi: 'There is đi với danh từ số ít hoặc không đếm được; there are đi với danh từ số nhiều. Trong câu hỏi, đảo is/are lên trước there.',
+    ieltsUsageNote: 'Dùng để mô tả biểu đồ, bản đồ và hiện trạng trong IELTS Speaking Part 1 hoặc Writing Task 1.',
+    examples: ['There is a clear gap between the two groups.', 'There are several reasons for this change.'],
+    commonMistakes: [{ wrong: 'There is many reasons for this trend.', correct: 'There are many reasons for this trend.', note: 'Danh từ reasons số nhiều nên dùng there are.' }],
+    quiz: { prompt: 'Choose the correct sentence:', options: ['There is two main causes.', 'There are two main causes.', 'There be two main causes.', 'There have two main causes.'], answer: 'There are two main causes.', explanation: 'Two main causes là danh từ số nhiều nên dùng there are.' },
+    drillPrompt: 'Viết hai câu mô tả một thành phố, dùng there is và there are.', sampleTransform: 'There is a reliable metro system, and there are numerous cycle lanes in the city centre.'
+  },
+  {
+    id: 'cefr-a2-05', title: 'Present Perfect for Experience and Change (Hiện tại hoàn thành)', cefrLevel: 'A2', category: 'Tenses',
+    descriptionVi: 'Dùng hiện tại hoàn thành cho trải nghiệm, thay đổi và hành động bắt đầu trong quá khứ còn liên quan hiện tại.', formula: 'have/has + past participle | since/for/already/yet',
+    formulaTokens: [{ role: 'Trợ động từ', token: 'has', tag: 'Auxiliary', color: '#7c3aed' }, { role: 'Phân từ II', token: 'increased significantly', tag: 'Past Participle', color: '#15803d' }],
+    explanationVi: 'Không dùng mốc thời gian đã kết thúc như yesterday hoặc in 2019 với hiện tại hoàn thành; khi đó dùng quá khứ đơn.',
+    ieltsUsageNote: 'Hữu ích khi mô tả xu hướng đã thay đổi cho đến hiện tại trong Task 1.',
+    examples: ['The proportion of cyclists has risen since 2015.', 'Researchers have identified several possible causes.'],
+    commonMistakes: [{ wrong: 'The rate has increased in 2018.', correct: 'The rate increased in 2018.', note: 'In 2018 là mốc quá khứ đã kết thúc nên dùng quá khứ đơn.' }],
+    quiz: { prompt: 'Choose the best tense:', options: ['The figure has doubled in 2010.', 'The figure doubled in 2010.', 'The figure has double in 2010.', 'The figure doubling in 2010.'], answer: 'The figure doubled in 2010.', explanation: 'Mốc in 2010 đã kết thúc nên dùng past simple.' },
+    drillPrompt: 'Viết câu mô tả một thay đổi bắt đầu trong quá khứ và còn đúng hiện nay.', sampleTransform: 'The city has invested heavily in renewable energy over the past decade.'
+  },
+  {
+    id: 'cefr-b1-05', title: 'Gerunds after Prepositions (Danh động từ sau giới từ)', cefrLevel: 'B1', category: 'Verb Patterns',
+    descriptionVi: 'Sau giới từ, dùng V-ing thay vì động từ nguyên mẫu.', formula: 'Preposition + V-ing | look forward to + V-ing',
+    formulaTokens: [{ role: 'Giới từ', token: 'by', tag: 'Preposition', color: '#7c3aed' }, { role: 'Danh động từ', token: 'reducing waste', tag: 'V-ing', color: '#15803d' }],
+    explanationVi: 'Các cụm như by, without, after, before và look forward to đều được theo sau bởi danh động từ khi nói về hành động.',
+    ieltsUsageNote: 'Giúp viết câu nguyên nhân, phương pháp và kết quả tự nhiên hơn trong Task 2.',
+    examples: ['Governments can save money by improving public transport.', 'She left without answering the question.'],
+    commonMistakes: [{ wrong: 'This can be achieved by to reduce waste.', correct: 'This can be achieved by reducing waste.', note: 'By là giới từ nên theo sau là V-ing.' }],
+    quiz: { prompt: 'Complete the sentence:', options: ['They reduced costs by automate the process.', 'They reduced costs by automating the process.', 'They reduced costs by to automate the process.', 'They reduced costs by automated the process.'], answer: 'They reduced costs by automating the process.', explanation: 'By + V-ing diễn tả phương pháp.' },
+    drillPrompt: 'Viết câu dùng by + V-ing để đề xuất một giải pháp môi trường.', sampleTransform: 'Cities can reduce congestion by expanding reliable bus networks.'
+  },
+  {
+    id: 'cefr-b2-05', title: 'Participle Clauses (Mệnh đề phân từ)', cefrLevel: 'B2', category: 'Complex Sentences',
+    descriptionVi: 'Rút gọn mệnh đề có cùng chủ ngữ bằng V-ing hoặc past participle để câu học thuật súc tích hơn.', formula: 'V-ing clause, main clause | Past participle clause, main clause',
+    formulaTokens: [{ role: 'Mệnh đề rút gọn', token: 'Having examined the data,', tag: 'Participle Clause', color: '#7c3aed' }, { role: 'Mệnh đề chính', token: 'the team proposed reforms.', tag: 'Main Clause', color: '#15803d' }],
+    explanationVi: 'Dùng V-ing cho nghĩa chủ động và having + V3 khi hành động xảy ra trước; dùng V3 cho nghĩa bị động.',
+    ieltsUsageNote: 'Tăng độ đa dạng cấu trúc câu trong Writing Task 2 nhưng phải giữ đúng chủ ngữ logic.',
+    examples: ['Having reviewed the evidence, the panel issued its recommendation.', 'Built in the nineteenth century, the bridge remains in use.'],
+    commonMistakes: [{ wrong: 'Having reviewed the evidence, the recommendation was published.', correct: 'Having reviewed the evidence, the panel published the recommendation.', note: 'Chủ ngữ sau dấu phẩy phải là người thực hiện hành động review.' }],
+    quiz: { prompt: 'Choose the logical sentence:', options: ['Having analysed the results, the researchers wrote a report.', 'Having analysed the results, the report wrote the researchers.', 'Analysed the results, the researchers writing a report.', 'Having analyse the results, researchers wrote a report.'], answer: 'Having analysed the results, the researchers wrote a report.', explanation: 'Researchers là chủ thể đã phân tích kết quả.' },
+    drillPrompt: 'Rút gọn câu “After the council had reviewed the plan, it approved the project.”', sampleTransform: 'Having reviewed the plan, the council approved the project.'
+  },
+  {
+    id: 'cefr-c1-05', title: 'Academic Hedging (Ngôn ngữ giảm khẳng định)', cefrLevel: 'C1', category: 'Academic Style',
+    descriptionVi: 'Dùng modal verbs, adverbs và reporting verbs để thể hiện mức độ chắc chắn phù hợp với bằng chứng.', formula: 'Evidence + may/might/appears to/suggests that + claim',
+    formulaTokens: [{ role: 'Bằng chứng', token: 'The findings suggest that', tag: 'Reporting Verb', color: '#7c3aed' }, { role: 'Mệnh đề dè dặt', token: 'the policy may reduce inequality.', tag: 'Hedged Claim', color: '#15803d' }],
+    explanationVi: 'Hedging giúp lập luận khách quan hơn: tránh khẳng định tuyệt đối khi dữ liệu chưa đủ để chứng minh nguyên nhân hoặc kết quả.',
+    ieltsUsageNote: 'Rất hữu ích trong Task 2 khi đánh giá tác động và đưa ra dự đoán có điều kiện.',
+    examples: ['This approach may improve access to healthcare.', 'The evidence appears to indicate a gradual shift in public attitudes.'],
+    commonMistakes: [{ wrong: 'This policy will definitely solve the problem.', correct: 'This policy may help to alleviate the problem.', note: 'Tránh definitely khi bằng chứng chỉ cho thấy khả năng.' }],
+    quiz: { prompt: 'Select the most appropriately hedged claim:', options: ['The policy will eliminate poverty.', 'The policy may help to reduce poverty.', 'The policy obviously eliminates poverty.', 'The policy has to eliminate poverty.'], answer: 'The policy may help to reduce poverty.', explanation: 'May help to thể hiện khả năng mà không phóng đại kết luận.' },
+    drillPrompt: 'Viết một câu dự đoán dè dặt về tác động của trí tuệ nhân tạo đến việc làm.', sampleTransform: 'The expansion of artificial intelligence may reshape employment patterns rather than eliminate work altogether.'
+  },
+  {
+    id: 'cefr-c2-05', title: 'Negative Inversion (Đảo ngữ với trạng từ phủ định)', cefrLevel: 'C2', category: 'Advanced Fronting',
+    descriptionVi: 'Đảo trợ động từ lên trước chủ ngữ sau các trạng từ phủ định hoặc hạn định như rarely, never và not only.', formula: 'Negative adverbial + auxiliary + subject + main verb',
+    formulaTokens: [{ role: 'Trạng từ phủ định', token: 'Rarely', tag: 'Fronted Adverbial', color: '#7c3aed' }, { role: 'Đảo trợ động từ', token: 'has a city witnessed', tag: 'Inversion', color: '#15803d' }],
+    explanationVi: 'Khi trạng từ phủ định đứng đầu câu để nhấn mạnh, phải đảo trợ động từ và chủ ngữ như trong câu hỏi.',
+    ieltsUsageNote: 'Dùng có chọn lọc để tạo câu nhấn mạnh ở phần kết luận hoặc topic sentence Band 8+.',
+    examples: ['Rarely has a reform generated such broad public support.', 'Not only did the scheme reduce costs, but it also improved safety.'],
+    commonMistakes: [{ wrong: 'Rarely a reform has generated such support.', correct: 'Rarely has a reform generated such support.', note: 'Sau rarely đầu câu cần đảo has lên trước chủ ngữ.' }],
+    quiz: { prompt: 'Choose the correct inversion:', options: ['Never the city has faced such congestion.', 'Never has the city faced such congestion.', 'Never did the city faced such congestion.', 'Never has faced the city such congestion.'], answer: 'Never has the city faced such congestion.', explanation: 'Never + has + subject + past participle.' },
+    drillPrompt: 'Viết câu bắt đầu bằng “Not only did...” về một chính sách giao thông.', sampleTransform: 'Not only did the policy reduce congestion, but it also encouraged more sustainable travel.'
   }
 ]

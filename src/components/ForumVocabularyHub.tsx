@@ -14,6 +14,7 @@ import {
   Sparkles
 } from 'lucide-react'
 import { FORUM_25_TOPICS, TOTAL_FORUM_VOCAB_COUNT, type ForumTopic } from '../data/forumVocab25Topics'
+import { CEFR_GRAMMAR_RULES } from '../data/cefrGrammarData'
 import type { VocabItem } from '../topicData'
 import { ForumStudyTree } from './ForumStudyTree'
 import type { Store, SkillSubmission } from '../types'
@@ -210,17 +211,17 @@ export const ForumVocabularyHub: React.FC<ForumVocabularyHubProps> = ({
         knownVocabCount={totalKnownAcrossAllTopics}
         totalVocabCount={TOTAL_FORUM_VOCAB_COUNT}
         completedGrammarCount={s.submissions?.filter((sub: SkillSubmission) => sub.skill === 'Grammar').length || 0}
-        totalGrammarCount={24}
+        totalGrammarCount={CEFR_GRAMMAR_RULES.length}
       />
 
       {/* Main Study Hub Panel */}
       <section className="panel forum-study-panel">
         <div className="forum-panel-head">
           <div className="forum-panel-title">
-            <span className="eyebrow">FORUM STUDY · 25 THEMATIC VOCABULARY CAMPAIGNS</span>
-            <h2>Từ vựng IELTS theo 25 chủ đề &amp; Collocations (250 bài học)</h2>
+            <span className="eyebrow">FORUM STUDY · {FORUM_25_TOPICS.length} THEMATIC VOCABULARY CAMPAIGNS</span>
+            <h2>Từ vựng IELTS theo {FORUM_25_TOPICS.length} chủ đề &amp; Collocations ({TOTAL_FORUM_VOCAB_COUNT} mục học)</h2>
             <p className="muted">
-              5.000 mục từ, cụm từ và thành ngữ học thuật theo 25 chủ đề chuẩn ForumFlash. Phát âm chuẩn IPA và câu văn trích dẫn Band 8.0+.
+              {TOTAL_FORUM_VOCAB_COUNT} mục từ, cụm từ và thành ngữ học thuật theo {FORUM_25_TOPICS.length} chủ đề chuẩn ForumFlash. Phát âm chuẩn IPA, ví dụ theo ngữ cảnh và bài quiz ôn tập.
             </p>
           </div>
           <div className="forum-badge-indicator">

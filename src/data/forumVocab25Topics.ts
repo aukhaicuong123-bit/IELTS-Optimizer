@@ -174,6 +174,36 @@ const CORE_TOPIC_EXTENSIONS: Record<string, VocabItem[]> = {
   ]
 }
 
+// One additional high-utility item for every topic, so each campaign has a
+// wider review set without changing the existing local progress IDs.
+const TOPIC_EXPANSION: Record<string, VocabItem> = {
+  education: { id: 'edu-extra-1', term: 'academic attainment', ipa: '/ˌæk.əˈdem.ɪk əˈteɪn.mənt/', type: 'Collocation · IELTS', meaningVi: 'thành tích học tập', example: 'Socioeconomic background can influence academic attainment long before university admission.', collocations: ['measure academic attainment', 'improve educational attainment'] },
+  environment: { id: 'env-extra-1', term: 'ecosystem resilience', ipa: '/ˈiː.kəʊˌsɪs.təm rɪˈzɪl.i.əns/', type: 'Collocation · IELTS', meaningVi: 'khả năng chống chịu của hệ sinh thái', example: 'Biodiversity strengthens ecosystem resilience during periods of drought.', collocations: ['build ecosystem resilience', 'threaten ecosystem resilience'] },
+  technology: { id: 'tech-extra-1', term: 'digital literacy', ipa: '/ˈdɪdʒ.ɪ.təl ˈlɪt.ər.ə.si/', type: 'Academic Word', meaningVi: 'năng lực số', example: 'Digital literacy is now essential for accessing public services and employment.', collocations: ['develop digital literacy', 'bridge the digital literacy gap'] },
+  health: { id: 'hea-extra-1', term: 'healthcare disparity', ipa: '/ˈhelθ.keər dɪˈspær.ə.ti/', type: 'Academic Word', meaningVi: 'bất bình đẳng trong chăm sóc sức khỏe', example: 'Rural clinics can reduce healthcare disparities by providing preventive services locally.', collocations: ['address healthcare disparities', 'widen healthcare disparities'] },
+  work: { id: 'wor-extra-1', term: 'employee retention', ipa: '/ɪmˈplɔɪ.iː rɪˈten.ʃən/', type: 'Collocation · IELTS', meaningVi: 'khả năng giữ chân nhân viên', example: 'Flexible working arrangements can improve employee retention.', collocations: ['boost employee retention', 'support staff retention'] },
+  cities: { id: 'cit-extra-1', term: 'urban liveability', ipa: '/ˈɜː.bən ˌlɪv.əˈbɪl.ə.ti/', type: 'Academic Word', meaningVi: 'mức độ đáng sống của đô thị', example: 'Affordable housing is a central component of urban liveability.', collocations: ['improve urban liveability', 'measure city liveability'] },
+  crime: { id: 'cri-extra-1', term: 'crime prevention', ipa: '/kraɪm prɪˈven.ʃən/', type: 'Collocation · IELTS', meaningVi: 'phòng chống tội phạm', example: 'Community policing combines crime prevention with trust-building.', collocations: ['prioritise crime prevention', 'invest in prevention'] },
+  culture: { id: 'cul-extra-1', term: 'cultural continuity', ipa: '/ˈkʌl.tʃər.əl ˌkɒn.tɪˈnjuː.ə.ti/', type: 'Academic Word', meaningVi: 'tính liên tục văn hóa', example: 'Local schools can support cultural continuity by teaching traditional arts.', collocations: ['maintain cultural continuity', 'threaten cultural continuity'] },
+  travel: { id: 'tra-extra-1', term: 'responsible tourism', ipa: '/rɪˈspɒn.sə.bəl ˈtʊə.rɪ.zəm/', type: 'Collocation · IELTS', meaningVi: 'du lịch có trách nhiệm', example: 'Responsible tourism limits environmental damage while supporting local livelihoods.', collocations: ['promote responsible tourism', 'principles of responsible tourism'] },
+  globalization: { id: 'glo-extra-1', term: 'economic interdependence', ipa: '/ˌiː.kəˈnɒm.ɪk ˌɪn.tə.dɪˈpen.dəns/', type: 'Academic Word', meaningVi: 'sự phụ thuộc lẫn nhau về kinh tế', example: 'Economic interdependence makes supply-chain disruptions more widely felt.', collocations: ['deepen economic interdependence', 'global interdependence'] },
+  media: { id: 'med-extra-1', term: 'media literacy', ipa: '/ˈmiː.di.ə ˈlɪt.ər.ə.si/', type: 'Academic Word', meaningVi: 'năng lực hiểu và đánh giá truyền thông', example: 'Media literacy helps students distinguish evidence from misleading claims.', collocations: ['teach media literacy', 'strengthen media literacy'] },
+  science: { id: 'sci-extra-1', term: 'evidence-based policy', ipa: '/ˈev.ɪ.dəns beɪst ˈpɒl.ə.si/', type: 'Collocation · IELTS', meaningVi: 'chính sách dựa trên bằng chứng', example: 'Public health decisions should be guided by evidence-based policy.', collocations: ['formulate evidence-based policy', 'support evidence-based decisions'] },
+  economy: { id: 'eco-extra-1', term: 'income inequality', ipa: '/ˈɪn.kʌm ˌɪn.ɪˈkwɒl.ə.ti/', type: 'Academic Word', meaningVi: 'bất bình đẳng thu nhập', example: 'Targeted taxation can reduce income inequality without discouraging innovation.', collocations: ['tackle income inequality', 'widen income inequality'] },
+  society: { id: 'soc-extra-1', term: 'social cohesion', ipa: '/ˈsəʊ.ʃəl kəʊˈhiː.ʒən/', type: 'Collocation · IELTS', meaningVi: 'sự gắn kết xã hội', example: 'Shared public spaces can strengthen social cohesion in diverse neighbourhoods.', collocations: ['foster social cohesion', 'undermine social cohesion'] },
+  energy: { id: 'ene-extra-1', term: 'energy transition', ipa: '/ˈen.ə.dʒi trænˈzɪʃ.ən/', type: 'Collocation · IELTS', meaningVi: 'quá trình chuyển đổi năng lượng', example: 'A fair energy transition must protect workers in carbon-intensive industries.', collocations: ['accelerate the energy transition', 'finance a just transition'] },
+  transport: { id: 'transport-extra-1', term: 'modal shift', ipa: '/ˈməʊ.dəl ʃɪft/', type: 'Academic Word', meaningVi: 'sự chuyển đổi phương thức đi lại', example: 'Reliable buses are needed to achieve a modal shift away from private cars.', collocations: ['encourage a modal shift', 'support modal shift'] },
+  psychology: { id: 'psy-extra-1', term: 'cognitive load', ipa: '/ˈkɒɡ.nə.tɪv ləʊd/', type: 'Academic Word', meaningVi: 'tải nhận thức', example: 'Clear instructions reduce cognitive load for learners working online.', collocations: ['reduce cognitive load', 'manage cognitive load'] },
+  food: { id: 'foo-extra-1', term: 'food security', ipa: '/fuːd sɪˈkjʊə.rə.ti/', type: 'Collocation · IELTS', meaningVi: 'an ninh lương thực', example: 'Climate-resilient crops are important for long-term food security.', collocations: ['safeguard food security', 'threaten food security'] },
+  space: { id: 'spa-extra-1', term: 'space exploration', ipa: '/speɪs ˌeks.pləˈreɪ.ʃən/', type: 'Collocation · IELTS', meaningVi: 'khám phá không gian', example: 'Space exploration has produced technologies with applications on Earth.', collocations: ['fund space exploration', 'advance space exploration'] },
+  sports: { id: 'spo-extra-1', term: 'grassroots participation', ipa: '/ˈɡrɑːs.ruːts pɑːˌtɪs.ɪˈpeɪ.ʃən/', type: 'Collocation · IELTS', meaningVi: 'sự tham gia thể thao ở cấp cộng đồng', example: 'Affordable facilities are vital for grassroots participation in sport.', collocations: ['increase grassroots participation', 'support community participation'] },
+  language: { id: 'lan-extra-1', term: 'linguistic diversity', ipa: '/lɪŋˈɡwɪs.tɪk daɪˈvɜː.sə.ti/', type: 'Academic Word', meaningVi: 'sự đa dạng ngôn ngữ', example: 'Linguistic diversity can enrich education but requires inclusive language policy.', collocations: ['preserve linguistic diversity', 'celebrate linguistic diversity'] },
+  history: { id: 'his-extra-1', term: 'historical narrative', ipa: '/hɪˈstɒr.ɪ.kəl ˈnær.ə.tɪv/', type: 'Academic Word', meaningVi: 'tường thuật lịch sử', example: 'Museums increasingly present more than one historical narrative.', collocations: ['challenge a historical narrative', 'construct a national narrative'] },
+  business: { id: 'bus-extra-1', term: 'corporate accountability', ipa: '/ˈkɔː.pər.ət əˌkaʊn.təˈbɪl.ə.ti/', type: 'Collocation · IELTS', meaningVi: 'trách nhiệm giải trình của doanh nghiệp', example: 'Transparent reporting strengthens corporate accountability.', collocations: ['demand corporate accountability', 'improve corporate accountability'] },
+  wildlife: { id: 'wil-extra-1', term: 'habitat fragmentation', ipa: '/ˈhæb.ɪ.tæt ˌfræɡ.menˈteɪ.ʃən/', type: 'Academic Word', meaningVi: 'sự phân mảnh môi trường sống', example: 'Road construction accelerates habitat fragmentation and isolates animal populations.', collocations: ['prevent habitat fragmentation', 'reverse habitat fragmentation'] },
+  generation: { id: 'gen-extra-1', term: 'intergenerational solidarity', ipa: '/ˌɪn.təˌdʒen.əˈreɪ.ʃən.əl ˌsɒl.ɪˈdær.ə.ti/', type: 'Collocation · IELTS', meaningVi: 'tình đoàn kết liên thế hệ', example: 'Public services should promote intergenerational solidarity rather than competition.', collocations: ['build intergenerational solidarity', 'strengthen family solidarity'] }
+}
+
 // Construct the complete 25 Topics
 export const FORUM_25_TOPICS: ForumTopic[] = [
   // 1 to 8: Core topics with extensions (10 words each)
@@ -190,7 +220,7 @@ export const FORUM_25_TOPICS: ForumTopic[] = [
       titleVi: t.titleVi,
       category: cat,
       descriptionVi: t.descriptionVi,
-      vocab: [...t.vocab, ...ext]
+      vocab: [...t.vocab, ...ext, ...(TOPIC_EXPANSION[t.id] ? [TOPIC_EXPANSION[t.id]] : [])]
     }
   }),
 
@@ -207,7 +237,7 @@ export const FORUM_25_TOPICS: ForumTopic[] = [
       titleVi: t.titleVi,
       category: cat,
       descriptionVi: t.descriptionVi,
-      vocab: t.vocab
+      vocab: [...t.vocab, ...(TOPIC_EXPANSION[t.id] ? [TOPIC_EXPANSION[t.id]] : [])]
     }
   })
 ]
