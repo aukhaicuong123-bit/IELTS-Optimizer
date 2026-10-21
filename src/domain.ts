@@ -1,17 +1,26 @@
 import type { ActiveSession, Attempt, CurrentDifficultyState, ErrorRecord, PlanItem, Profile, Question, StudySession } from './types'
-export const scoreAttempt=(questions:Question[], answers:Record<string,string>)=>questions.reduce((n,q)=>n+(answers[q.id]===q.answer?1:0),0)
-export const makeErrors=(attempt:Attempt, questions:Question[]):ErrorRecord[]=>questions.filter(q=>attempt.answers[q.id]!==q.answer).map(q=>({id:`err-${attempt.passageId}-${q.objective}`,questionId:q.id,attemptId:attempt.id,attemptIds:[attempt.id],occurrences:[{id:`${attempt.id}:${q.id}`,attemptId:attempt.id,questionId:q.id,createdAt:attempt.createdAt}],passageId:attempt.passageId,type:q.type,objective:q.objective,prompt:q.prompt,learnerAnswer:attempt.answers[q.id]||'No answer',correctAnswer:q.answer,explanation:q.explanation,createdAt:attempt.createdAt,reviewCount:0,retestAttemptIds:[]}))
+export const normalizeAnswer=(value:string|undefined)=>(value??'').trim().toLowerCase()
+export const isAnswerCorrect=(learnerAnswer:string|undefined,correctAnswer:string)=>normalizeAnswer(learnerAnswer)===normalizeAnswer(correctAnswer)
+// Error identity must be unique per question, not per objective: several questions
+// can share one objective (e.g. every question of an exam passage), so an
+// objective-scoped id silently collapsed distinct mistakes into one record.
+export const errorRecordId=(passageId:string,questionId:string)=>`err-${passageId}-${questionId}`
+export const errorQuestionKey=(passageId:string,questionId:string)=>`${passageId}:${questionId}`
+export const scoreAttempt=(questions:Question[], answers:Record<string,string>)=>questions.reduce((n,q)=>n+(isAnswerCorrect(answers[q.id],q.answer)?1:0),0)
+export const makeErrors=(attempt:Attempt, questions:Question[]):ErrorRecord[]=>questions.filter(q=>!isAnswerCorrect(attempt.answers[q.id],q.answer)).map(q=>({id:errorRecordId(attempt.passageId,q.id),questionId:q.id,attemptId:attempt.id,attemptIds:[attempt.id],occurrences:[{id:`${attempt.id}:${q.id}`,attemptId:attempt.id,questionId:q.id,createdAt:attempt.createdAt}],passageId:attempt.passageId,type:q.type,objective:q.objective,prompt:q.prompt,learnerAnswer:attempt.answers[q.id]||'No answer',correctAnswer:q.answer,explanation:q.explanation,createdAt:attempt.createdAt,reviewCount:0,retestAttemptIds:[]}))
 export const mergeAttemptErrors=(existing:ErrorRecord[],attempt:Attempt,questions:Question[])=>{
   const byDifficulty=new Map(existing.map(e=>[`reading:legacy-error:${e.id}`,e]))
-  const byObjective=new Map(existing.map(e=>[`${e.passageId}:${e.objective}`,e]))
+  // Errors are looked up per question, so distinct questions that share one
+  // objective keep their own records instead of overwriting each other.
+  const byQuestion=new Map(existing.map(e=>[errorQuestionKey(e.passageId,e.questionId),e]))
   for(const q of questions){
-    const key=`${attempt.passageId}:${q.objective}`
-    const wrong=attempt.answers[q.id]!==q.answer
+    const key=errorQuestionKey(attempt.passageId,q.id)
+    const wrong=!isAnswerCorrect(attempt.answers[q.id],q.answer)
     const target=attempt.responseTargets?.[q.id]
     // A Retest is an evidence event, never a new ErrorRecord discovery path.
     // Without an exact target it cannot create, merge, resolve, or reopen history.
     if(attempt.kind==='retest' && (!target || !target.difficultyId || !target.occurrenceId)) continue
-    const old=target?byDifficulty.get(target.difficultyId):byObjective.get(key)
+    const old=target?byDifficulty.get(target.difficultyId):byQuestion.get(key)
     const targetMatchesOccurrence=Boolean(old && target && (old.occurrences?.length ? old.occurrences.some(item=>`reading:occurrence:${old.id}:${item.id}`===target.occurrenceId) : `reading:legacy-occurrence:${old?.id}`===target?.occurrenceId))
     if(attempt.kind==='retest' && (!old || !targetMatchesOccurrence)) continue
     if(wrong&&old){
@@ -19,13 +28,17 @@ export const mergeAttemptErrors=(existing:ErrorRecord[],attempt:Attempt,question
       const occurrences=old.occurrences||[{id:`legacy:${old.id}`,attemptId:old.attemptId,questionId:old.questionId,createdAt:old.createdAt}]
       const existingOccurrence=occurrences.find(item=>item.id===occurrenceId)
       const nextOccurrences=existingOccurrence?occurrences:[...occurrences,{id:occurrenceId,attemptId:attempt.id,questionId:q.id,createdAt:attempt.createdAt}]
-      byDifficulty.set(`reading:legacy-error:${old.id}`, {...old,occurrences:nextOccurrences,attemptId:attempt.id,attemptIds:[...(old.attemptIds||[old.attemptId]),attempt.id],learnerAnswer:attempt.answers[q.id]||'No answer',createdAt:attempt.createdAt})
+      const merged={...old,occurrences:nextOccurrences,attemptId:attempt.id,attemptIds:[...(old.attemptIds||[old.attemptId]),attempt.id],learnerAnswer:attempt.answers[q.id]||'No answer',createdAt:attempt.createdAt}
+      byDifficulty.set(`reading:legacy-error:${old.id}`,merged)
+      byQuestion.set(errorQuestionKey(old.passageId,old.questionId),merged)
     }else if(wrong&&!old&&attempt.kind!=='retest'){
       const created=makeErrors(attempt,[q])[0]
       byDifficulty.set(`reading:legacy-error:${created.id}`,created)
-      byObjective.set(key,created)
+      byQuestion.set(key,created)
     }else if(!wrong&&old&&attempt.kind==='retest'){
-      byDifficulty.set(`reading:legacy-error:${old.id}`,{...old,retestAttemptIds:old.retestAttemptIds.includes(attempt.id)?old.retestAttemptIds:[...old.retestAttemptIds,attempt.id]})
+      const resolved={...old,retestAttemptIds:old.retestAttemptIds.includes(attempt.id)?old.retestAttemptIds:[...old.retestAttemptIds,attempt.id]}
+      byDifficulty.set(`reading:legacy-error:${old.id}`,resolved)
+      byQuestion.set(errorQuestionKey(old.passageId,old.questionId),resolved)
     }
   }
   return [...byDifficulty.values()]
