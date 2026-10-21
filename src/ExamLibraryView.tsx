@@ -133,14 +133,15 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
       <div className="hero-card" style={{ minHeight: 'auto', padding: '24px 28px' }}>
         <div>
           <span className="eyebrow" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <ShieldCheck size={14} /> IELTS EXAM LIBRARY — ĐỀ THI HOÀN CHỈNH CHUẨN QUỐC TẾ
+            <ShieldCheck size={14} /> IELTS EXAM LIBRARY — MÔ PHỎNG FORMAT IELTS
           </span>
-          <h1 style={{ fontSize: 26, margin: '8px 0 10px' }}>Thư viện đề thi chuẩn hóa IELTS Online Tests</h1>
+          <h1 style={{ fontSize: 26, margin: '8px 0 10px' }}>Thư viện đề luyện tập sát format thi thật</h1>
           <p style={{ margin: 0, fontSize: 13, color: 'var(--muted)', maxWidth: 740, lineHeight: 1.6 }}>
-            Mỗi đề thi tại đây là <strong>1 bài thi hoàn chỉnh theo đúng cấu trúc đề thi thật</strong>:
+            Mỗi bộ đề là <strong>nội dung tự biên soạn theo cấu trúc IELTS Academic</strong>:
             Reading (3 Passages - 40 câu - 60 phút), Listening (4 Sections - 40 câu - 30 phút có audio),
             Writing (Task 1 & Task 2) và Speaking (Part 1, 2, 3). Có đồng hồ đếm ngược, thanh điều hướng 40 câu,
-            chấm điểm theo thang điểm chuẩn Band 1.0 - 9.0 và trích dẫn bằng chứng từ bài.
+            chấm điểm Reading/Listening theo thang Band tham khảo và trích dẫn bằng chứng từ bài.
+            Đây không phải đề chính thức của IELTS.
           </p>
         </div>
         <div className="header-meta" style={{ gap: 24 }}>
@@ -152,7 +153,7 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
           </div>
           <div style={{ textAlign: 'right' }}>
             <strong style={{ fontSize: 30, fontFamily: 'Space Grotesk', color: 'var(--accent)' }}>
-              160+
+              {IELTS_EXAM_COLLECTIONS.length * 80}+
             </strong>
             <small style={{ display: 'block', color: 'var(--muted)' }}>Câu hỏi chuẩn hóa</small>
           </div>
@@ -299,11 +300,11 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
                   paddingTop: 10
                 }}
               >
-                <span>{exam.completedCount.toLocaleString()} thí sinh đã thi</span>
+                <span>Nội dung tự biên soạn</span>
                 <span aria-hidden="true">·</span>
-                <span>Điểm trung bình: Band {exam.averageBand}</span>
+                <span>Không sử dụng đề có bản quyền</span>
                 <span aria-hidden="true">·</span>
-                <span style={{ color: 'var(--mint)' }}>Mô phỏng thi máy tính thật</span>
+                <span style={{ color: 'var(--mint)' }}>Mô phỏng thi trên máy tính</span>
               </div>
             </div>
 
@@ -1083,7 +1084,7 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false)
   const [confirmExitOpen, setConfirmExitOpen] = useState(false)
   const [isPlaying, setIsPlaying] = useState<boolean>(false)
-  const [playbackSpeed, setPlaybackSpeed] = useState<number>(1.0)
+  const [playedSections, setPlayedSections] = useState<Set<number>>(new Set())
   const questionRefs = useRef<Record<number, HTMLDivElement | null>>({})
   const handleSubmitRef = useRef<(() => void) | null>(null)
 
@@ -1119,11 +1120,14 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
     if (!('speechSynthesis' in window)) return
     window.speechSynthesis.cancel()
 
-    if (isPlaying) {
+    if (isPlaying && !playedSections.has(activeSection.sectionNumber)) {
       const utterance = new SpeechSynthesisUtterance(activeSection.transcript)
-      utterance.rate = playbackSpeed
+      utterance.rate = 1
       utterance.lang = 'en-GB'
-      utterance.onend = () => setIsPlaying(false)
+      utterance.onend = () => {
+        setIsPlaying(false)
+        setPlayedSections(prev => new Set(prev).add(activeSection.sectionNumber))
+      }
       utterance.onerror = () => setIsPlaying(false)
       window.speechSynthesis.speak(utterance)
     }
@@ -1133,10 +1137,11 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
         window.speechSynthesis.cancel()
       }
     }
-  }, [isPlaying, activeSectionIndex, playbackSpeed])
+  }, [isPlaying, activeSectionIndex, activeSection.sectionNumber, playedSections])
 
-  const toggleAudio = () => {
-    setIsPlaying(prev => !prev)
+  const startAudio = () => {
+    if (playedSections.has(activeSection.sectionNumber)) return
+    setIsPlaying(true)
   }
 
   const formatTimer = (totalSeconds: number) => {
@@ -1475,21 +1480,22 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <button
             type="button"
-            onClick={toggleAudio}
+            onClick={startAudio}
+            disabled={isPlaying || playedSections.has(activeSection.sectionNumber)}
             style={{
               width: 42,
               height: 42,
               borderRadius: '50%',
               display: 'grid',
               placeItems: 'center',
-              background: isPlaying ? 'var(--red)' : 'var(--mint)',
+              background: playedSections.has(activeSection.sectionNumber) ? 'var(--line)' : 'var(--mint)',
               color: '#122019',
               border: 0,
               cursor: 'pointer'
             }}
-            title={isPlaying ? 'Tạm dừng audio' : 'Phát audio phần thi'}
+            title={playedSections.has(activeSection.sectionNumber) ? 'Section này đã phát xong' : 'Phát audio một lần'}
           >
-            {isPlaying ? <Pause size={20} /> : <Play size={20} style={{ marginLeft: 2 }} />}
+            {playedSections.has(activeSection.sectionNumber) ? <Check size={20} /> : <Play size={20} style={{ marginLeft: 2 }} />}
           </button>
 
           <div>
@@ -1503,7 +1509,7 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
           </div>
         </div>
 
-        {/* Soundwave Simulation and Speed */}
+        {/* Soundwave Simulation */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 3, height: 24, padding: '0 8px' }}>
             {[4, 12, 18, 8, 22, 14, 10, 16, 6, 20, 12, 15].map((h, i) => (
@@ -1520,21 +1526,9 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
             ))}
           </div>
 
-          <button
-            type="button"
-            onClick={() => setPlaybackSpeed(s => (s === 1.0 ? 1.25 : 1.0))}
-            style={{
-              padding: '6px 12px',
-              borderRadius: 6,
-              fontSize: 11,
-              fontWeight: 600,
-              background: '#192b23',
-              border: '1px solid var(--line)',
-              color: 'var(--mint)'
-            }}
-          >
-            {playbackSpeed}x Tốc độ
-          </button>
+          <span style={{ fontSize: 11, color: 'var(--muted)' }}>
+            Audio tổng hợp · phát 1 lần như phòng thi
+          </span>
         </div>
       </div>
 
@@ -1880,7 +1874,7 @@ function FullWritingExamSimulator({ exam, store, setStore, onExit, addToast }: W
             </div>
 
             <div style={{ borderTop: '1px solid var(--line)', paddingTop: 14, marginTop: 14 }}>
-              <span className="eyebrow" style={{ color: 'var(--mint)' }}>BÀI MẪU CHUẨN BAND 8.0+</span>
+                <span className="eyebrow" style={{ color: 'var(--mint)' }}>BÀI MẪU THAM KHẢO SAU KHI NỘP</span>
               <p style={{ fontSize: 13, color: '#c5d3ca', lineHeight: 1.7, margin: '8px 0 0', whiteSpace: 'pre-wrap' }}>
                 {writingPaper.task1.modelAnswer}
               </p>
@@ -1895,7 +1889,7 @@ function FullWritingExamSimulator({ exam, store, setStore, onExit, addToast }: W
             </div>
 
             <div style={{ borderTop: '1px solid var(--line)', paddingTop: 14, marginTop: 14 }}>
-              <span className="eyebrow" style={{ color: 'var(--mint)' }}>BÀI MẪU CHUẨN BAND 8.0+</span>
+                <span className="eyebrow" style={{ color: 'var(--mint)' }}>BÀI MẪU THAM KHẢO SAU KHI NỘP</span>
               <p style={{ fontSize: 13, color: '#c5d3ca', lineHeight: 1.7, margin: '8px 0 0', whiteSpace: 'pre-wrap' }}>
                 {writingPaper.task2.modelAnswer}
               </p>
@@ -2306,7 +2300,7 @@ function FullSpeakingExamSimulator({ exam, store, setStore, onExit, addToast }: 
           </p>
 
           <div className="stack" style={{ gap: 16 }}>
-            {speakingPaper.part1.questions.map((q, i) => (
+            {speakingPaper.part1.questions.map(q => (
               <div key={i} style={{ padding: 18, background: '#182922', borderRadius: 8, border: '1px solid var(--line)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                   <strong style={{ fontSize: 14, color: '#f0f8f1' }}>Câu hỏi {i + 1}: {q}</strong>
@@ -2320,11 +2314,6 @@ function FullSpeakingExamSimulator({ exam, store, setStore, onExit, addToast }: 
                   </button>
                 </div>
 
-                {speakingPaper.part1.modelAnswers && (
-                  <p style={{ margin: '8px 0 0', fontSize: 12, color: '#9bc4aa', fontStyle: 'italic' }}>
-                    <strong>Gợi ý trả lời Band 8.0+:</strong> "{speakingPaper.part1.modelAnswers[i]}"
-                  </p>
-                )}
               </div>
             ))}
           </div>
@@ -2418,14 +2407,9 @@ function FullSpeakingExamSimulator({ exam, store, setStore, onExit, addToast }: 
               style={{ marginBottom: 16 }}
             />
 
-            {speakingPaper.part2.modelAnswer && (
-              <div style={{ borderTop: '1px solid var(--line)', paddingTop: 14, overflowY: 'auto' }}>
-                <span className="eyebrow" style={{ color: 'var(--mint)' }}>BÀI NÓI MẪU BAND 8.0+ THAM KHẢO</span>
-                <p style={{ fontSize: 12, color: '#c5d3ca', lineHeight: 1.7, margin: '8px 0 0', whiteSpace: 'pre-wrap' }}>
-                  {speakingPaper.part2.modelAnswer}
-                </p>
-              </div>
-            )}
+            <p className="muted" style={{ margin: 0, lineHeight: 1.6 }}>
+              Bài mẫu và nhận xét chỉ nên xem sau khi bạn hoàn thành phần nói, để giữ áp lực và điều kiện luyện tập gần với phòng thi.
+            </p>
           </div>
         </div>
       )}
@@ -2440,7 +2424,7 @@ function FullSpeakingExamSimulator({ exam, store, setStore, onExit, addToast }: 
           </p>
 
           <div className="stack" style={{ gap: 16 }}>
-            {speakingPaper.part3.questions.map((q, i) => (
+            {speakingPaper.part3.questions.map(q => (
               <div key={i} style={{ padding: 18, background: '#182922', borderRadius: 8, border: '1px solid var(--line)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                   <strong style={{ fontSize: 14, color: '#f0f8f1' }}>Thảo luận {i + 1}: {q}</strong>
@@ -2454,11 +2438,6 @@ function FullSpeakingExamSimulator({ exam, store, setStore, onExit, addToast }: 
                   </button>
                 </div>
 
-                {speakingPaper.part3.modelAnswers && (
-                  <p style={{ margin: '8px 0 0', fontSize: 12, color: '#9bc4aa', fontStyle: 'italic' }}>
-                    <strong>Gợi ý trả lời Band 8.0+:</strong> "{speakingPaper.part3.modelAnswers[i]}"
-                  </p>
-                )}
               </div>
             ))}
           </div>

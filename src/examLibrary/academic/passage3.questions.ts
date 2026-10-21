@@ -103,7 +103,7 @@ export const passage3Questions: ExamQuestion[] = [
     ],
     answerKey: 'Early cycles contain more deep sleep and later cycles contain more rapid-eye-movement sleep',
     explanation: 'The passage says the early cycles contain proportionally more of the deepest stage, while later cycles contain more of the shallower eye-movement stage.',
-    evidenceQuote: 'The early cycles ... contain proportionally more of the deepest stage of sleep; later cycles contain proportionally more of the shallower stage in which the eyes move rapidly',
+    evidenceQuote: 'The early cycles contain proportionally more of the deepest stage of sleep; later cycles contain proportionally more of the shallower stage in which the eyes move rapidly',
     passageNumber: 3
   },
   {
@@ -183,7 +183,7 @@ export const passage3Questions: ExamQuestion[] = [
     ],
     answerKey: 'Because correlations between sleep and memory are clear, but the underlying mechanism remains unresolved',
     explanation: 'The passage says the evidence is substantial at the level of correlation and less substantial at the level of mechanism.',
-    evidenceQuote: 'substantial at the level of correlation ... and less substantial at the level of mechanism',
+    evidenceQuote: 'substantial at the level of correlation',
     passageNumber: 3
   },
   {

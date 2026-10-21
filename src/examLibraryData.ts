@@ -163,14 +163,14 @@ export function calculateListeningBand(rawScore: number): number {
 }
 
 // =========================================================================
-// FULL EXAM 1: IELTS ACADEMIC PRACTICE TEST 1 (Recent Actual Collection 2026)
+// FULL EXAM 1: IELTS ACADEMIC ORIGINAL PRACTICE TEST 1
 // =========================================================================
 
 const firstAcademicExam: FullIELTSExam = {
     id: 'ielts-exam-acad-01',
-    code: 'IELTS-ACTUAL-2026-VOL1-TEST1',
+    code: 'IELTS-PRACTICE-2026-VOL1-TEST1',
     title: 'IELTS Academic Practice Test 1',
-    volume: 'Recent Actual Tests 2026 — Volume 1',
+    volume: 'Original Academic Practice — Volume 1',
     module: 'Academic',
     difficulty: 'Standard Exam',
     completedCount: 1420,
@@ -1347,11 +1347,21 @@ function makeFreshQuestions(prefix: string, facts: FreshFact[], startNumber: num
       blankedPrompt = prompt.trim().replace(/\.?$/, '') + ' ______.'
     }
 
+    const isMultipleChoice = index % 3 === 1
+    const distractors = facts
+      .filter(([, candidate]) => candidate !== answer)
+      .map(([, candidate]) => candidate)
+      .slice(0, 3)
+    const optionPool = [answer, ...distractors]
+    const shift = index % optionPool.length
+    const options = optionPool.slice(shift).concat(optionPool.slice(0, shift))
+
     return {
       id: `${prefix}-q${startNumber + index}`,
       number: startNumber + index,
-      type: 'sentence-completion',
+      type: isMultipleChoice ? 'multiple-choice' : 'sentence-completion',
       prompt: blankedPrompt,
+      ...(isMultipleChoice ? { options } : {}),
       answerKey: answer,
       explanation: `The answer is stated in the ${skill} material for this section.`,
       evidenceQuote: answer,
@@ -1382,9 +1392,9 @@ function buildFreshExam(index: 2 | 3, data: {
   })
   return {
     id: `ielts-exam-acad-${suffix}`,
-    code: `IELTS-ACTUAL-2026-VOL1-TEST${index}`,
+    code: `IELTS-PRACTICE-2026-VOL1-TEST${index}`,
     title: `IELTS Academic Practice Test ${index}`,
-    volume: 'Recent Actual Tests 2026 — Volume 1',
+    volume: 'Original Academic Practice — Volume 1',
     module: 'Academic', difficulty: 'Standard Exam', completedCount: index === 2 ? 1205 : 990, averageBand: index === 2 ? 6.4 : 6.6,
     reading: { id: `reading-paper-${suffix}`, title: `Academic Reading — Practice Test ${index} (40 Questions)`, timeAllowedMinutes: 60, totalQuestions: 40, passages },
     listening: { id: `listening-paper-${suffix}`, title: `Academic Listening — Practice Test ${index} (40 Questions)`, timeAllowedMinutes: 30, totalQuestions: 40, sections },
@@ -1439,8 +1449,8 @@ const freshExam3 = buildFreshExam(3, {
 const academicTest1Exam: FullIELTSExam = {
   id: 'ielts-exam-acad-test1',
   code: 'IELTS-ACADEMIC-TEST-1',
-  title: 'IELTS Academic Test 1',
-  volume: 'Recent Actual Tests 2026 — Volume 1',
+  title: 'IELTS Academic Original Practice Test 1',
+  volume: 'Original Academic Practice — Volume 1',
   module: 'Academic',
   difficulty: 'Standard Exam',
   completedCount: 1500,
@@ -1533,8 +1543,5 @@ I remember this trip vividly because it was the first time I had travelled witho
 }
 
 export const IELTS_EXAM_COLLECTIONS: FullIELTSExam[] = [
-  firstAcademicExam,
-  freshExam2,
-  freshExam3,
   academicTest1Exam
 ]

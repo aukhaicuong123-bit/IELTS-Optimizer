@@ -32,7 +32,7 @@ export const academicTest1Reading: FullReadingPaper = {
     {
       passageNumber: 3,
       title: 'Why We Sleep',
-      wordCount: 937,
+      wordCount: 536,
       text: passage3Text,
       questions: passage3Questions
     }
