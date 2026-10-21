@@ -200,7 +200,9 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
     const today = new Date()
     const todayKey = localDate(today.toISOString())
     setSelectedDateKey(todayKey)
+    setSelectedYear(today.getFullYear())
     setViewMonth(new Date(today.getFullYear(), today.getMonth(), 1))
+    setViewMode('month')
   }
 
   // Select day
@@ -287,6 +289,15 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
     })
     return cols
   }, [selectedYear, realMinutesMap])
+
+  const heatmapMonthSpans = useMemo(() => {
+    return monthLabels
+      .map((monthName, monthIndex) => ({
+        monthName,
+        span: heatmapColumns.filter(column => column.monthIndex === monthIndex).length
+      }))
+      .filter(month => month.span > 0)
+  }, [heatmapColumns])
 
   const totalActiveMinutes = useMemo(() => {
     return Object.entries(realMinutesMap)
@@ -606,8 +617,14 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
             <div className="img2-months-header">
               <div className="img2-day-spacer" />
               <div className="img2-months-row">
-                {monthLabels.map(m => (
-                  <span key={m} className="img2-month-label">{m}</span>
+                {heatmapMonthSpans.map(month => (
+                  <span
+                    key={month.monthName}
+                    className="img2-month-label"
+                    style={{ gridColumn: `span ${month.span}` }}
+                  >
+                    {month.monthName}
+                  </span>
                 ))}
               </div>
             </div>
