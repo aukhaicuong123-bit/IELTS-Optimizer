@@ -5,6 +5,8 @@
  * listening passages, writing prompts, and speaking cue cards.
  */
 
+import { ADDITIONAL_17_TOPICS } from './data/additionalTopicsData'
+
 export type TopicId =
   | 'education'
   | 'environment'
@@ -14,6 +16,23 @@ export type TopicId =
   | 'cities'
   | 'crime'
   | 'culture'
+  | 'travel'
+  | 'globalization'
+  | 'media'
+  | 'science'
+  | 'economy'
+  | 'society'
+  | 'energy'
+  | 'transport'
+  | 'psychology'
+  | 'food'
+  | 'space'
+  | 'sports'
+  | 'language'
+  | 'history'
+  | 'business'
+  | 'wildlife'
+  | 'generation'
 
 export type VocabItem = {
   id: string
@@ -93,7 +112,7 @@ export type TopicDefinition = {
   speaking: SpeakingTopicUnit
 }
 
-export const TOPICS: TopicDefinition[] = [
+const CORE_8_TOPICS: TopicDefinition[] = [
   {
     id: 'education',
     titleEn: 'Education & Learning',
@@ -1543,3 +1562,5 @@ export const TOPICS: TopicDefinition[] = [
     }
   }
 ]
+
+export const TOPICS: TopicDefinition[] = CORE_8_TOPICS

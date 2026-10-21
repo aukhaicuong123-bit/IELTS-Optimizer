@@ -75,6 +75,8 @@ import type {
   Store,
   StudyDestination
 } from './types'
+import { ForumVocabularyHub } from './components/ForumVocabularyHub'
+import { ForumGrammarHub } from './components/ForumGrammarHub'
 
 type NavItem = [Page, string, any]
 
@@ -434,8 +436,22 @@ export default function App() {
         {page === 'writing' && <SkillPractice s={store} setS={setStore} note={note} skill="Writing" />}
 
         {page === 'speaking' && <SkillPractice s={store} setS={setStore} note={note} skill="Speaking" />}
-        {page === 'vocabulary' && <VocabularyHub s={store} setS={setStore} note={note} />}
-        {page === 'grammar' && <GrammarHub s={store} setS={setStore} note={note} />}
+        {page === 'vocabulary' && (
+          <ForumVocabularyHub
+            s={store}
+            setS={setStore}
+            note={note}
+            onSwitchToGrammar={() => go('grammar')}
+          />
+        )}
+        {page === 'grammar' && (
+          <ForumGrammarHub
+            s={store}
+            setS={setStore}
+            note={note}
+            onSwitchToVocab={() => go('vocabulary')}
+          />
+        )}
         {page === 'network' && <LearningNetwork />}
         {page === 'design' && <LearningDesign />}
         {page === 'profile' && <Profile s={store} setS={setStore} note={note} openConfirm={openConfirm} />}
