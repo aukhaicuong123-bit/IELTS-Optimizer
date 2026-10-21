@@ -8,7 +8,7 @@ export const academicTest1ListeningSection1Questions: ExamQuestion[] = [
     type: 'sentence-completion',
     prompt: 'Complete the notes about the campus gate.',
     promptDetail: 'On weekdays, the main gate on Carver Road opens at ______ and closes at 9 p.m.',
-    answerKey: '7 a.m.',
+    answerKey: 'seven',
     explanation: 'The guide says the gate is open from seven in the morning until nine at night on weekdays.',
     evidenceQuote: 'The main gate on Carver Road is open from seven in the morning until nine at night on weekdays',
     sectionNumber: 1
@@ -19,7 +19,7 @@ export const academicTest1ListeningSection1Questions: ExamQuestion[] = [
     type: 'sentence-completion',
     prompt: 'Complete the notes about the campus gate.',
     promptDetail: 'At weekends, the gate opens at ______ on Saturday.',
-    answerKey: '9 a.m.',
+    answerKey: 'nine',
     explanation: 'At weekends the gate opens at nine on Saturday.',
     evidenceQuote: 'At weekends, it opens at nine on Saturday and closes at six',
     sectionNumber: 1
@@ -41,7 +41,7 @@ export const academicTest1ListeningSection1Questions: ExamQuestion[] = [
     type: 'sentence-completion',
     prompt: 'Complete the notes about student cards.',
     promptDetail: 'The office closes at ______ on Friday.',
-    answerKey: '1 p.m.',
+    answerKey: 'one',
     explanation: 'On Friday the office closes at one in the afternoon.',
     evidenceQuote: 'and on Friday it closes at one in the afternoon',
     sectionNumber: 1

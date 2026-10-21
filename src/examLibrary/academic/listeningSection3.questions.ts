@@ -30,7 +30,7 @@ export const academicTest1ListeningSection3Questions: ExamQuestion[] = [
     type: 'sentence-completion',
     prompt: 'Complete the notes about the project budget.',
     promptDetail: 'The parish council has granted ______ pounds.',
-    answerKey: '2,000',
+    answerKey: 'two thousand',
     explanation: 'Marcus says they have two thousand from the parish council.',
     evidenceQuote: 'Two thousand from the parish council',
     sectionNumber: 3
@@ -52,7 +52,7 @@ export const academicTest1ListeningSection3Questions: ExamQuestion[] = [
     type: 'sentence-completion',
     prompt: 'Complete the notes about raised beds.',
     promptDetail: 'Three cedar raised beds would cost ______ pounds including delivery.',
-    answerKey: '540',
+    answerKey: 'five hundred and forty',
     explanation: 'Three beds at about a hundred and eighty each come to five hundred and forty.',
     evidenceQuote: 'Three of them, cedar, about a hundred and eighty each including delivery. So five hundred and forty',
     sectionNumber: 3

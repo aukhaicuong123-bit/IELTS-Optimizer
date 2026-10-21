@@ -774,7 +774,7 @@ However, traditional apiculture relied on destructive harvesting methods. Skeps 
               prompt: 'Aristotle correctly identified the biological sex of the queen bee.',
               answerKey: 'FALSE',
               explanation: 'Aristotle mistakenly classified the queen bee as a male "king".',
-              evidenceQuote: 'yet he mistakenly classified the queen bee as a male "king"',
+              evidenceQuote: 'yet he mistakenly classified the queen bee as a male "king."',
               passageNumber: 1
             },
             {
@@ -1027,7 +1027,7 @@ Simultaneously, the absorption of approximately thirty percent of anthropogenic 
               prompt: 'A temperature increase of 0.2 degrees Celsius is sufficient to cause massive pantropical coral bleaching.',
               answerKey: 'FALSE',
               explanation: 'Text states temperatures exceeding local summer maximums by as little as 1.0 to 1.5 degrees Celsius for sustained periods.',
-              evidenceQuote: 'exceed local summer maximum threshold by as little as 1.0 to 1.5 degrees Celsius for sustained periods',
+              evidenceQuote: 'exceed local summer maximum thresholds by as little as 1.0 to 1.5 degrees Celsius for sustained periods',
               passageNumber: 2
             },
             {
@@ -1158,7 +1158,7 @@ Moreover, the phenomenon of cross-modal plasticity illustrates the astonishing c
               prompt: 'Functional neuroimaging shows that CIMT enlarges the motor cortex area corresponding to the injured limb.',
               answerKey: 'TRUE',
               explanation: 'Neuroimaging confirms CIMT expands the motor representation area of the damaged limb.',
-              evidenceQuote: 'confirms that CIMT produces extensive cortical reorganization, substantially expanding the motor representation area of the damaged limb',
+              evidenceQuote: 'Functional neuroimaging confirms that CIMT substantially expands the motor representation area of the damaged limb',
               passageNumber: 3
             },
             {
@@ -1174,7 +1174,7 @@ Moreover, the phenomenon of cross-modal plasticity illustrates the astonishing c
               ],
               answerKey: 'Metabolic activation inside the primary visual cortex (V1)',
               explanation: 'Blind individuals reading Braille exhibit pronounced metabolic activation inside the primary visual cortex (V1).',
-              evidenceQuote: 'blind individuals reading Braille exhibit pronounced metabolic activation inside the primary visual cortex (V1)',
+              evidenceQuote: 'robust metabolic activation inside the primary visual cortex (Brodmann area 17)',
               passageNumber: 3
             },
             {
@@ -1205,7 +1205,7 @@ Moreover, the phenomenon of cross-modal plasticity illustrates the astonishing c
               prompt: 'Primate research confirmed that cortical territory of an amputated digit remains dormant permanently.',
               answerKey: 'FALSE',
               explanation: 'Adjacent cortical regions rapidly colonized the denervated cortical territory, proving representation is dynamic.',
-              evidenceQuote: 'Adjacent cortical regions responsible for uninjured digits rapidly colonized the denervated cortical territory',
+              evidenceQuote: 'adjacent cortical zones representing neighboring fingers rapidly colonized the vacated computational space',
               passageNumber: 3
             },
             {
@@ -1227,7 +1227,7 @@ Moreover, the phenomenon of cross-modal plasticity illustrates the astonishing c
               options: ['neuroplasticity', 'palliative care', 'optogenetics', 'topography'],
               answerKey: 'neuroplasticity',
               explanation: 'The modern paradigm of neuroplasticity—the capacity of neural networks to reorganize their synaptic architecture.',
-              evidenceQuote: 'The modern paradigm of neuroplasticity—the capacity of neural networks to reorganize their synaptic architecture',
+              evidenceQuote: 'The modern paradigm of neuroplasticity establishes that the adult brain is not a static machine with hardwired circuits',
               passageNumber: 3
             },
             {
@@ -1236,8 +1236,8 @@ Moreover, the phenomenon of cross-modal plasticity illustrates the astonishing c
               type: 'true-false-not-given',
               prompt: 'Cross-modal plasticity enables intact sensory systems to utilize brain regions originally dedicated to damaged senses.',
               answerKey: 'TRUE',
-              explanation: 'The passage confirms: When sensory deprivation occurs, cortical territories formerly dedicated to the impaired modality are co-opted by surviving senses.',
-              evidenceQuote: 'cortical territories formerly dedicated to the impaired modality are co-opted by surviving senses',
+              explanation: 'The passage confirms: cross-modal plasticity illustrates the astonishing capacity of cortical tissue to repurpose itself across sensory modalities.',
+              evidenceQuote: 'cross-modal plasticity illustrates the astonishing capacity of cortical tissue to repurpose itself across sensory modalities',
               passageNumber: 3
             }
           ]
@@ -1333,16 +1333,31 @@ I evaluate this initiative as exceptionally impactful because it generated immed
 type FreshFact = [prompt: string, answer: string]
 
 function makeFreshQuestions(prefix: string, facts: FreshFact[], startNumber: number, groupNumber: 1 | 2 | 3 | 4, skill: 'reading' | 'listening') {
-  return facts.map(([prompt, answer], index): ExamQuestion => ({
-    id: `${prefix}-q${startNumber + index}`,
-    number: startNumber + index,
-    type: 'sentence-completion',
-    prompt,
-    answerKey: answer,
-    explanation: `The answer is stated in the ${skill} material for this section.`,
-    evidenceQuote: answer,
-    ...(skill === 'reading' ? { passageNumber: groupNumber as 1 | 2 | 3 } : { sectionNumber: groupNumber as 1 | 2 | 3 | 4 })
-  }))
+  return facts.map(([prompt, answer], index): ExamQuestion => {
+    const normPrompt = prompt.toLowerCase()
+    const normAnswer = answer.toLowerCase()
+    let blankedPrompt = prompt
+
+    if (normPrompt.includes(normAnswer)) {
+      // Replace the answer with blank marker (case-insensitive) so prompt doesn't leak the answer
+      const idx = normPrompt.indexOf(normAnswer)
+      blankedPrompt = prompt.slice(0, idx) + '______' + prompt.slice(idx + answer.length)
+    } else {
+      // Answer not found in prompt: append a blank at the end
+      blankedPrompt = prompt.trim().replace(/\.?$/, '') + ' ______.'
+    }
+
+    return {
+      id: `${prefix}-q${startNumber + index}`,
+      number: startNumber + index,
+      type: 'sentence-completion',
+      prompt: blankedPrompt,
+      answerKey: answer,
+      explanation: `The answer is stated in the ${skill} material for this section.`,
+      evidenceQuote: answer,
+      ...(skill === 'reading' ? { passageNumber: groupNumber as 1 | 2 | 3 } : { sectionNumber: groupNumber as 1 | 2 | 3 | 4 })
+    }
+  })
 }
 
 function buildFreshExam(index: 2 | 3, data: {
@@ -1389,9 +1404,9 @@ function buildFreshExam(index: 2 | 3, data: {
 
 const freshExam2 = buildFreshExam(2, {
   reading: [
-    { title: 'Passage 1: Restoring Urban Wetlands', text: 'Urban wetlands are being restored as cities search for practical ways to reduce flooding and heat. The Marshfield project converted a disused industrial basin into a chain of shallow ponds, planted native reeds and created footpaths on raised banks. Engineers first removed contaminated soil, then allowed seasonal water levels to fluctuate. Within three years, dragonflies and migratory birds returned, while nearby streets experienced less surface flooding. Researchers emphasize that the success came from combining ecological design with long-term community maintenance rather than treating the wetland as a decorative park.', facts: [['The project began in a disused industrial basin.', 'industrial basin'], ['The first engineering task was removing contaminated soil.', 'contaminated soil'], ['Native reeds were planted around the ponds.', 'native reeds'], ['Footpaths were built on raised banks.', 'raised banks'], ['Water levels were allowed to fluctuate seasonally.', 'seasonally'], ['Dragonflies returned within three years.', 'three years'], ['Migratory birds returned to the restored area.', 'migratory birds'], ['The project reduced surface flooding nearby.', 'surface flooding'], ['Community maintenance was essential to success.', 'community maintenance'], ['The restored area included shallow ponds.', 'shallow ponds'], ['The initiative also addressed urban heat.', 'urban heat'], ['The wetland was not designed only as decoration.', 'decorative park'], ['The project combined ecology with engineering.', 'ecological design']] },
+    { title: 'Passage 1: Restoring Urban Wetlands', text: 'Urban wetlands are being restored as cities search for practical ways to reduce flooding and heat. The Marshfield project converted a disused industrial basin into a chain of shallow ponds, planted native reeds and created footpaths on raised banks. Engineers first removed contaminated soil, then allowed seasonal water levels to fluctuate. Within three years, dragonflies and migratory birds returned, while nearby streets experienced less surface flooding. Researchers emphasize that the success came from combining ecological design with long-term community maintenance rather than treating the wetland as a decorative park.', facts: [['The project began in a disused industrial basin.', 'industrial basin'], ['The first engineering task was removing contaminated soil.', 'contaminated soil'], ['Native reeds were planted around the ponds.', 'native reeds'], ['Footpaths were built on raised banks.', 'raised banks'], ['Water levels were allowed to fluctuate seasonally.', 'seasonal'], ['Dragonflies returned within three years.', 'three years'], ['Migratory birds returned to the restored area.', 'migratory birds'], ['The project reduced surface flooding nearby.', 'surface flooding'], ['Community maintenance was essential to success.', 'community maintenance'], ['The restored area included shallow ponds.', 'shallow ponds'], ['The initiative also addressed urban heat.', 'heat'], ['The wetland was not designed only as decoration.', 'decorative park'], ['The project combined ecology with engineering.', 'ecological design']] },
     { title: 'Passage 2: The Science of Fermented Foods', text: 'Fermentation is an ancient method of preserving food, but modern laboratories are revealing why it works. Microorganisms consume sugars and produce acids, gases or alcohol, creating conditions that discourage harmful competitors. Temperature, salt concentration and oxygen exposure determine which organisms dominate. A research team studying bean fermentation found that small changes in temperature altered both flavour and vitamin availability. The team argues that traditional knowledge remains valuable because generations of cooks have already tested local ingredients and seasonal conditions. Industrial producers can learn from these practices, although strict hygiene is still necessary.', facts: [['Microorganisms consume sugars during fermentation.', 'sugars'], ['Fermentation may produce acids, gases or alcohol.', 'acids, gases or alcohol'], ['The products discourage harmful competitors.', 'harmful competitors'], ['Temperature affects which organisms dominate.', 'temperature'], ['Salt concentration is another controlling factor.', 'salt concentration'], ['Oxygen exposure changes the fermentation process.', 'oxygen exposure'], ['The bean study measured changes in vitamin availability.', 'vitamin availability'], ['Temperature changes also altered flavour.', 'flavour'], ['Traditional knowledge was described as valuable.', 'traditional knowledge'], ['Cooks have tested local ingredients over generations.', 'local ingredients'], ['Seasonal conditions influence traditional recipes.', 'seasonal conditions'], ['Industrial producers can learn from traditional practice.', 'Industrial producers'], ['Strict hygiene remains necessary.', 'strict hygiene']] },
-    { title: 'Passage 3: Designing Quieter Cities', text: 'Noise mapping is changing how planners think about the acoustic life of cities. Instead of relying only on occasional complaints, researchers install sensors at schools, hospitals and busy intersections to record patterns across a full day. The resulting maps show that traffic volume is not the only factor: road surface, building shape and delivery schedules can be equally important. In one pilot district, a low-noise asphalt surface and revised delivery hours reduced peak sound levels without banning vehicles. Residents reported better sleep, but researchers caution that quieter design must not move pollution into less visible neighbourhoods.', facts: [['Noise mapping uses sensors to record sound patterns.', 'sensors'], ['Schools and hospitals are monitored in the project.', 'schools and hospitals'], ['Measurements are collected across a full day.', 'full day'], ['Traffic volume is not the only source of urban noise.', 'not the only factor'], ['Road surface can affect sound levels.', 'road surface'], ['Building shape influences acoustic conditions.', 'building shape'], ['Delivery schedules were revised in the pilot district.', 'delivery schedules'], ['The project used low-noise asphalt.', 'low-noise asphalt'], ['Vehicles were not completely banned.', 'without banning vehicles'], ['Residents reported better sleep.', 'better sleep'], ['Researchers warned against shifting pollution elsewhere.', 'less visible neighbourhoods'], ['The maps revealed daily patterns.', 'patterns across a full day'], ['The pilot reduced peak sound levels.', 'peak sound levels'], ['Planners should consider acoustic life when designing cities.', 'acoustic life of cities']] }
+    { title: 'Passage 3: Designing Quieter Cities', text: 'Noise mapping is changing how planners think about the acoustic life of cities. Instead of relying only on occasional complaints, researchers install sensors at schools, hospitals and busy intersections to record patterns across a full day. The resulting maps show that traffic volume is not the only factor: road surface, building shape and delivery schedules can be equally important. In one pilot district, a low-noise asphalt surface and revised delivery hours reduced peak sound levels without banning vehicles. Residents reported better sleep, but researchers caution that quieter design must not move pollution into less visible neighbourhoods.', facts: [['Noise mapping uses sensors to record sound patterns.', 'sensors'], ['Schools and hospitals are monitored in the project.', 'schools, hospitals'], ['Measurements are collected across a full day.', 'full day'], ['Traffic volume is not the only source of urban noise.', 'not the only factor'], ['Road surface can affect sound levels.', 'road surface'], ['Building shape influences acoustic conditions.', 'building shape'], ['Delivery schedules were revised in the pilot district.', 'delivery schedules'], ['The project used low-noise asphalt.', 'low-noise asphalt'], ['Vehicles were not completely banned.', 'without banning vehicles'], ['Residents reported better sleep.', 'better sleep'], ['Researchers warned against shifting pollution elsewhere.', 'less visible neighbourhoods'], ['The maps revealed daily patterns.', 'patterns across a full day'], ['The pilot reduced peak sound levels.', 'peak sound levels'], ['Planners should consider acoustic life when designing cities.', 'acoustic life of cities']] }
   ],
   listening: [
     { title: 'Section 1: Community Garden Registration', context: 'A caller registers for a plot at a community garden.', transcript: 'Coordinator: The garden has plots beside the old library. New members attend an induction on Saturday, bring their own gloves, and pay a refundable key deposit of twenty pounds. Watering is organised by a weekly rota. The tool shed opens at seven, and compost is delivered on the first Monday of each month. Members may grow vegetables but not tall trees because they would shade neighbouring plots. The annual membership fee is forty-five pounds.', facts: [['The plots are beside the old library.', 'old library'], ['New members attend induction on Saturday.', 'Saturday'], ['Members bring their own gloves.', 'gloves'], ['The key deposit is twenty pounds.', 'twenty pounds'], ['Watering follows a weekly rota.', 'weekly rota'], ['The tool shed opens at seven.', 'seven'], ['Compost arrives on the first Monday.', 'first Monday'], ['Members may grow vegetables.', 'vegetables'], ['Tall trees are not permitted.', 'tall trees'], ['The annual fee is forty-five pounds.', 'forty-five pounds']] },
@@ -1407,7 +1422,7 @@ const freshExam2 = buildFreshExam(2, {
 const freshExam3 = buildFreshExam(3, {
   reading: [
     { title: 'Passage 1: The Return of the Night Train', text: 'Night trains are returning to European timetables after decades of decline. Operators once removed sleeper services because cheap flights appeared faster and rail maintenance costs rose. Recent demand is driven by passengers who value city-centre arrival, lower carbon emissions and the ability to travel while asleep. New carriages use modular cabins that can be rearranged for families or individual travellers. Analysts say the service will remain viable only if rail companies coordinate tickets across borders and provide reliable connections at both ends of a journey.', facts: [['Night trains declined for several decades.', 'decades of decline'], ['Cheap flights contributed to their removal.', 'cheap flights'], ['Rail maintenance costs also increased.', 'rail maintenance costs'], ['Passengers value arriving in city centres.', 'city-centre arrival'], ['Night trains can reduce carbon emissions.', 'lower carbon emissions'], ['New cabins can be rearranged for families.', 'rearranged for families'], ['Some cabins are designed for individual travellers.', 'individual travellers'], ['Operators must coordinate tickets across borders.', 'across borders'], ['Reliable connections are needed at both ends.', 'reliable connections'], ['Passengers can travel while asleep.', 'while asleep'], ['The service must remain financially viable.', 'remain viable'], ['Rail companies need to cooperate.', 'coordinate tickets'], ['The new carriages use modular cabins.', 'modular cabins']] },
-    { title: 'Passage 2: How Trees Communicate Stress', text: 'Trees cannot walk away from drought, yet forests are not silent when water becomes scarce. Roots and leaves produce chemical signals that alter growth and close pores in the foliage. Fungi connected to roots may also carry nutrients and warning compounds between neighbouring plants. Experiments show that seedlings exposed to signals from stressed trees sometimes develop deeper roots and tougher leaves. Scientists disagree about whether the word communication is appropriate, but they agree that a forest behaves as a network of interacting organisms rather than a collection of isolated individuals.', facts: [['Drought causes chemical signals in roots and leaves.', 'chemical signals'], ['Leaves may close pores during water stress.', 'close pores'], ['Fungi connect to tree roots.', 'Fungi connected to roots'], ['Fungal networks may carry nutrients.', 'nutrients'], ['Warning compounds may move between plants.', 'warning compounds'], ['Exposed seedlings sometimes develop deeper roots.', 'deeper roots'], ['Some seedlings develop tougher leaves.', 'tougher leaves'], ['Scientists disagree about the word communication.', 'communication'], ['Researchers see forests as interacting networks.', 'network of interacting organisms'], ['Trees cannot escape drought by moving.', 'cannot walk away'], ['Roots participate in signalling.', 'Roots'], ['The experiments involved seedlings.', 'seedlings'], ['A forest is not a set of isolated individuals.', 'not isolated']] },
+    { title: 'Passage 2: How Trees Communicate Stress', text: 'Trees cannot walk away from drought, yet forests are not silent when water becomes scarce. Roots and leaves produce chemical signals that alter growth and close pores in the foliage. Fungi connected to roots may also carry nutrients and warning compounds between neighbouring plants. Experiments show that seedlings exposed to signals from stressed trees sometimes develop deeper roots and tougher leaves. Scientists disagree about whether the word communication is appropriate, but they agree that a forest behaves as a network of interacting organisms rather than a collection of isolated individuals.', facts: [['Drought causes chemical signals in roots and leaves.', 'chemical signals'], ['Leaves may close pores during water stress.', 'close pores'], ['Fungi connect to tree roots.', 'Fungi connected to roots'], ['Fungal networks may carry nutrients.', 'nutrients'], ['Warning compounds may move between plants.', 'warning compounds'], ['Exposed seedlings sometimes develop deeper roots.', 'deeper roots'], ['Some seedlings develop tougher leaves.', 'tougher leaves'], ['Scientists disagree about the word communication.', 'communication'], ['Researchers see forests as interacting networks.', 'network of interacting organisms'], ['Trees cannot escape drought by moving.', 'cannot walk away'], ['Roots participate in signalling.', 'Roots'], ['The experiments involved seedlings.', 'seedlings'], ['A forest is not a set of isolated individuals.', 'isolated individuals']] },
     { title: 'Passage 3: Measuring the Value of Repair Cafés', text: 'Repair cafés invite residents to bring broken household objects to free or low-cost workshops. Volunteers with practical skills help diagnose faults, teach basic techniques and identify parts that can be reused. An evaluation in Northbridge found that participants repaired more electrical appliances than furniture, partly because small appliances were easy to transport. The organisers measured success not only by the number of objects saved from landfill but also by new social contacts and confidence gained by visitors. They concluded that repair events work best when tools, insurance and patient mentors are available.', facts: [['Repair cafés accept broken household objects.', 'broken household objects'], ['Workshops may be free or low-cost.', 'free or low-cost'], ['Volunteers diagnose faults with residents.', 'diagnose faults'], ['Volunteers teach basic techniques.', 'basic techniques'], ['Reusable parts are identified.', 'parts that can be reused'], ['Electrical appliances were repaired more than furniture.', 'electrical appliances'], ['Small appliances were easy to transport.', 'easy to transport'], ['Success included objects kept from landfill.', 'saved from landfill'], ['Organisers also measured new social contacts.', 'social contacts'], ['Visitors gained confidence.', 'confidence gained'], ['Tools are needed for successful events.', 'tools'], ['Insurance was listed as necessary.', 'insurance'], ['Patient mentors improve repair events.', 'patient mentors'], ['Northbridge was the evaluation site.', 'Northbridge']] }
   ],
   listening: [
