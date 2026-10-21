@@ -670,6 +670,46 @@ function TopicHeader({ topic, extraBadge }: { topic: TopicDefinition; extraBadge
   )
 }
 
+function ReadingTopicSelector({
+  selected,
+  onSelect,
+  passageCount
+}: {
+  selected: TopicId | 'all'
+  onSelect: (topicId: TopicId | 'all') => void
+  passageCount: (topicId: TopicId | 'all') => number
+}) {
+  return (
+    <div className="forum-topics-grid reading-topic-selector" role="tablist" aria-label="Chủ đề Reading">
+      <button
+        type="button"
+        role="tab"
+        aria-selected={selected === 'all'}
+        className={`forum-topic-chip ${selected === 'all' ? 'active' : ''}`}
+        onClick={() => onSelect('all')}
+      >
+        <span className="chip-indicator" />
+        <span className="chip-title">Tất cả chủ đề</span>
+        <span className="chip-badge">{passageCount('all')} bài</span>
+      </button>
+      {TOPICS.map(topic => (
+        <button
+          key={topic.id}
+          type="button"
+          role="tab"
+          aria-selected={selected === topic.id}
+          className={`forum-topic-chip ${selected === topic.id ? 'active' : ''}`}
+          onClick={() => onSelect(topic.id)}
+        >
+          <span className="chip-indicator" style={{ background: topic.accent }} />
+          <span className="chip-title">{topic.titleEn.split(' & ')[0]}</span>
+          <span className="chip-badge">{passageCount(topic.id)} bài</span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
 /* ============================================================================
  * DAILY DRILL — rotating practice exercises for every skill
  * ========================================================================== */
@@ -1823,13 +1863,20 @@ function Practice({
     ? passages.find(p => p.id !== retestContext.error.passageId && p.questions.some(q => q.equivalenceKey && q.equivalenceKey === retestContext.sourceQuestion.equivalenceKey))
     : undefined
 
-  const passage = isRetestMode
-    ? retestPassage
-    : passages.find(p => p.id === selectedPassageId) || passages[0]
-
   const filteredPassages = topicFilter === 'all'
     ? passages.filter(p => !p.id.includes('-retest'))
     : passages.filter(p => p.topicId === topicFilter && !p.id.includes('-retest'))
+
+  const passage = isRetestMode
+    ? retestPassage
+    : filteredPassages.find(p => p.id === selectedPassageId) || filteredPassages[0]
+
+  useEffect(() => {
+    if (isRetestMode || !filteredPassages.length) return
+    if (!filteredPassages.some(item => item.id === selectedPassageId)) {
+      setSelectedPassageId(filteredPassages[0].id)
+    }
+  }, [filteredPassages, isRetestMode, selectedPassageId])
 
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [submitted, setSubmitted] = useState(false)
@@ -1903,7 +1950,13 @@ function Practice({
             </div>
             <span className="badge">{filteredPassages.length} bài luyện tập</span>
           </div>
-          <TopicBar selected={topicFilter} onSelect={setTopicFilter} showAll={true} collapsible />
+          <ReadingTopicSelector
+            selected={topicFilter}
+            onSelect={setTopicFilter}
+            passageCount={topicId => topicId === 'all'
+              ? passages.filter(item => !item.id.includes('-retest')).length
+              : passages.filter(item => item.topicId === topicId && !item.id.includes('-retest')).length}
+          />
           <div className="passage-chips">
             {filteredPassages.map(p => (
               <button
