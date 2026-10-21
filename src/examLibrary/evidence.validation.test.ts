@@ -58,7 +58,11 @@ const wordCount = (s: string) => s.trim().split(/\s+/).filter((x) => x.length).l
 
 describe('Academic Test 1 structural integrity', () => {
   it('reading: declared wordCount matches actual passage text length', () => {
-    const passages = [[1, passage1Text], [2, passage2Text], [3, passage3Text]]
+    const passages: [number, string][] = [
+      [1, passage1Text],
+      [2, passage2Text],
+      [3, passage3Text],
+    ]
     for (const [number, text] of passages) {
       const declared = academicTest1Reading.passages.find((p) => p.passageNumber === number)!.wordCount
       const actual = wordCount(text)
