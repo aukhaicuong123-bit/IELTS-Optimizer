@@ -180,6 +180,7 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
 
     return {
       dateKey: selectedDateKey,
+      isToday: selectedDateKey === todayIsoKey,
       minutes: realMin,
       sessionsCount: sessions.length,
       attemptsCount: attempts.length,
@@ -552,7 +553,9 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
             <div className="img2-day-detail-card">
               <div className="img2-detail-header">
                 <div className="img2-detail-title-wrap">
-                  <span className="img2-detail-badge">Chi tiết ngày</span>
+                  <span className="img2-detail-badge">
+                    {selectedDayDetails.isToday ? 'Hôm nay · Chi tiết ngày' : 'Chi tiết ngày'}
+                  </span>
                   <h4 className="img2-detail-date">
                     {selectedDateObj.toLocaleDateString('vi-VN', {
                       weekday: 'long',
@@ -599,7 +602,9 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
                     <p>
                       {selectedDayDetails.minutes > 0
                         ? `Đã ghi nhận ${selectedDayDetails.minutes} phút hoạt động học tập trong ngày.`
-                        : 'Chưa có hoạt động học trong ngày này. Hãy bấm Bắt đầu học để duy trì chuỗi học tập!'}
+                        : selectedDayDetails.isToday
+                          ? 'Hôm nay chưa có phiên học nào được ghi nhận. Hãy bắt đầu một phiên học để cập nhật dữ liệu tại đây.'
+                          : 'Chưa có hoạt động học trong ngày này. Hãy bấm Bắt đầu học để duy trì chuỗi học tập!'}
                     </p>
                   </div>
                 )}
