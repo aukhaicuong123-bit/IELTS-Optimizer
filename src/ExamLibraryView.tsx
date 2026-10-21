@@ -2300,7 +2300,7 @@ function FullSpeakingExamSimulator({ exam, store, setStore, onExit, addToast }: 
           </p>
 
           <div className="stack" style={{ gap: 16 }}>
-            {speakingPaper.part1.questions.map(q => (
+            {speakingPaper.part1.questions.map((q, i) => (
               <div key={i} style={{ padding: 18, background: '#182922', borderRadius: 8, border: '1px solid var(--line)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                   <strong style={{ fontSize: 14, color: '#f0f8f1' }}>Câu hỏi {i + 1}: {q}</strong>
@@ -2424,7 +2424,7 @@ function FullSpeakingExamSimulator({ exam, store, setStore, onExit, addToast }: 
           </p>
 
           <div className="stack" style={{ gap: 16 }}>
-            {speakingPaper.part3.questions.map(q => (
+            {speakingPaper.part3.questions.map((q, i) => (
               <div key={i} style={{ padding: 18, background: '#182922', borderRadius: 8, border: '1px solid var(--line)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                   <strong style={{ fontSize: 14, color: '#f0f8f1' }}>Thảo luận {i + 1}: {q}</strong>
