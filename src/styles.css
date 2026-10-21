@@ -348,6 +348,8 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 .workspace-theme .topic-hub-container{color:#152337}
 .workspace-theme .topic-toggle-btn,.workspace-theme .topic-card-btn,.workspace-theme .topic-header-card,.workspace-theme .topic-lexicon-helper,.workspace-theme .grammar-box,.workspace-theme .network-card,.workspace-theme .design-row{background:#fffefa!important;border-color:#e5e3da!important;color:#152337}
 .workspace-theme .topic-toggle-btn:hover,.workspace-theme .topic-card-btn:hover,.workspace-theme .topic-card-btn.active{background:#edf5e5!important;border-color:#a9ca99!important}
+.workspace-theme .topic-card-btn.disabled,.workspace-theme .topic-card-btn.disabled:hover{background:#f5f5f1!important;border-color:#e5e3da!important;color:#9aa5a0!important;cursor:not-allowed;opacity:.72;transform:none;box-shadow:none}
+.workspace-theme .topic-card-btn.disabled .topic-en,.workspace-theme .topic-card-btn.disabled .topic-vi{color:#9aa5a0!important}
 .workspace-theme .topic-en,.workspace-theme .topic-header-title h2,.workspace-theme .grammar-box h3{color:#172236}
 .workspace-theme .topic-vi,.workspace-theme .topic-header-meta,.workspace-theme .topic-progress-badge{color:#475569}
 .workspace-theme .topic-progress-badge b{color:#075d52!important;font-weight:700!important}

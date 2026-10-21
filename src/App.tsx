@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import {
   BookOpen,
   CheckCircle2,
@@ -564,12 +564,14 @@ function TopicBar({
   selected,
   onSelect,
   showAll = false,
-  collapsible = false
+  collapsible = false,
+  disabledTopics
 }: {
   selected: TopicId | 'all'
   onSelect: (topicId: TopicId | 'all') => void
   showAll?: boolean
   collapsible?: boolean
+  disabledTopics?: Set<TopicId>
 }) {
   const [expanded, setExpanded] = useState(!collapsible)
   return (
@@ -605,20 +607,25 @@ function TopicBar({
           {TOPICS.map(topic => {
             const Icon = TOPIC_ICONS[topic.icon] || Layers
             const isActive = selected === topic.id
+            const isDisabled = disabledTopics?.has(topic.id) || false
             return (
               <button
                 key={topic.id}
                 type="button"
                 role="tab"
                 aria-selected={isActive}
-                className={`topic-card-btn ${isActive ? 'active' : ''}`}
-                onClick={() => onSelect(topic.id)}
+                aria-disabled={isDisabled}
+                disabled={isDisabled}
+                className={`topic-card-btn ${isActive ? 'active' : ''} ${isDisabled ? 'disabled' : ''}`}
+                onClick={() => {
+                  if (!isDisabled) onSelect(topic.id)
+                }}
               >
                 <div className="topic-card-indicator" style={{ backgroundColor: topic.accent }} />
                 <Icon size={15} className="topic-card-icon" style={{ color: isActive ? topic.accent : undefined }} />
                 <div className="topic-card-text">
                   <span className="topic-en">{topic.titleEn.split(' & ')[0]}</span>
-                  <small className="topic-vi">{topic.titleVi.split(' & ')[0]}</small>
+                  <small className="topic-vi">{isDisabled ? 'Chưa có bài Reading' : topic.titleVi.split(' & ')[0]}</small>
                 </div>
               </button>
             )
@@ -1827,6 +1834,10 @@ function Practice({
 
   const filteredPassages = passages.filter(p => p.topicId === topicFilter && !p.id.includes('-retest'))
   const selectedTopic = TOPICS.find(topic => topic.id === topicFilter) || TOPICS[0]
+  const readingTopicsWithoutContent = useMemo(
+    () => new Set(TOPICS.filter(topic => !passages.some(p => p.topicId === topic.id)).map(topic => topic.id)),
+    []
+  )
 
   const passage = isRetestMode
     ? retestPassage
@@ -1849,7 +1860,7 @@ function Practice({
     setReflection('')
   }, [passage?.id])
 
-  if (!passage) {
+  if (!passage && isRetestMode) {
     return (
       <section className="panel empty">
         <h2>Retest unavailable</h2>
@@ -1858,9 +1869,10 @@ function Practice({
     )
   }
 
-  const score = scoreAttempt(passage.questions, answers)
+  const score = passage ? scoreAttempt(passage.questions, answers) : 0
 
   const submit = () => {
+    if (!passage) return
     const timestamp = new Date().toISOString()
     const responseTargets = isRetestMode && retestContext
       ? passage.questions.reduce<Record<string, ReadingOccurrenceTarget>>((map, q) => {
@@ -1899,8 +1911,8 @@ function Practice({
     <section className="stack">
       <SkillPageHeader
         skill="Reading"
-        title={isRetestMode ? 'Reading Retest · bài tương đương' : passage.title}
-        context={passage.topicTitle || 'Bài đọc theo chủ đề'}
+        title={isRetestMode ? 'Reading Retest · bài tương đương' : (passage?.title || 'Reading · ' + selectedTopic.titleEn)}
+        context={passage?.topicTitle || selectedTopic.titleVi}
       />
       {!isRetestMode && (
         <>
@@ -1911,7 +1923,12 @@ function Practice({
               <h2>Chọn chủ đề ôn tập (Reading)</h2>
             </div>
           </div>
-          <TopicBar selected={topicFilter} onSelect={id => id !== 'all' && setTopicFilter(id)} collapsible />
+          <TopicBar
+            selected={topicFilter}
+            onSelect={id => id !== 'all' && setTopicFilter(id)}
+            disabledTopics={readingTopicsWithoutContent}
+            collapsible
+          />
           <TopicHeader
             topic={selectedTopic}
             extraBadge={<span className="badge">{filteredPassages.length} bài luyện tập</span>}
@@ -1931,7 +1948,7 @@ function Practice({
               <button
                 key={p.id}
                 type="button"
-                className={`passage-chip-btn ${p.id === passage.id ? 'active' : ''}`}
+                className={`passage-chip-btn ${p.id === passage?.id ? 'active' : ''}`}
                 onClick={() => setSelectedPassageId(p.id)}
               >
                 <div className="passage-chip-top">
@@ -1957,7 +1974,7 @@ function Practice({
         </section>
       )}
 
-      <div className="practice-layout">
+      {passage ? <div className="practice-layout">
         <section className="panel passage">
           <div className="panel-title">
             <span className="eyebrow">{passage.topicTitle ? passage.topicTitle.toUpperCase() : 'READING'} · {passage.level}</span>
@@ -2042,7 +2059,13 @@ function Practice({
             </div>
           )}
         </section>
-      </div>
+      </div> : (
+        <section className="panel empty reading-topic-empty">
+          <div className="empty-icon"><BookOpen size={22} /></div>
+          <h2>Chủ đề này chưa có bài Reading</h2>
+          <p>Hiện chưa có nội dung Reading được biên soạn cho “{selectedTopic.titleEn}”. Hãy chọn chủ đề khác để tiếp tục học.</p>
+        </section>
+      )}
 
       {!isRetestMode && <DailyReadingDrill />}
     </section>
