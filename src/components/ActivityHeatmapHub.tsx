@@ -12,7 +12,7 @@ import {
   Layers
 } from 'lucide-react'
 import { Store, Attempt, StudySession } from '../types'
-import { localDate, minutesByDate } from '../domain'
+import { localDate, measuredMinutes, minutesByDate } from '../domain'
 
 interface ActivityHeatmapHubProps {
   s: Store
@@ -24,7 +24,7 @@ interface HeatmapDay {
   dayOfWeek: number
   dayName: string
   dateKey: string
-  count: number
+  minutes: number
   level: number
 }
 
@@ -36,32 +36,11 @@ interface HeatmapColumn {
   days: HeatmapDay[]
 }
 
-// Seeded activity pattern matching Image 2 reference data
-const SEEDED_ACTIVITY: Record<string, number> = {
-  // Jan - Sep baseline
-  '2026-01-05': 3, '2026-01-16': 2, '2026-01-28': 4,
-  '2026-02-09': 5, '2026-02-18': 4,
-  '2026-03-03': 3, '2026-03-12': 5, '2026-03-24': 6,
-  '2026-04-06': 6, '2026-04-14': 7, '2026-04-22': 5,
-  '2026-05-05': 4, '2026-05-18': 8, '2026-05-27': 5,
-  '2026-06-08': 6, '2026-06-22': 5,
-  '2026-07-07': 7, '2026-07-16': 6, '2026-07-28': 4,
-  '2026-08-04': 5, '2026-08-14': 8, '2026-08-25': 6,
-  '2026-09-02': 9, '2026-09-11': 7, '2026-09-18': 10, '2026-09-25': 8,
-  // October 2026 intense green clusters (matching Image 2)
-  '2026-10-02': 12, '2026-10-05': 9, '2026-10-06': 14, '2026-10-07': 8,
-  '2026-10-08': 15, '2026-10-09': 18, '2026-10-10': 11, '2026-10-12': 16,
-  '2026-10-13': 12, '2026-10-14': 14, '2026-10-15': 19, '2026-10-16': 22,
-  '2026-10-17': 24, '2026-10-18': 17, '2026-10-19': 8,
-  // Nov & Dec baseline
-  '2026-11-06': 5, '2026-11-19': 7,
-  '2026-12-04': 6, '2026-12-18': 8
-}
-
 export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
   // Primary view: 'month' (Giao diện 2) or 'year' (Bản đồ năm)
   const [viewMode, setViewMode] = useState<'month' | 'year'>('month')
-  const [selectedYear, setSelectedYear] = useState<number>(2026)
+  const currentYear = new Date().getFullYear()
+  const [selectedYear, setSelectedYear] = useState<number>(currentYear)
   const [yearDropdownOpen, setYearDropdownOpen] = useState(false)
   const [tooltip, setTooltip] = useState<{
     text: string
@@ -91,36 +70,27 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
   // Today ISO key
   const todayIsoKey = useMemo(() => localDate(new Date().toISOString()), [])
 
-  // Selected date key (default to October 19, 2026 matching Image 2, or today if October 2026)
-  const [selectedDateKey, setSelectedDateKey] = useState<string>(
-    todayIsoKey.startsWith('2026-10') ? todayIsoKey : '2026-10-19'
-  )
+  // Always start from the real current date; never point the learner at a demo day.
+  const [selectedDateKey, setSelectedDateKey] = useState<string>(todayIsoKey)
 
-  // Calendar view month (defaults to October 2026 matching Image 2)
-  const [viewMonth, setViewMonth] = useState<Date>(() => new Date(2026, 9, 1))
+  // Calendar view month follows the real current date.
+  const [viewMonth, setViewMonth] = useState<Date>(() => new Date())
 
   // Selected date object
   const selectedDateObj = useMemo(() => {
     return new Date(`${selectedDateKey}T12:00:00`)
   }, [selectedDateKey])
 
-  // Day activity count (combining real sessions, attempts, submissions, and seed data)
-  const getDayCount = (dateKey: string) => {
-    const realMin = realMinutesMap[dateKey] || 0
-    const attempts = s.attempts.filter(a => localDate(a.createdAt) === dateKey).length
-    const submissions = (s.submissions || []).filter(sub => localDate(sub.createdAt) === dateKey).length
-    const realCount = Math.round(realMin / 8) + attempts + submissions
-    const seed = SEEDED_ACTIVITY[dateKey] || 0
-    return Math.max(realCount, seed)
-  }
+  // Calendar cells are based only on measured active minutes.
+  const getDayMinutes = (dateKey: string) => Math.round(realMinutesMap[dateKey] || 0)
 
   // Intensity level 0 - 5
-  const getLevel = (count: number) => {
-    if (count <= 0) return 0
-    if (count <= 4) return 1
-    if (count <= 8) return 2
-    if (count <= 13) return 3
-    if (count <= 18) return 4
+  const getLevel = (minutes: number) => {
+    if (minutes <= 0) return 0
+    if (minutes <= 15) return 1
+    if (minutes <= 30) return 2
+    if (minutes <= 60) return 3
+    if (minutes <= 90) return 4
     return 5
   }
 
@@ -139,23 +109,23 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
     const mondayOffset = (dayOfWeek + 6) % 7
 
     const start = new Date(year, month, 1 - mondayOffset)
-    const days: { date: Date; dateKey: string; isCurrentMonth: boolean; count: number; level: number }[] = []
+    const days: { date: Date; dateKey: string; isCurrentMonth: boolean; minutes: number; level: number }[] = []
 
     for (let i = 0; i < 42; i++) {
       const d = new Date(start)
       d.setDate(start.getDate() + i)
       const dKey = localDate(d.toISOString())
-      const count = getDayCount(dKey)
+      const minutes = getDayMinutes(dKey)
       days.push({
         date: d,
         dateKey: dKey,
         isCurrentMonth: d.getMonth() === month,
-        count,
-        level: getLevel(count)
+        minutes,
+        level: getLevel(minutes)
       })
     }
     return days
-  }, [viewMonth, realMinutesMap, s.attempts, s.submissions])
+  }, [viewMonth, realMinutesMap])
 
   // Activity Overview stats — always computed from real session data.
   // No hardcoded demo strings: an empty store shows real zeroes /
@@ -207,16 +177,14 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
     const attempts = s.attempts.filter(att => localDate(att.createdAt) === selectedDateKey)
     const submissions = (s.submissions || []).filter(sub => localDate(sub.createdAt) === selectedDateKey)
     const realMin = Math.round(realMinutesMap[selectedDateKey] || 0)
-    const seed = SEEDED_ACTIVITY[selectedDateKey] || 0
-    const displayMinutes = realMin > 0 ? realMin : seed > 0 ? seed * 6 : 0
 
     return {
       dateKey: selectedDateKey,
-      minutes: displayMinutes,
+      minutes: realMin,
       sessionsCount: sessions.length,
       attemptsCount: attempts.length,
       submissionsCount: submissions.length,
-      hasRealData: realMin > 0 || attempts.length > 0 || submissions.length > 0,
+      hasRealData: sessions.length > 0 || attempts.length > 0 || submissions.length > 0,
       attempts,
       sessions
     }
@@ -245,7 +213,7 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
   }
 
   // Tooltip
-  const handleCellHover = (e: React.MouseEvent, count: number, dateKey: string) => {
+  const handleCellHover = (e: React.MouseEvent, minutes: number, dateKey: string) => {
     const rect = e.currentTarget.getBoundingClientRect()
     const containerRect = matrixContainerRef.current?.getBoundingClientRect() || { left: 0, top: 0 }
     const d = new Date(`${dateKey}T12:00:00`)
@@ -253,9 +221,7 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
       month: 'long',
       day: 'numeric'
     })
-    const text = count > 0
-      ? `${count} contributions on ${formattedDate}.`
-      : `No contributions on ${formattedDate}.`
+    const text = `${Math.round(minutes)} phút học chủ động · ${formattedDate}`
 
     setTooltip({
       text,
@@ -301,13 +267,13 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
           const d = new Date(monday)
           d.setDate(monday.getDate() + dayOfWeek)
           const dateKey = localDate(d.toISOString())
-          const count = getDayCount(dateKey)
+          const minutes = getDayMinutes(dateKey)
           return {
             dayOfWeek,
             dayName,
             dateKey,
-            count,
-            level: getLevel(count)
+            minutes,
+            level: getLevel(minutes)
           }
         })
         cols.push({
@@ -320,35 +286,22 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
       })
     })
     return cols
-  }, [selectedYear, realMinutesMap, s.attempts, s.submissions])
+  }, [selectedYear, realMinutesMap])
 
-  // Real contribution total across EVERY day of the selected year.
-  // (The previous version only summed the ~175 sampled tile days while the
-  // label claimed "in the last year", silently undercounting real activity.)
-  // Seed data still drives the heat tiles, but the headline number reflects
-  // actual sessions/attempts/submissions; the 210 floor is kept as the
-  // designed empty-state reference value.
-  const totalContributions = useMemo(() => {
-    const attemptCounts: Record<string, number> = {}
-    s.attempts.forEach(a => {
-      const k = localDate(a.createdAt)
-      attemptCounts[k] = (attemptCounts[k] || 0) + 1
+  const totalActiveMinutes = useMemo(() => {
+    return Object.entries(realMinutesMap)
+      .filter(([dateKey]) => dateKey.startsWith(`${selectedYear}-`))
+      .reduce((total, [, minutes]) => total + Math.round(minutes), 0)
+  }, [selectedYear, realMinutesMap])
+
+  const availableYears = useMemo(() => {
+    const years = new Set<number>([currentYear])
+    s.sessions.forEach(session => {
+      const year = new Date(session.startedAt).getFullYear()
+      if (Number.isFinite(year)) years.add(year)
     })
-    const submitCounts: Record<string, number> = {}
-    const subs = s.submissions || []
-    subs.forEach(sub => {
-      const k = localDate(sub.createdAt)
-      submitCounts[k] = (submitCounts[k] || 0) + 1
-    })
-    let sum = 0
-    const cursor = new Date(selectedYear, 0, 1)
-    while (cursor.getFullYear() === selectedYear) {
-      const k = localDate(cursor.toISOString())
-      sum += Math.round((realMinutesMap[k] || 0) / 8) + (attemptCounts[k] || 0) + (submitCounts[k] || 0)
-      cursor.setDate(cursor.getDate() + 1)
-    }
-    return Math.max(210, sum)
-  }, [selectedYear, realMinutesMap, s.attempts, s.submissions])
+    return Array.from(years).sort((a, b) => b - a)
+  }, [currentYear, s.sessions])
 
   return (
     <div className="img2-heatmap-hub" ref={matrixContainerRef}>
@@ -368,7 +321,7 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
                 month: 'long',
                 day: 'numeric',
                 year: 'numeric'
-              })} · {totalContributions} contributions in the last year
+              })} · {totalActiveMinutes} phút học chủ động trong năm {selectedYear}
             </p>
           </div>
         </div>
@@ -420,7 +373,7 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
             </button>
             {yearDropdownOpen && (
               <div className="img2-year-menu">
-                {[2026, 2025, 2024].map(y => (
+                {availableYears.map(y => (
                   <button
                     key={y}
                     type="button"
@@ -459,7 +412,7 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
                 })}
               </div>
 
-              {/* Subheader: October 2026 with < > buttons */}
+              {/* Subheader: selected month with < > buttons */}
               <div className="img2-cal-month-nav">
                 <span className="img2-cal-month-title">
                   {viewMonth.toLocaleDateString('en-US', {
@@ -506,7 +459,7 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
               {calendarGrid.map((dayItem, idx) => {
                 const isSelected = dayItem.dateKey === selectedDateKey
                 const dayNum = dayItem.date.getDate()
-                const hasDot = dayItem.count > 0
+                const hasDot = dayItem.minutes > 0
                 const isToday = dayItem.dateKey === todayIsoKey
 
                 return (
@@ -515,9 +468,9 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
                     type="button"
                     className={`img2-cal-cell ${!dayItem.isCurrentMonth ? 'outside' : ''} ${isSelected ? 'selected' : ''} ${isToday ? 'is-today' : ''}`}
                     onClick={() => handleDayClick(dayItem.dateKey)}
-                    onMouseEnter={e => handleCellHover(e, dayItem.count, dayItem.dateKey)}
+                    onMouseEnter={e => handleCellHover(e, dayItem.minutes, dayItem.dateKey)}
                     onMouseLeave={handleCellLeave}
-                    aria-label={`${dayItem.dateKey}: ${dayItem.count} contributions`}
+                    aria-label={`${dayItem.dateKey}: ${dayItem.minutes} phút học chủ động`}
                   >
                     <span className="img2-cell-num">{dayNum}</span>
                     {hasDot && (
@@ -620,7 +573,11 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
                         <span className="img2-item-bullet"><Clock size={14} /></span>
                         <div className="img2-item-info">
                           <strong>Phiên đếm giờ học: {sess.skill || 'Tự học'}</strong>
-                          <span className="img2-item-sub">{Math.round(sess.minutes)} phút tập trung</span>
+                          <span className="img2-item-sub">
+                            {Math.round(measuredMinutes(sess)) > 0
+                              ? `${Math.round(measuredMinutes(sess))} phút học chủ động`
+                              : 'Chưa có phút học chủ động được đo'}
+                          </span>
                         </div>
                       </div>
                     ))}
@@ -675,9 +632,9 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
                           handleDayClick(cell.dateKey)
                           setViewMode('month')
                         }}
-                        onMouseEnter={e => handleCellHover(e, cell.count, cell.dateKey)}
+                        onMouseEnter={e => handleCellHover(e, cell.minutes, cell.dateKey)}
                         onMouseLeave={handleCellLeave}
-                        aria-label={`${cell.dateKey}: ${cell.count} contributions`}
+                        aria-label={`${cell.dateKey}: ${cell.minutes} phút học chủ động`}
                       />
                     ))}
                   </div>
