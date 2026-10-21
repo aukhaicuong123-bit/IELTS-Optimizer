@@ -238,56 +238,42 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
     setTooltip(prev => ({ ...prev, visible: false }))
   }
 
-  // Full Year Heatmap columns (25 columns across 12 months)
-  // Each column is a REAL Monday-start week so every row genuinely maps to
-  // Mon..Sun and every tile points at a real calendar date. (The previous
-  // version fabricated dates from fixed day-of-month starts 3/16/25 capped at
-  // day 28, so tiles were misaligned with their weekday rows and days 29-31
-  // could never appear.)
+  // Full Year Heatmap columns (every real Monday-start week in the year).
+  // Each row genuinely maps to Mon..Sun and every tile points at a real
+  // calendar date, including the partial weeks at both year boundaries.
   const heatmapColumns = useMemo<HeatmapColumn[]>(() => {
     const cols: HeatmapColumn[] = []
-    const periodsPerMonth = [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2]
-    monthLabels.forEach((mName, mIdx) => {
-      const periods = periodsPerMonth[mIdx]
-      // All Mondays that fall inside this month
-      const mondays: Date[] = []
-      const cursor = new Date(selectedYear, mIdx, 1)
-      while (cursor.getMonth() === mIdx) {
-        if (cursor.getDay() === 1) mondays.push(new Date(cursor))
-        cursor.setDate(cursor.getDate() + 1)
-      }
-      if (mondays.length === 0) return
-      // Spread chosen weeks evenly: first Monday .. last Monday of the month
-      const pickedIndexes =
-        periods >= mondays.length
-          ? mondays.map((_, i) => i)
-          : Array.from({ length: periods }, (_, p) =>
-              Math.round((p * (mondays.length - 1)) / (periods - 1))
-            )
-      pickedIndexes.forEach((mondayIdx, p) => {
-        const monday = mondays[mondayIdx]
-        const days: HeatmapDay[] = dayRowLabels.map((dayName, dayOfWeek) => {
-          const d = new Date(monday)
-          d.setDate(monday.getDate() + dayOfWeek)
-          const dateKey = localDate(d.toISOString())
-          const minutes = getDayMinutes(dateKey)
-          return {
-            dayOfWeek,
-            dayName,
-            dateKey,
-            minutes,
-            level: getLevel(minutes)
-          }
-        })
-        cols.push({
-          id: `${mName}-${p}`,
-          monthName: mName,
-          monthIndex: mIdx,
-          periodIndex: p,
-          days
-        })
+    const firstOfYear = new Date(selectedYear, 0, 1)
+    const mondayOffset = (firstOfYear.getDay() + 6) % 7
+    const firstMonday = new Date(selectedYear, 0, 1 - mondayOffset)
+    const lastOfYear = new Date(selectedYear, 11, 31)
+    const weekCount = Math.round((lastOfYear.getTime() - firstMonday.getTime()) / 86400000 / 7) + 1
+
+    for (let weekIndex = 0; weekIndex < weekCount; weekIndex += 1) {
+      const monday = new Date(firstMonday)
+      monday.setDate(firstMonday.getDate() + weekIndex * 7)
+      const monthIndex = monday < firstOfYear ? 0 : monday > lastOfYear ? 11 : monday.getMonth()
+      const days: HeatmapDay[] = dayRowLabels.map((dayName, dayOfWeek) => {
+        const d = new Date(monday)
+        d.setDate(monday.getDate() + dayOfWeek)
+        const dateKey = localDate(d.toISOString())
+        const minutes = getDayMinutes(dateKey)
+        return {
+          dayOfWeek,
+          dayName,
+          dateKey,
+          minutes,
+          level: getLevel(minutes)
+        }
       })
-    })
+      cols.push({
+        id: `${selectedYear}-week-${weekIndex}`,
+        monthName: monthLabels[monthIndex],
+        monthIndex,
+        periodIndex: weekIndex,
+        days
+      })
+    }
     return cols
   }, [selectedYear, realMinutesMap])
 
@@ -309,7 +295,7 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
   const availableYears = useMemo(() => {
     const years = new Set<number>([currentYear])
     s.sessions.forEach(session => {
-      const year = new Date(session.startedAt).getFullYear()
+      const year = Number(localDate(session.startedAt).slice(0, 4))
       if (Number.isFinite(year)) years.add(year)
     })
     return Array.from(years).sort((a, b) => b - a)
@@ -621,7 +607,10 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
             {/* Month labels along the top */}
             <div className="img2-months-header">
               <div className="img2-day-spacer" />
-              <div className="img2-months-row">
+              <div
+                className="img2-months-row"
+                style={{ gridTemplateColumns: `repeat(${heatmapColumns.length}, minmax(0, 1fr))` }}
+              >
                 {heatmapMonthSpans.map(month => (
                   <span
                     key={month.monthName}
@@ -642,7 +631,10 @@ export function ActivityHeatmapHub({ s }: ActivityHeatmapHubProps) {
                 ))}
               </div>
 
-              <div className="img2-matrix-columns">
+              <div
+                className="img2-matrix-columns"
+                style={{ gridTemplateColumns: `repeat(${heatmapColumns.length}, minmax(0, 1fr))` }}
+              >
                 {heatmapColumns.map((col: HeatmapColumn) => (
                   <div key={col.id} className="img2-matrix-col">
                     {col.days.map((cell: HeatmapDay) => (
