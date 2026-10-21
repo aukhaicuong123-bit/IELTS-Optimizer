@@ -17,14 +17,14 @@ export const academicTest1Reading: FullReadingPaper = {
     {
       passageNumber: 1,
       title: 'Urban Heat Islands',
-      wordCount: 877,
+      wordCount: 1010,
       text: passage1Text,
       questions: passage1Questions
     },
     {
       passageNumber: 2,
       title: 'Rewilding: Restoring Processes Rather Than Targets',
-      wordCount: 907,
+      wordCount: 1004,
       text: passage2Text,
       questions: passage2Questions,
       headingBank: passage2HeadingBank

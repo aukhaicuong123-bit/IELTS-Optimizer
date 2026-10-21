@@ -48,3 +48,30 @@ describe('Academic Test 1 evidence integrity', () => {
     expect(listening.map((q) => q.number)).toEqual(expected)
   })
 })
+
+import { passage1Text } from './academic/passage1.text'
+import { passage2Text } from './academic/passage2.text'
+import { passage3Text } from './academic/passage3.text'
+import { passage2HeadingBank } from './academic/passage2.headings'
+
+const wordCount = (s: string) => s.trim().split(/\s+/).filter((x) => x.length).length
+
+describe('Academic Test 1 structural integrity', () => {
+  it('reading: declared wordCount matches actual passage text length', () => {
+    const passages = [[1, passage1Text], [2, passage2Text], [3, passage3Text]]
+    for (const [number, text] of passages) {
+      const declared = academicTest1Reading.passages.find((p) => p.passageNumber === number)!.wordCount
+      const actual = wordCount(text)
+      expect(declared).toBe(actual)
+    }
+  })
+
+  it('passage-2 matching-headings answers reference heading-bank labels', () => {
+    const labels = new Set(passage2HeadingBank.map((h) => h.label))
+    for (const q of academicTest1Reading.passages[1].questions) {
+      if (q.type === 'matching-headings') {
+        expect(labels.has(q.answerKey)).toBe(true)
+      }
+    }
+  })
+})
