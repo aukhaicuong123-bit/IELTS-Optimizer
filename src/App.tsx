@@ -78,7 +78,6 @@ import type {
 } from './types'
 import { ForumVocabularyHub } from './components/ForumVocabularyHub'
 import { ForumGrammarHub } from './components/ForumGrammarHub'
-import { IELTS_SKILL_CURRICULUM, type IELTSFourSkill } from './skillCurriculum'
 import { SKILL_MODEL_CONTENT } from './skillModelContent'
 
 type NavItem = [Page, string, any]
@@ -690,29 +689,6 @@ function DailyDrillHeader({ title, subtitle }: { title: string; subtitle: string
       </div>
       <span className="badge">{new Date().toLocaleDateString('vi-VN')}</span>
     </div>
-  )
-}
-
-function SkillPageHeader({ skill, title, context }: { skill: IELTSFourSkill; title: string; context: string }) {
-  const meta = IELTS_SKILL_CURRICULUM[skill]
-  return (
-    <section className="panel" style={{ borderColor: '#4e806b' }}>
-      <div className="panel-title">
-        <div>
-          <span className="eyebrow">IELTS ACADEMIC · {skill.toUpperCase()}</span>
-          <h2 style={{ marginBottom: 4 }}>{title}</h2>
-          <p className="muted" style={{ margin: 0 }}>{meta.labelVi} · {context}</p>
-        </div>
-        <div style={{ display: 'grid', gap: 5, textAlign: 'right' }}>
-          <span className="badge">{meta.format}</span>
-          <span className="date-pill">Thời lượng: {meta.duration}</span>
-        </div>
-      </div>
-      <p className="callout" style={{ margin: '14px 0 10px' }}>{meta.qualityNote}</p>
-      <div className="lexicon-chip-cloud" aria-label={`${skill} assessment criteria`}>
-        {meta.scoring.map(criterion => <span key={criterion} className="card-colloc-tag">{criterion}</span>)}
-      </div>
-    </section>
   )
 }
 
@@ -1925,11 +1901,6 @@ function Practice({
 
   return (
     <section className="stack">
-      <SkillPageHeader
-        skill="Reading"
-        title={isRetestMode ? 'Reading Retest · bài tương đương' : (passage?.title || 'Reading · ' + selectedTopic.titleEn)}
-        context={passage?.topicTitle || selectedTopic.titleVi}
-      />
       {!isRetestMode && (
         <>
         <section className="panel">
@@ -2415,11 +2386,6 @@ function SkillPractice({
 
   return (
     <section className="stack">
-      <SkillPageHeader
-        skill={skill}
-        title={`${skill} · ${currentTopic.titleEn}`}
-        context={`Chủ đề: ${currentTopic.titleVi}`}
-      />
       <section className="panel">
         <span className="eyebrow">{skill.toUpperCase()} · THEMATIC STUDY UNITS</span>
         <h2>Chọn chủ đề ôn tập ({skill})</h2>
