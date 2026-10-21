@@ -77,6 +77,8 @@ import type {
 } from './types'
 import { ForumVocabularyHub } from './components/ForumVocabularyHub'
 import { ForumGrammarHub } from './components/ForumGrammarHub'
+import { IELTS_SKILL_CURRICULUM, type IELTSFourSkill } from './skillCurriculum'
+import { SKILL_MODEL_CONTENT } from './skillModelContent'
 
 type NavItem = [Page, string, any]
 
@@ -680,6 +682,29 @@ function DailyDrillHeader({ title, subtitle }: { title: string; subtitle: string
       </div>
       <span className="badge">{new Date().toLocaleDateString('vi-VN')}</span>
     </div>
+  )
+}
+
+function SkillPageHeader({ skill, title, context }: { skill: IELTSFourSkill; title: string; context: string }) {
+  const meta = IELTS_SKILL_CURRICULUM[skill]
+  return (
+    <section className="panel" style={{ borderColor: '#4e806b' }}>
+      <div className="panel-title">
+        <div>
+          <span className="eyebrow">IELTS ACADEMIC · {skill.toUpperCase()}</span>
+          <h2 style={{ marginBottom: 4 }}>{title}</h2>
+          <p className="muted" style={{ margin: 0 }}>{meta.labelVi} · {context}</p>
+        </div>
+        <div style={{ display: 'grid', gap: 5, textAlign: 'right' }}>
+          <span className="badge">{meta.format}</span>
+          <span className="date-pill">Thời lượng: {meta.duration}</span>
+        </div>
+      </div>
+      <p className="callout" style={{ margin: '14px 0 10px' }}>{meta.qualityNote}</p>
+      <div className="lexicon-chip-cloud" aria-label={`${skill} assessment criteria`}>
+        {meta.scoring.map(criterion => <span key={criterion} className="card-colloc-tag">{criterion}</span>)}
+      </div>
+    </section>
   )
 }
 
@@ -1870,6 +1895,11 @@ function Practice({
 
   return (
     <section className="stack">
+      <SkillPageHeader
+        skill="Reading"
+        title={isRetestMode ? 'Reading Retest · bài tương đương' : passage.title}
+        context={passage.topicTitle || 'Bài đọc theo chủ đề'}
+      />
       {!isRetestMode && (
         <section className="panel">
           <div className="panel-title">
@@ -2336,9 +2366,15 @@ function SkillPractice({
   }
 
   const history = (s.submissions || []).filter(item => item.skill === skill && item.activityId.includes(selectedTopicId)).slice().reverse()
+  const modelContent = SKILL_MODEL_CONTENT[currentTopic.id]
 
   return (
     <section className="stack">
+      <SkillPageHeader
+        skill={skill}
+        title={`${skill} · ${currentTopic.titleEn}`}
+        context={`Chủ đề: ${currentTopic.titleVi}`}
+      />
       <section className="panel">
         <span className="eyebrow">{skill.toUpperCase()} · THEMATIC STUDY UNITS</span>
         <h2>Chọn chủ đề ôn tập ({skill})</h2>
@@ -2550,6 +2586,17 @@ function SkillPractice({
             {wordCount}/{writingWordTarget} từ tối thiểu · {paragraphCount} đoạn · {sentenceCount} câu · Tự động lưu nháp
           </p>
 
+          {writingTaskType === 'task2' && modelContent?.writingTask2 && (
+            <details className="callout" style={{ margin: '12px 0' }}>
+              <summary style={{ cursor: 'pointer', fontWeight: 700 }}>Mở đoạn mẫu có chú thích sau khi tự viết</summary>
+              <h4 style={{ marginBottom: 6 }}>{modelContent.writingTask2.title}</h4>
+              <p style={{ lineHeight: 1.75 }}>{modelContent.writingTask2.text}</p>
+              <ul style={{ marginBottom: 0, paddingLeft: 20, lineHeight: 1.7 }}>
+                {modelContent.writingTask2.notes.map(noteText => <li key={noteText}>{noteText}</li>)}
+              </ul>
+            </details>
+          )}
+
           {feedback.length > 0 && (
             <div className="callout" style={{ margin: '12px 0' }}>
               <b>Chỉ dẫn tự rà soát (Revision Cues):</b>
@@ -2688,6 +2735,16 @@ function SkillPractice({
             onChange={event => updateResponse(event.target.value)}
             placeholder={speakingPart === 'part2' ? 'Ghi 4 từ khóa trước khi nói; sau đó dán transcript hoặc ghi chú câu trả lời...' : 'Dán transcript hoặc ghi chú câu trả lời của bạn vào đây...'}
           />
+          {speakingPart === 'part2' && modelContent?.speakingPart2 && (
+            <details className="callout" style={{ margin: '12px 0' }}>
+              <summary style={{ cursor: 'pointer', fontWeight: 700 }}>Mở bản nói mẫu có chú thích sau khi tự ghi âm</summary>
+              <h4 style={{ marginBottom: 6 }}>{modelContent.speakingPart2.title}</h4>
+              <p style={{ lineHeight: 1.75 }}>{modelContent.speakingPart2.text}</p>
+              <ul style={{ marginBottom: 0, paddingLeft: 20, lineHeight: 1.7 }}>
+                {modelContent.speakingPart2.notes.map(noteText => <li key={noteText}>{noteText}</li>)}
+              </ul>
+            </details>
+          )}
           <button className="primary" onClick={submit}>
             Lưu minh chứng luyện nói
           </button>
