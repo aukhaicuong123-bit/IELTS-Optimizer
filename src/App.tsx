@@ -670,46 +670,6 @@ function TopicHeader({ topic, extraBadge }: { topic: TopicDefinition; extraBadge
   )
 }
 
-function ReadingTopicSelector({
-  selected,
-  onSelect,
-  passageCount
-}: {
-  selected: TopicId | 'all'
-  onSelect: (topicId: TopicId | 'all') => void
-  passageCount: (topicId: TopicId | 'all') => number
-}) {
-  return (
-    <div className="forum-topics-grid reading-topic-selector" role="tablist" aria-label="Chủ đề Reading">
-      <button
-        type="button"
-        role="tab"
-        aria-selected={selected === 'all'}
-        className={`forum-topic-chip ${selected === 'all' ? 'active' : ''}`}
-        onClick={() => onSelect('all')}
-      >
-        <span className="chip-indicator" />
-        <span className="chip-title">Tất cả chủ đề</span>
-        <span className="chip-badge">{passageCount('all')} bài</span>
-      </button>
-      {TOPICS.map(topic => (
-        <button
-          key={topic.id}
-          type="button"
-          role="tab"
-          aria-selected={selected === topic.id}
-          className={`forum-topic-chip ${selected === topic.id ? 'active' : ''}`}
-          onClick={() => onSelect(topic.id)}
-        >
-          <span className="chip-indicator" style={{ background: topic.accent }} />
-          <span className="chip-title">{topic.titleEn.split(' & ')[0]}</span>
-          <span className="chip-badge">{passageCount(topic.id)} bài</span>
-        </button>
-      ))}
-    </div>
-  )
-}
-
 /* ============================================================================
  * DAILY DRILL — rotating practice exercises for every skill
  * ========================================================================== */
@@ -1840,8 +1800,10 @@ function Practice({
   note: (message: string) => void
   targets: ReadingOccurrenceTarget[]
 }) {
-  const [topicFilter, setTopicFilter] = useState<TopicId | 'all'>('all')
-  const [selectedPassageId, setSelectedPassageId] = useState<string>(passages[0].id)
+  const [topicFilter, setTopicFilter] = useState<TopicId>('education')
+  const [selectedPassageId, setSelectedPassageId] = useState<string>(
+    passages.find(p => p.topicId === 'education')?.id || passages[0].id
+  )
 
   const practiceCount = s.attempts.filter(attempt => attempt.kind === 'practice').length
   const contexts = targets
@@ -1863,9 +1825,8 @@ function Practice({
     ? passages.find(p => p.id !== retestContext.error.passageId && p.questions.some(q => q.equivalenceKey && q.equivalenceKey === retestContext.sourceQuestion.equivalenceKey))
     : undefined
 
-  const filteredPassages = topicFilter === 'all'
-    ? passages.filter(p => !p.id.includes('-retest'))
-    : passages.filter(p => p.topicId === topicFilter && !p.id.includes('-retest'))
+  const filteredPassages = passages.filter(p => p.topicId === topicFilter && !p.id.includes('-retest'))
+  const selectedTopic = TOPICS.find(topic => topic.id === topicFilter) || TOPICS[0]
 
   const passage = isRetestMode
     ? retestPassage
@@ -1942,21 +1903,29 @@ function Practice({
         context={passage.topicTitle || 'Bài đọc theo chủ đề'}
       />
       {!isRetestMode && (
+        <>
         <section className="panel">
           <div className="panel-title">
             <div>
               <span className="eyebrow">CHỦ ĐỀ ĐỌC HIỂU (READING BY TOPIC)</span>
-              <h2>Chọn bài đọc theo chủ đề</h2>
+              <h2>Chọn chủ đề ôn tập (Reading)</h2>
             </div>
-            <span className="badge">{filteredPassages.length} bài luyện tập</span>
           </div>
-          <ReadingTopicSelector
-            selected={topicFilter}
-            onSelect={setTopicFilter}
-            passageCount={topicId => topicId === 'all'
-              ? passages.filter(item => !item.id.includes('-retest')).length
-              : passages.filter(item => item.topicId === topicId && !item.id.includes('-retest')).length}
+          <TopicBar selected={topicFilter} onSelect={id => id !== 'all' && setTopicFilter(id)} collapsible />
+          <TopicHeader
+            topic={selectedTopic}
+            extraBadge={<span className="badge">{filteredPassages.length} bài luyện tập</span>}
           />
+        </section>
+
+        <section className="panel">
+          <div className="panel-title">
+            <div>
+              <span className="eyebrow">BÀI ĐỌC THEO CHỦ ĐỀ</span>
+              <h2>Chọn bài đọc</h2>
+            </div>
+            <span className="badge">{filteredPassages.length} bài</span>
+          </div>
           <div className="passage-chips">
             {filteredPassages.map(p => (
               <button
@@ -1979,6 +1948,7 @@ function Practice({
             ))}
           </div>
         </section>
+        </>
       )}
 
       {isRetestMode && retestContext && (
