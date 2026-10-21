@@ -77,6 +77,7 @@ import type {
 } from './types'
 import { ForumVocabularyHub } from './components/ForumVocabularyHub'
 import { ForumGrammarHub } from './components/ForumGrammarHub'
+import { SKILL_LEARNING_GUIDES, type FourSkill } from './skillLearningGuides'
 
 type NavItem = [Page, string, any]
 
@@ -680,6 +681,41 @@ function DailyDrillHeader({ title, subtitle }: { title: string; subtitle: string
       </div>
       <span className="badge">{new Date().toLocaleDateString('vi-VN')}</span>
     </div>
+  )
+}
+
+function SkillLearningGuide({ skill }: { skill: FourSkill }) {
+  const guide = SKILL_LEARNING_GUIDES[skill]
+  return (
+    <section className="panel" style={{ borderColor: '#72bda0', background: 'linear-gradient(135deg, rgba(20, 76, 57, 0.18), rgba(15, 31, 25, 0.92))' }}>
+      <div className="panel-title">
+        <div>
+          <span className="eyebrow">HỌC CÓ CHIẾN LƯỢC · {skill.toUpperCase()}</span>
+          <h3>Quy trình luyện {skill} để tạo tiến bộ thật</h3>
+        </div>
+        <span className="badge">Không chỉ làm đề</span>
+      </div>
+      <p style={{ marginTop: 0, color: '#d9eee3', lineHeight: 1.65 }}>{guide.promise}</p>
+      <p className="callout" style={{ margin: '10px 0 16px' }}><b>Thực tế bài thi:</b> {guide.examReality}</p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10 }}>
+        {guide.stages.map(stage => (
+          <article key={stage.title} className="callout" style={{ margin: 0, minHeight: 150 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'baseline' }}>
+              <b>{stage.title}</b><span className="badge">{stage.minutes}</span>
+            </div>
+            <p style={{ margin: '8px 0', lineHeight: 1.55 }}>{stage.action}</p>
+            <small className="muted"><b>Bằng chứng hoàn thành:</b> {stage.evidence}</small>
+          </article>
+        ))}
+      </div>
+      <details style={{ marginTop: 14 }}>
+        <summary style={{ cursor: 'pointer', fontWeight: 700 }}>Checklist tự chấm sau khi luyện</summary>
+        <ul style={{ margin: '10px 0 4px', paddingLeft: 20, lineHeight: 1.8 }}>
+          {guide.selfCheck.map(item => <li key={item}>{item}</li>)}
+        </ul>
+      </details>
+      <p className="muted" style={{ marginBottom: 0 }}><b>Bước tiếp theo:</b> {guide.nextStep}</p>
+    </section>
   )
 }
 
@@ -1857,7 +1893,7 @@ function Practice({
           id: uid('session'),
           startedAt: timestamp,
           endedAt: timestamp,
-          minutes: 0,
+          minutes: passage.minutes,
           activeIntervals: [],
           skill: 'Reading',
           activity: `${isRetestMode ? 'Retest' : 'Reading'} · ${passage.title}`
@@ -1870,6 +1906,7 @@ function Practice({
 
   return (
     <section className="stack">
+      <SkillLearningGuide skill="Reading" />
       {!isRetestMode && (
         <section className="panel">
           <div className="panel-title">
@@ -1972,13 +2009,25 @@ function Practice({
               <p className="muted">Attempt saved to Learning Record and Error Memory.</p>
               <div className="reflection">
                 <label className="field-label">
-                  Strategy Reflection (Optional)
+                  Chiến lược rút ra (nên ghi sau mỗi bài)
                   <textarea
-                    placeholder="Note what strategy worked or what misled you..."
+                    placeholder="Ví dụ: Mình nhầm False/Not Given vì chưa tìm câu bằng chứng; lần sau sẽ scan theo paraphrase..."
                     value={reflection}
                     onChange={e => setReflection(e.target.value)}
                   />
                 </label>
+                <button
+                  className="secondary"
+                  disabled={!reflection.trim()}
+                  onClick={() => {
+                    const lastAttempt = s.attempts[s.attempts.length - 1]
+                    if (!lastAttempt) return
+                    setS({ ...s, attempts: s.attempts.map(attempt => attempt.id === lastAttempt.id ? { ...attempt, reflection: { nextStep: reflection.trim() } } : attempt) })
+                    note('Đã lưu chiến lược rút ra vào Learning Record.')
+                  }}
+                >
+                  Lưu chiến lược
+                </button>
               </div>
             </div>
           )}
@@ -2109,6 +2158,8 @@ function SkillPractice({
   const [speakingPart, setSpeakingPart] = useState<'part1' | 'part2' | 'part3'>('part2')
   const [prepSeconds, setPrepSeconds] = useState(60)
   const [prepActive, setPrepActive] = useState(false)
+  const [speakingSeconds, setSpeakingSeconds] = useState(120)
+  const [speakingActive, setSpeakingActive] = useState(false)
 
   // Common audio / draft states
   const activityId = `${skill.toLowerCase()}-${selectedTopicId}-${skill === 'Writing' ? writingTaskType : skill === 'Speaking' ? speakingPart : 'unit'}`
@@ -2133,6 +2184,8 @@ function SkillPractice({
     setShowQuizResult(false)
     setPrepActive(false)
     setPrepSeconds(60)
+    setSpeakingActive(false)
+    setSpeakingSeconds(120)
   }, [activityId, draft])
 
   useEffect(() => {
@@ -2149,6 +2202,21 @@ function SkillPractice({
     }, 1000)
     return () => clearInterval(timer)
   }, [prepActive])
+
+  useEffect(() => {
+    if (!speakingActive) return
+    const timer = setInterval(() => {
+      setSpeakingSeconds(prev => {
+        if (prev <= 1) {
+          clearInterval(timer)
+          setSpeakingActive(false)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [speakingActive])
 
   useEffect(() => {
     return () => {
@@ -2246,16 +2314,25 @@ function SkillPractice({
   }
 
   const wordCount = response.trim() ? response.trim().split(/\s+/).length : 0
+  const writingWordTarget = writingTaskType === 'task1' ? 150 : 250
+  const paragraphCount = response.split(/\n\s*\n/).filter(Boolean).length
+  const sentenceCount = response.split(/[.!?]+/).filter(sentence => sentence.trim()).length
 
   const feedback =
     skill === 'Writing'
       ? [
-          wordCount >= 140
-            ? 'Task coverage: response length meets standard practice targets.'
-            : 'Task coverage: expand the response toward the 150-word (Task 1) or 250-word (Task 2) target.',
+          wordCount >= writingWordTarget
+            ? `Task coverage: ${wordCount}/${writingWordTarget} từ — đạt mốc luyện tập tối thiểu.`
+            : `Task coverage: ${wordCount}/${writingWordTarget} từ — tiếp tục phát triển ý, chưa chỉ kéo dài câu.`,
           /however|therefore|consequently|furthermore|in contrast|nevertheless/i.test(response)
             ? 'Coherence: linking transitions identified.'
             : 'Coherence: incorporate clear transitions between argumentative points.',
+          paragraphCount >= (writingTaskType === 'task1' ? 3 : 4)
+            ? `Coherence: ${paragraphCount} đoạn có thể rà soát theo chức năng.`
+            : `Coherence: hiện có ${paragraphCount} đoạn; hãy tách bài thành ${writingTaskType === 'task1' ? '3' : '4'} phần rõ ràng.`,
+          sentenceCount >= 5
+            ? `Grammar range: ${sentenceCount} câu — kiểm tra xen kẽ câu đơn, câu ghép và câu phức.`
+            : 'Grammar range: hãy viết đủ câu để có thể kiểm tra sự đa dạng cấu trúc.',
           /\b(the|a|an)\b/i.test(response)
             ? 'Grammar: articles present; verify accuracy in complex noun phrases.'
             : 'Grammar: check article usage.',
@@ -2305,6 +2382,8 @@ function SkillPractice({
         <TopicBar selected={selectedTopicId} onSelect={id => id !== 'all' && setSelectedTopicId(id)} collapsible />
         <TopicHeader topic={currentTopic} />
       </section>
+
+      <SkillLearningGuide skill={skill} />
 
       {/* LISTENING SPECIFIC VIEW */}
       {skill === 'Listening' && (
@@ -2507,7 +2586,7 @@ function SkillPractice({
             placeholder="Viết bài luận của bạn tại đây..."
           />
           <p className="muted">
-            {wordCount} từ · {response.split('\n\n').filter(Boolean).length} đoạn văn · Tự động lưu nháp
+            {wordCount}/{writingWordTarget} từ tối thiểu · {paragraphCount} đoạn · {sentenceCount} câu · Tự động lưu nháp
           </p>
 
           {feedback.length > 0 && (
@@ -2589,6 +2668,19 @@ function SkillPractice({
                   {prepActive ? 'Tạm dừng chuẩn bị' : prepSeconds === 60 ? 'Bắt đầu 1 phút chuẩn bị' : 'Tiếp tục'}
                 </button>
               </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '10px 0 16px' }}>
+                <span className="badge">Speaking timer: {Math.floor(speakingSeconds / 60)}:{String(speakingSeconds % 60).padStart(2, '0')}</span>
+                <button
+                  className={speakingActive ? 'danger' : 'secondary'}
+                  onClick={() => {
+                    if (speakingSeconds === 0) setSpeakingSeconds(120)
+                    setSpeakingActive(active => !active)
+                  }}
+                >
+                  {speakingActive ? 'Dừng đồng hồ nói' : speakingSeconds === 120 ? 'Bắt đầu nói 2 phút' : speakingSeconds === 0 ? 'Làm lại 2 phút' : 'Tiếp tục nói'}
+                </button>
+                <small className="muted">Nói liên tục, không đọc bài viết hoàn chỉnh.</small>
+              </div>
             </div>
           )}
 
@@ -2633,7 +2725,7 @@ function SkillPractice({
             aria-label="Speaking transcript or notes"
             value={response}
             onChange={event => updateResponse(event.target.value)}
-            placeholder="Dán bản gõ lời nói (transcript) hoặc dàn ý trả lời của bạn vào đây..."
+            placeholder={speakingPart === 'part2' ? 'Ghi 4 từ khóa trước khi nói; sau đó dán transcript hoặc ghi chú câu trả lời...' : 'Dán transcript hoặc ghi chú câu trả lời của bạn vào đây...'}
           />
           <button className="primary" onClick={submit}>
             Lưu minh chứng luyện nói
