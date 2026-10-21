@@ -355,7 +355,10 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 .workspace-theme .stat-pill b,.workspace-theme .lexicon-chip b,.workspace-theme .card-colloc-tag b{color:#075d52!important;font-weight:800!important}
 .workspace-theme .flashcard-box{background:#fffefa!important;border-color:#e5e3da!important;color:#172236;box-shadow:0 12px 30px rgba(30,45,45,.08)}
 .workspace-theme .flashcard-box h3,.workspace-theme .card-term,.workspace-theme .card-meaning{color:#172236}
-.workspace-theme .card-ipa,.workspace-theme .card-example,.workspace-theme .card-hint{color:#65748a}
+.workspace-theme .card-ipa,.workspace-theme .card-hint{color:#65748a}
+.workspace-theme .card-example{background:#eff8e9!important;border:1px solid #c6dfbd!important;border-left:4px solid #16835f!important;color:#214d40!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
+.workspace-theme .card-example-label{color:#075d52!important}
+.workspace-theme .card-example-text{color:#214d40!important;font-weight:600}
 .workspace-theme .card-tag,.workspace-theme .topic-kicker-row .eyebrow{background:#edf5e5;color:#39705e}
 .workspace-theme .flip-btn,.workspace-theme .nav-arrow,.workspace-theme .again-button,.workspace-theme .know-button{background:#fffefa;border-color:#d9dfd8;color:#245548}
 .workspace-theme .grammar-formula,.workspace-theme .grammar-drill{background:#f1f7e8!important;border-color:#d7e7c8!important;color:#45665c}

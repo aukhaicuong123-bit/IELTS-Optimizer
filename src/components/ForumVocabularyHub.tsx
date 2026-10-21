@@ -382,7 +382,10 @@ export const ForumVocabularyHub: React.FC<ForumVocabularyHubProps> = ({
               ) : (
                 <>
                   <div className="card-meaning">{currentWord.meaningVi}</div>
-                  <div className="card-example">“{currentWord.example}”</div>
+                  <div className="card-example">
+                    <span className="card-example-label">Ví dụ trong ngữ cảnh</span>
+                    <span className="card-example-text">“{currentWord.example}”</span>
+                  </div>
                   {currentWord.collocations.length > 0 && (
                     <div className="card-collocs">
                       {currentWord.collocations.map((colloc, i) => (
