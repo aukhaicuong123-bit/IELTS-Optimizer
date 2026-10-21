@@ -777,16 +777,16 @@ function DailyWritingDrill() {
     <section className="panel" style={{ marginTop: 20 }}>
       <DailyDrillHeader title={drill.title} subtitle={`Writing ${drill.task} · ${drill.minutes} phút`} />
       <div className="callout" style={{ marginBottom: 14 }}>{drill.prompt}</div>
-      <h4 style={{ margin: '10px 0 6px', color: 'var(--mint)' }}>Cấu trúc đề xuất</h4>
-      <ul style={{ color: '#c5d3ca', fontSize: 13, lineHeight: 1.8, paddingLeft: 18 }}>
+      <h4 style={{ margin: '10px 0 6px', color: '#075d52', fontWeight: 700 }}>Cấu trúc đề xuất</h4>
+      <ul style={{ color: '#264253', fontSize: 13, lineHeight: 1.8, paddingLeft: 18 }}>
         {drill.structure.map((s, i) => <li key={i}>{s}</li>)}
       </ul>
-      <h4 style={{ margin: '10px 0 6px', color: 'var(--mint)' }}>Cụm từ hay dùng</h4>
+      <h4 style={{ margin: '10px 0 6px', color: '#075d52', fontWeight: 700 }}>Cụm từ hay dùng</h4>
       <div className="lexicon-chip-cloud">
         {drill.keyPhrases.map((p, i) => <span key={i} className="card-colloc-tag">+ {p}</span>)}
       </div>
-      <h4 style={{ margin: '10px 0 6px', color: 'var(--accent)' }}>Lỗi thường gặp</h4>
-      <ul style={{ color: '#ffb2a6', fontSize: 13, lineHeight: 1.8, paddingLeft: 18 }}>
+      <h4 style={{ margin: '10px 0 6px', color: '#b91c1c', fontWeight: 700 }}>Lỗi thường gặp</h4>
+      <ul style={{ color: '#7f1d1d', fontSize: 13, lineHeight: 1.8, paddingLeft: 18 }}>
         {drill.commonMistakes.map((m, i) => <li key={i}>{m}</li>)}
       </ul>
     </section>
@@ -805,8 +805,8 @@ function DailySpeakingDrill() {
           <div key={i} className="callout" style={{ margin: 0 }}>{q}</div>
         ))}
       </div>
-      <h4 style={{ margin: '10px 0 6px', color: 'var(--mint)' }}>💡 Mẹo luyện tập</h4>
-      <ul style={{ color: '#c5d3ca', fontSize: 13, lineHeight: 1.8, paddingLeft: 18 }}>
+      <h4 style={{ margin: '10px 0 6px', color: '#075d52', fontWeight: 700 }}>💡 Mẹo luyện tập</h4>
+      <ul style={{ color: '#264253', fontSize: 13, lineHeight: 1.8, paddingLeft: 18 }}>
         {drill.tips.map((t, i) => <li key={i}>{t}</li>)}
       </ul>
     </section>
@@ -828,7 +828,7 @@ function DailyGrammarDrill() {
           <div key={drill.id} style={{ margin: '16px 0' }}>
             <p style={{ fontWeight: 600, marginBottom: 6 }}>
               {di + 1}. {parts[0]}
-              <span style={{ color: 'var(--accent)', borderBottom: '2px solid var(--accent)', padding: '0 16px' }}>{answers[drill.id] || '____'}</span>
+              <span style={{ color: '#075d52', borderBottom: '2px solid #075d52', padding: '0 16px', fontWeight: 700 }}>{answers[drill.id] || '____'}</span>
               {parts[1] || ''}
             </p>
             <span className="badge">{drill.category} · {drill.level}</span>
@@ -2528,7 +2528,7 @@ function SkillPractice({
             <div>
               <h3>Part 2 Cue Card — {currentTopic.titleEn}</h3>
               <div className="panel" style={{ background: '#121e18', border: '1px solid #365342' }}>
-                <p style={{ fontStyle: 'italic', color: 'var(--mint)', fontWeight: 600 }}>
+                <p style={{ fontStyle: 'italic', color: '#075d52', fontWeight: 600 }}>
                   {currentTopic.speaking.part2.cueCard}
                 </p>
                 <p style={{ margin: '8px 0 4px', fontWeight: 600 }}>You should say:</p>
@@ -2849,7 +2849,7 @@ function VocabularyHub({
 
             <div className="card-top card-bottom-info">
               <small className="muted">Thẻ {cardIndex + 1} / {vocabList.length}</small>
-              <small style={{ color: 'var(--mint)' }}>{flipped ? 'Mặt sau (Nghĩa)' : 'Mặt trước (Từ)'}</small>
+              <small style={{ color: '#075d52', fontWeight: 600 }}>{flipped ? 'Mặt sau (Nghĩa)' : 'Mặt trước (Từ)'}</small>
             </div>
           </div>
 
