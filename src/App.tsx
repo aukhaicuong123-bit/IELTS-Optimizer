@@ -1002,8 +1002,8 @@ function Dashboard({
 }
 
 function LearnerProfileCard({ s, go }: { s: Store; go: (page: Page) => void }) {
-  const targetBand = s.profile.targetBand || 7.0
-  const currentLevel = s.profile.currentLevel || 'B2 (Intermediate)'
+  const targetBand = s.profile.targetBand
+  const currentLevel = s.profile.currentLevel || 'Chưa cập nhật'
   const examDate = s.profile.examDate
   const daysLeft = examDate
     ? Math.max(0, Math.ceil((new Date(examDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
@@ -1016,11 +1016,11 @@ function LearnerProfileCard({ s, go }: { s: Store; go: (page: Page) => void }) {
   const todayMinutes = Math.round(minutesByDate(s.sessions)[localDate(new Date().toISOString())] || 0)
   const progressPercent = Math.min(100, Math.round((todayMinutes / dailyGoal) * 100))
 
-  const skillTargets: { skill: Skill; label: string; icon: string; band: number }[] = [
+  const skillTargets: { skill: Skill; label: string; icon: string; band?: number }[] = [
     { skill: 'Listening', label: 'Nghe', icon: '🎧', band: targetBand },
-    { skill: 'Reading', label: 'Đọc', icon: '📖', band: s.profile.priority === 'Reading' ? Math.min(9, targetBand + 0.5) : targetBand },
-    { skill: 'Writing', label: 'Viết', icon: '✍️', band: Math.max(6.0, targetBand - 0.5) },
-    { skill: 'Speaking', label: 'Nói', icon: '🗣️', band: Math.max(6.0, targetBand - 0.5) }
+    { skill: 'Reading', label: 'Đọc', icon: '📖', band: targetBand },
+    { skill: 'Writing', label: 'Viết', icon: '✍️', band: targetBand },
+    { skill: 'Speaking', label: 'Nói', icon: '🗣️', band: targetBand }
   ]
 
   return (
@@ -1050,12 +1050,12 @@ function LearnerProfileCard({ s, go }: { s: Store; go: (page: Page) => void }) {
         <div className="band-spotlight-top">
           <div className="band-spotlight-badge">
             <span className="band-badge-label">MỤC TIÊU TỔNG QUAN</span>
-            <strong className="band-badge-value">Band {targetBand.toFixed(1)}</strong>
+            <strong className="band-badge-value">{targetBand !== undefined ? `Band ${targetBand.toFixed(1)}` : 'Chưa đặt mục tiêu'}</strong>
           </div>
           <div className="band-spotlight-meta">
             <span className="band-level-tag">{currentLevel}</span>
             <span className="band-gap-text">
-              Khoảng cách: <b>+{targetBand - 6.0 > 0 ? (targetBand - 6.0).toFixed(1) : '0.5'} Band</b>
+              {targetBand !== undefined ? 'Band hiện tại chưa được đo' : 'Hãy đặt mục tiêu để cá nhân hóa lộ trình'}
             </span>
           </div>
         </div>
@@ -1065,11 +1065,11 @@ function LearnerProfileCard({ s, go }: { s: Store; go: (page: Page) => void }) {
             <div
               key={item.skill}
               className={`profile-skill-chip ${s.profile.priority === item.skill ? 'priority' : ''}`}
-              title={`Kỹ năng ${item.label} - Mục tiêu Band ${item.band.toFixed(1)}`}
+              title={`Kỹ năng ${item.label}${item.band !== undefined ? ` - Mục tiêu Band ${item.band.toFixed(1)}` : ''}`}
             >
               <span className="skill-chip-icon">{item.icon}</span>
               <span className="skill-chip-name">{item.label}</span>
-              <b className="skill-chip-band">{item.band.toFixed(1)}</b>
+              <b className="skill-chip-band">{item.band !== undefined ? item.band.toFixed(1) : '—'}</b>
             </div>
           ))}
         </div>
@@ -1160,6 +1160,22 @@ function RecentEvidence({ s, go }: { s: Store; go: (page: Page) => void }) {
   const label = showAttempt ? 'Reading' : latestSubmission ? latestSubmission.skill : 'Chưa có dữ liệu'
   const date = latestEvidence?.createdAt
   const attemptNeedsReview = Boolean(latestAttempt && latestAttempt.total > 0 && latestAttempt.score < latestAttempt.total)
+  const attemptPassage = latestAttempt ? passages.find(passage => passage.id === latestAttempt.passageId) : undefined
+  const evidenceDetail = showAttempt
+    ? (attemptPassage?.title || 'Reading practice')
+    : latestSubmission
+      ? `${latestSubmission.skill} · ${latestSubmission.feedbackMode === 'self-review' ? 'Tự đánh giá' : 'Đã nghe lại transcript'}`
+      : 'Chưa có hoạt động'
+  const evidenceQuestions = showAttempt && latestAttempt
+    ? `${latestAttempt.score}/${latestAttempt.total} câu đúng`
+    : latestSubmission
+      ? 'Bằng chứng đã lưu'
+      : 'Chưa có dữ liệu'
+  const nextAction = showAttempt
+    ? (attemptNeedsReview ? 'Xem lại lỗi và làm Retest' : 'Tiếp tục với một bài mới')
+    : latestSubmission
+      ? 'Tiếp tục luyện theo chủ đề'
+      : 'Hoàn thành hoạt động đầu tiên'
   return (
     <section className="dashboard-card evidence-card">
       <div className="card-heading">
@@ -1180,15 +1196,15 @@ function RecentEvidence({ s, go }: { s: Store; go: (page: Page) => void }) {
       <div className="evidence-detail">
         <div className="evidence-detail-col">
           <span>▤ Trạng thái</span>
-          <b>Paraphrase recognition</b>
+          <b>{evidenceDetail}</b>
         </div>
         <div className="evidence-detail-col">
           <span>▤ Câu hỏi liên quan</span>
-          <b>IELTS Academic Test 1</b>
+          <b>{evidenceQuestions}</b>
         </div>
         <div className="evidence-detail-col">
           <span>◷ Hành động tiếp theo</span>
-          <b>Làm lại câu hỏi tương tự</b>
+          <b>{nextAction}</b>
         </div>
       </div>
     </section>
