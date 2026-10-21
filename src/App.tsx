@@ -239,7 +239,14 @@ export default function App() {
 
   return (
     <div className={`app workspace-theme ${page === 'dashboard' ? 'app-dashboard' : ''}`}>
-      <aside className="app-sidebar">
+      <button
+        className="mobile-menu-toggle mobile-menu-launcher"
+        onClick={() => setMobileMenuOpen(true)}
+        aria-label="Mở menu"
+      >
+        <Menu size={20} />
+      </button>
+      <aside className={`app-sidebar ${mobileMenuOpen ? 'nav-mobile-open' : ''}`}>
         <div className="brand">
           <span className="brand-mark" aria-hidden="true"><i /><i /><i /></span>
           <div>
@@ -247,9 +254,6 @@ export default function App() {
             <small>PERSONALIZED LEARNING</small>
           </div>
         </div>
-        <button className="mobile-menu-toggle" onClick={() => setMobileMenuOpen(true)} aria-label="Mở menu">
-          <Menu size={20} />
-        </button>
         <nav aria-label="Main navigation" className={mobileMenuOpen ? 'nav-mobile-open' : 'nav-mobile-closed'}>
           {navGroups.map(group => (
             <div className="nav-group" key={group.label}>

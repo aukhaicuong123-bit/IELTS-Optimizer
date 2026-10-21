@@ -589,6 +589,65 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 .img2-tooltip{position:absolute;transform:translate(-50%,-100%);background:#24292f;color:#f0f6fc;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;white-space:nowrap;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.6);border:1px solid #30363d;z-index:99}
 .img2-tooltip:after{content:'';position:absolute;bottom:-4px;left:50%;transform:translateX(-50%) rotate(45deg);width:8px;height:8px;background:#24292f;border-right:1px solid #30363d;border-bottom:1px solid #30363d}
 
+/* ===== MOBILE INTERACTION ===== */
+.mobile-menu-launcher{display:none}
+@media(max-width:900px){
+  .workspace-theme main{padding:64px 12px 36px}
+  .workspace-theme main>header{gap:12px;margin-bottom:16px}
+  .workspace-theme main>header h1{font-size:30px;line-height:1.12}
+  .workspace-theme .header-right-tools{width:100%;justify-content:flex-end;gap:8px}
+  .workspace-theme .mobile-menu-launcher{display:grid;position:fixed;top:12px;left:12px;z-index:80;width:42px;height:42px;margin:0;padding:0;place-items:center;background:#075d52;color:#fff;border:1px solid #0b7568;border-radius:11px;box-shadow:0 4px 14px rgba(7,93,82,.22)}
+  .workspace-theme .panel{padding:18px}
+  .workspace-theme .panel-title{align-items:flex-start}
+  .workspace-theme .filters,.workspace-theme .audio-controls,.workspace-theme .error-actions{gap:8px}
+  .workspace-theme button,.workspace-theme select,.workspace-theme input{min-height:42px}
+  .workspace-theme .img2-hub-header{align-items:stretch;gap:12px}
+  .workspace-theme .img2-title-cluster{align-items:flex-start;gap:10px}
+  .workspace-theme .img2-main-title{font-size:18px}
+  .workspace-theme .img2-subtitle{font-size:11px;line-height:1.45}
+  .workspace-theme .img2-header-actions{width:100%;gap:7px}
+  .workspace-theme .img2-view-switcher{flex:1;min-width:0}
+  .workspace-theme .img2-view-tab{flex:1;justify-content:center;padding:8px 7px;min-width:0}
+  .workspace-theme .img2-view-tab span{overflow:hidden;text-overflow:ellipsis}
+  .workspace-theme .img2-today-btn,.workspace-theme .img2-year-btn{padding:8px 10px;white-space:nowrap}
+  .workspace-theme .img2-cal-header-bar{align-items:flex-start;gap:10px;flex-wrap:wrap}
+  .workspace-theme .img2-cal-header-date{font-size:16px}
+  .workspace-theme .img2-cal-month-nav{margin-left:auto}
+  .workspace-theme .img2-cal-card{padding:16px 12px;gap:12px}
+  .workspace-theme .img2-cal-weekdays{font-size:11px}
+  .workspace-theme .img2-cal-grid{gap:3px}
+  .workspace-theme .img2-cal-cell{width:36px;height:36px}
+  .workspace-theme .img2-overview-card,.workspace-theme .img2-day-detail-card{padding:16px}
+  .workspace-theme .img2-overview-item{gap:8px;align-items:flex-start}
+  .workspace-theme .img2-stat-label{font-size:12px}
+  .workspace-theme .img2-stat-value{white-space:nowrap}
+  .workspace-theme .img2-heatmap-card{overflow-x:auto;padding:16px}
+  .workspace-theme .img2-months-header,.workspace-theme .img2-matrix-grid-wrap,.workspace-theme .img2-legend-row{min-width:620px}
+}
+@media(max-width:520px){
+  .workspace-theme main>header h1{font-size:26px}
+  .workspace-theme .section-kicker{font-size:10px}
+  .workspace-theme .header-right-tools{justify-content:flex-start}
+  .workspace-theme .header-right-tools .icon-button{margin-left:auto}
+  .workspace-theme .skill-quick-bar{margin-left:-2px;margin-right:-2px;padding:6px;overflow-x:auto}
+  .workspace-theme .skill-quick-btn{min-height:42px;padding:9px 12px}
+  .workspace-theme .topic-bar{overflow-x:auto;flex-wrap:nowrap}
+  .workspace-theme .topic-bar>*{flex:0 0 auto}
+  .workspace-theme .metrics{grid-template-columns:1fr 1fr}
+  .workspace-theme .img2-header-actions{display:grid;grid-template-columns:1fr auto auto}
+  .workspace-theme .img2-view-switcher{grid-column:1 / -1;width:100%}
+  .workspace-theme .img2-today-btn,.workspace-theme .img2-year-btn{width:100%;justify-content:center}
+  .workspace-theme .img2-cal-header-date{max-width:100%;font-size:15px}
+  .workspace-theme .img2-cal-month-nav{width:100%;justify-content:space-between;margin-left:0}
+  .workspace-theme .img2-cal-cell{width:34px;height:34px;font-size:12px}
+  .workspace-theme .img2-cal-legend{gap:10px;flex-wrap:wrap;font-size:11px}
+  .workspace-theme .img2-detail-header{align-items:flex-start;gap:8px}
+  .workspace-theme .img2-detail-date{font-size:13px}
+  .workspace-theme .img2-detail-mins-pill{white-space:nowrap}
+  .workspace-theme .img2-overview-item{align-items:center}
+  .workspace-theme .img2-stat-label{max-width:150px}
+}
+
 
 
 /* ==========================================================================
