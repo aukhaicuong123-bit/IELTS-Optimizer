@@ -188,6 +188,7 @@ export const ForumGrammarHub: React.FC<ForumGrammarHubProps> = ({
             <button
               type="button"
               className={`cefr-chip ${selectedCefr === 'all' ? 'active' : ''}`}
+              aria-pressed={selectedCefr === 'all'}
               onClick={() => setSelectedCefr('all')}
             >
               Tất cả (A1 → C2)
@@ -197,6 +198,7 @@ export const ForumGrammarHub: React.FC<ForumGrammarHubProps> = ({
                 key={lvl}
                 type="button"
                 className={`cefr-chip ${selectedCefr === lvl ? 'active' : ''}`}
+                aria-pressed={selectedCefr === lvl}
                 onClick={() => setSelectedCefr(lvl)}
               >
                 <b className="cefr-tag-text">{lvl}</b>

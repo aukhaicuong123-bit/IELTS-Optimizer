@@ -711,6 +711,9 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 .cefr-chip:hover{background:#f1f7ed;border-color:#9dc792}
 .cefr-chip.active{background:#075d52;border-color:#075d52;color:#fff}
 .cefr-chip.active .cefr-tag-text,.cefr-chip.active .cefr-sublabel{color:#fff!important}
+.workspace-theme main .panel .cefr-chip.active{background:#075d52!important;border-color:#075d52!important;color:#fff!important;box-shadow:0 3px 10px rgba(7,93,82,.22)}
+.workspace-theme main .panel .cefr-chip.active:hover,.workspace-theme main .panel .cefr-chip.active:focus-visible{background:#064e46!important;border-color:#064e46!important;color:#fff!important}
+.cefr-chip:focus-visible{outline:3px solid #d7a843;outline-offset:2px}
 .cefr-tag-text{font:700 14px 'Space Grotesk',sans-serif;color:#172236}
 .cefr-sublabel{font-size:10px;color:#64748b;font-weight:600}
 
