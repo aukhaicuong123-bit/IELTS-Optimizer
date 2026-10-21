@@ -1656,7 +1656,7 @@ I remember this trip vividly because it was the first time I had travelled witho
 }
 
 export const IELTS_EXAM_COLLECTIONS: FullIELTSExam[] = [
-  freshExam3,
+  academicTest1Exam,
   freshExam2,
-  academicTest1Exam
+  freshExam3
 ]
