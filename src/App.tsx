@@ -77,7 +77,6 @@ import type {
 } from './types'
 import { ForumVocabularyHub } from './components/ForumVocabularyHub'
 import { ForumGrammarHub } from './components/ForumGrammarHub'
-import { SKILL_LEARNING_GUIDES, type FourSkill } from './skillLearningGuides'
 
 type NavItem = [Page, string, any]
 
@@ -681,41 +680,6 @@ function DailyDrillHeader({ title, subtitle }: { title: string; subtitle: string
       </div>
       <span className="badge">{new Date().toLocaleDateString('vi-VN')}</span>
     </div>
-  )
-}
-
-function SkillLearningGuide({ skill }: { skill: FourSkill }) {
-  const guide = SKILL_LEARNING_GUIDES[skill]
-  return (
-    <section className="panel" style={{ borderColor: '#72bda0', background: 'linear-gradient(135deg, rgba(20, 76, 57, 0.18), rgba(15, 31, 25, 0.92))' }}>
-      <div className="panel-title">
-        <div>
-          <span className="eyebrow">HỌC CÓ CHIẾN LƯỢC · {skill.toUpperCase()}</span>
-          <h3>Quy trình luyện {skill} để tạo tiến bộ thật</h3>
-        </div>
-        <span className="badge">Không chỉ làm đề</span>
-      </div>
-      <p style={{ marginTop: 0, color: '#d9eee3', lineHeight: 1.65 }}>{guide.promise}</p>
-      <p className="callout" style={{ margin: '10px 0 16px' }}><b>Thực tế bài thi:</b> {guide.examReality}</p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10 }}>
-        {guide.stages.map(stage => (
-          <article key={stage.title} className="callout" style={{ margin: 0, minHeight: 150 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'baseline' }}>
-              <b>{stage.title}</b><span className="badge">{stage.minutes}</span>
-            </div>
-            <p style={{ margin: '8px 0', lineHeight: 1.55 }}>{stage.action}</p>
-            <small className="muted"><b>Bằng chứng hoàn thành:</b> {stage.evidence}</small>
-          </article>
-        ))}
-      </div>
-      <details style={{ marginTop: 14 }}>
-        <summary style={{ cursor: 'pointer', fontWeight: 700 }}>Checklist tự chấm sau khi luyện</summary>
-        <ul style={{ margin: '10px 0 4px', paddingLeft: 20, lineHeight: 1.8 }}>
-          {guide.selfCheck.map(item => <li key={item}>{item}</li>)}
-        </ul>
-      </details>
-      <p className="muted" style={{ marginBottom: 0 }}><b>Bước tiếp theo:</b> {guide.nextStep}</p>
-    </section>
   )
 }
 
@@ -1906,7 +1870,6 @@ function Practice({
 
   return (
     <section className="stack">
-      <SkillLearningGuide skill="Reading" />
       {!isRetestMode && (
         <section className="panel">
           <div className="panel-title">
@@ -2382,8 +2345,6 @@ function SkillPractice({
         <TopicBar selected={selectedTopicId} onSelect={id => id !== 'all' && setSelectedTopicId(id)} collapsible />
         <TopicHeader topic={currentTopic} />
       </section>
-
-      <SkillLearningGuide skill={skill} />
 
       {/* LISTENING SPECIFIC VIEW */}
       {skill === 'Listening' && (
