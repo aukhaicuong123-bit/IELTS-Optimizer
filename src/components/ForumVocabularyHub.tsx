@@ -11,7 +11,8 @@ import {
   Search,
   CheckCircle,
   HelpCircle,
-  Sparkles
+  Sparkles,
+  Layers
 } from 'lucide-react'
 import { FORUM_25_TOPICS, TOTAL_FORUM_VOCAB_COUNT, type ForumTopic } from '../data/forumVocab25Topics'
 import { CEFR_GRAMMAR_RULES } from '../data/cefrGrammarData'
@@ -37,6 +38,7 @@ export const ForumVocabularyHub: React.FC<ForumVocabularyHubProps> = ({
   const [selectedTopicId, setSelectedTopicId] = useState<string>(FORUM_25_TOPICS[0].id)
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('All')
   const [searchQuery, setSearchQuery] = useState('')
+  const [topicsExpanded, setTopicsExpanded] = useState(false)
   const [mode, setMode] = useState<'flip' | 'quiz'>('flip')
   const [cardIndex, setCardIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
@@ -73,6 +75,15 @@ export const ForumVocabularyHub: React.FC<ForumVocabularyHubProps> = ({
   // Current topic and vocab
   const currentTopic = useMemo(() => {
     return FORUM_25_TOPICS.find(t => t.id === selectedTopicId) || FORUM_25_TOPICS[0]
+  }, [selectedTopicId])
+
+  useEffect(() => {
+    setCardIndex(0)
+    setFlipped(false)
+    setQuizIndex(0)
+    setQuizScore(0)
+    setSelectedOption(null)
+    setQuizFinished(false)
   }, [selectedTopicId])
 
   const vocabList: VocabItem[] = currentTopic.vocab
@@ -231,72 +242,103 @@ export const ForumVocabularyHub: React.FC<ForumVocabularyHubProps> = ({
           </div>
         </div>
 
-        {/* Category Filters Bar */}
-        <div className="forum-cat-filter-row" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '14px' }}>
-          {(['All', 'Xã hội & Đời sống', 'Khoa học & Tự nhiên', 'Kinh tế & Phát triển', 'Tư duy & Văn hóa'] as CategoryFilter[]).map(cat => (
-            <button
-              key={cat}
-              type="button"
-              className={`forum-cat-btn ${categoryFilter === cat ? 'active' : ''}`}
-              style={{
-                padding: '6px 14px',
-                borderRadius: '999px',
-                fontSize: '12px',
-                fontWeight: 600,
-                border: '1px solid',
-                borderColor: categoryFilter === cat ? '#075d52' : '#dce5d6',
-                background: categoryFilter === cat ? '#075d52' : '#fffefa',
-                color: categoryFilter === cat ? '#fff' : '#2c3e50',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease'
-              }}
-              onClick={() => setCategoryFilter(cat)}
-            >
-              {cat === 'All' ? `Tất cả (25 chủ đề)` : cat}
-            </button>
-          ))}
-        </div>
+        <button
+          type="button"
+          className="topic-toggle-btn vocab-topic-toggle"
+          onClick={() => setTopicsExpanded(prev => !prev)}
+          aria-expanded={topicsExpanded}
+        >
+          {topicsExpanded ? '🙈 Ẩn chủ đề' : '🔍 Chọn chủ đề'}
+        </button>
 
-        {/* Search bar for 25 topics */}
-        <div style={{ position: 'relative', marginBottom: '14px', maxWidth: '380px' }}>
-          <Search size={14} style={{ position: 'absolute', left: 12, top: 11, color: '#64748b' }} />
-          <input
-            type="text"
-            placeholder="Tìm kiếm chủ đề từ vựng..."
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '8px 12px 8px 34px',
-              borderRadius: '8px',
-              border: '1px solid #d9dfd8',
-              fontSize: '12px',
-              background: '#fffefa',
-              color: '#172236'
-            }}
-          />
-        </div>
+        {topicsExpanded && (
+          <div className="vocab-topic-picker">
+            <div className="forum-cat-filter-row" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '14px' }}>
+              {(['All', 'Xã hội & Đời sống', 'Khoa học & Tự nhiên', 'Kinh tế & Phát triển', 'Tư duy & Văn hóa'] as CategoryFilter[]).map(cat => (
+                <button
+                  key={cat}
+                  type="button"
+                  className={`forum-cat-btn ${categoryFilter === cat ? 'active' : ''}`}
+                  style={{
+                    padding: '6px 14px',
+                    borderRadius: '999px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    border: '1px solid',
+                    borderColor: categoryFilter === cat ? '#075d52' : '#dce5d6',
+                    background: categoryFilter === cat ? '#075d52' : '#fffefa',
+                    color: categoryFilter === cat ? '#fff' : '#2c3e50',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                  onClick={() => setCategoryFilter(cat)}
+                >
+                  {cat === 'All' ? `Tất cả (25 chủ đề)` : cat}
+                </button>
+              ))}
+            </div>
 
-        {/* 25 Thematic Topic Buttons */}
-        <div className="forum-topics-grid" style={{ maxHeight: '220px', overflowY: 'auto', paddingRight: '4px' }}>
-          {filteredTopics.map((t, idx) => {
-            const isSel = t.id === selectedTopicId
-            const knownInT = t.vocab.filter(w => knownWords[w.id]).length
-            return (
-              <button
-                key={t.id}
-                type="button"
-                className={`forum-topic-chip ${isSel ? 'active' : ''}`}
-                onClick={() => setSelectedTopicId(t.id)}
-              >
-                <span className="chip-indicator" />
-                <span className="chip-title">
-                  {idx + 1}. {t.titleEn}
-                </span>
-                <span className="chip-badge">{knownInT}/{t.vocab.length}</span>
-              </button>
-            )
-          })}
+            <div style={{ position: 'relative', marginBottom: '14px', maxWidth: '380px' }}>
+              <Search size={14} style={{ position: 'absolute', left: 12, top: 11, color: '#64748b' }} />
+              <input
+                type="text"
+                placeholder="Tìm kiếm chủ đề từ vựng..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px 8px 34px',
+                  borderRadius: '8px',
+                  border: '1px solid #d9dfd8',
+                  fontSize: '12px',
+                  background: '#fffefa',
+                  color: '#172236'
+                }}
+              />
+            </div>
+
+            <div className="forum-topics-grid vocab-topic-grid" role="tablist" aria-label="Chủ đề từ vựng">
+              {filteredTopics.map((t, idx) => {
+                const isSel = t.id === selectedTopicId
+                const knownInT = t.vocab.filter(w => knownWords[w.id]).length
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={isSel}
+                    className={`forum-topic-chip ${isSel ? 'active' : ''}`}
+                    onClick={() => setSelectedTopicId(t.id)}
+                  >
+                    <span className="chip-indicator" />
+                    <span className="chip-title">{idx + 1}. {t.titleEn}</span>
+                    <span className="chip-badge">{knownInT}/{t.vocab.length}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        <div className="topic-header-card vocab-topic-header" style={{ borderLeft: '4px solid #075d52' }}>
+          <div className="topic-header-left">
+            <div className="topic-icon-badge vocab-topic-icon"><Layers size={22} /></div>
+            <div className="topic-header-title">
+              <div className="topic-kicker-row">
+                <span className="eyebrow" style={{ color: '#075d52', margin: 0 }}>CHỦ ĐỀ TỪ VỰNG IELTS · {currentTopic.category.toUpperCase()}</span>
+                <span className="topic-band-target">{FORUM_25_TOPICS.findIndex(t => t.id === selectedTopicId) + 1}/25 chủ đề</span>
+              </div>
+              <h2>{currentTopic.titleEn} — {currentTopic.titleVi}</h2>
+              <p>{currentTopic.descriptionVi}</p>
+            </div>
+          </div>
+          <div className="topic-header-meta">
+            <div className="topic-stat-pills">
+              <span className="stat-pill"><b>{vocabList.length}</b> từ vựng</span>
+              <span className="stat-pill"><b>{knownCountInCurrentTopic}</b> đã thuộc</span>
+              <span className="stat-pill"><b>{currentTopic.category}</b></span>
+            </div>
+          </div>
         </div>
 
         {/* Mode Tabs: Only Flashcard and Quiz */}
