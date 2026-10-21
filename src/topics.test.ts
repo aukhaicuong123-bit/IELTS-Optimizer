@@ -54,14 +54,14 @@ describe('IELTS Topic Organization System (ForumFlash-inspired)', () => {
       expect(topic.listening.questions.length).toBeGreaterThanOrEqual(3)
 
       // Writing
-      expect(topic.writing.task1.prompt).toBeTruthy()
-      expect(topic.writing.task2.prompt).toBeTruthy()
-      expect(topic.writing.task2.suggestedCollocations.length).toBeGreaterThan(0)
+      expect(topic.writing.task1?.prompt).toBeTruthy()
+      expect(topic.writing.task2?.prompt).toBeTruthy()
+      expect(topic.writing.task2?.suggestedCollocations?.length).toBeGreaterThan(0)
 
       // Speaking
-      expect(topic.speaking.part1.length).toBeGreaterThanOrEqual(3)
-      expect(topic.speaking.part2.cueCard).toBeTruthy()
-      expect(topic.speaking.part2.bulletPoints.length).toBeGreaterThanOrEqual(3)
+      expect(topic.speaking.part1?.length).toBeGreaterThanOrEqual(3)
+      expect(topic.speaking.part2?.cueCard).toBeTruthy()
+      expect(topic.speaking.part2?.bulletPoints?.length).toBeGreaterThanOrEqual(3)
       expect(topic.speaking.part3.length).toBeGreaterThanOrEqual(2)
     })
   })

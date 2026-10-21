@@ -2431,30 +2431,50 @@ function SkillPractice({
 
           {writingTaskType === 'task1' ? (
             <div>
-              <span className="badge">{currentTopic.writing.task1.chartType}</span>
-              <h3>{currentTopic.writing.task1.title}</h3>
-              <p className="callout">{currentTopic.writing.task1.prompt}</p>
-              <div className="writing-chart-card">
-                <svg viewBox="0 0 520 230" role="img" aria-label="Bar chart for Academic Writing Task 1 practice">
-                  <line x1="58" y1="185" x2="490" y2="185" stroke="currentColor" />
-                  <line x1="58" y1="25" x2="58" y2="185" stroke="currentColor" />
-                  {[0, 25, 50, 75, 100].map(value => <g key={value}><line x1="53" y1={185 - value * 1.6} x2="58" y2={185 - value * 1.6} stroke="currentColor" /><text x="20" y={189 - value * 1.6} fill="currentColor">{value}</text></g>)}
-                  {[['Science', 54, 84], ['Arts', 38, 59], ['Sports', 27, 68]].map(([label, oldValue, newValue], index) => <g key={label}><rect x={100 + index * 125} y={185 - Number(oldValue) * 1.6} width="36" height={Number(oldValue) * 1.6} fill="#92dcaa" /><rect x={140 + index * 125} y={185 - Number(newValue) * 1.6} width="36" height={Number(newValue) * 1.6} fill="#f4c878" /><text x={98 + index * 125} y="208" fill="currentColor">{label}</text></g>)}
-                </svg>
-                <div className="chart-legend"><span><i className="legend-swatch old" />2005</span><span><i className="legend-swatch recent" />2025</span></div>
-              </div>
+              {currentTopic.writing.task1 ? (
+                <>
+                  <span className="badge">{currentTopic.writing.task1.chartType}</span>
+                  <h3>{currentTopic.writing.task1.title}</h3>
+                  <p className="callout">{currentTopic.writing.task1.prompt}</p>
+                  <div className="writing-chart-card">
+                    <svg viewBox="0 0 520 230" role="img" aria-label="Bar chart for Academic Writing Task 1 practice">
+                      <line x1="58" y1="185" x2="490" y2="185" stroke="currentColor" />
+                      <line x1="58" y1="25" x2="58" y2="185" stroke="currentColor" />
+                      {[0, 25, 50, 75, 100].map(value => <g key={value}><line x1="53" y1={185 - value * 1.6} x2="58" y2={185 - value * 1.6} stroke="currentColor" /><text x="20" y={189 - value * 1.6} fill="currentColor">{value}</text></g>)}
+                      {[['Science', 54, 84], ['Arts', 38, 59], ['Sports', 27, 68]].map(([label, oldValue, newValue], index) => <g key={label}><rect x={100 + index * 125} y={185 - Number(oldValue) * 1.6} width="36" height={Number(oldValue) * 1.6} fill="#92dcaa" /><rect x={140 + index * 125} y={185 - Number(newValue) * 1.6} width="36" height={Number(newValue) * 1.6} fill="#f4c878" /><text x={98 + index * 125} y="208" fill="currentColor">{label}</text></g>)}
+                    </svg>
+                    <div className="chart-legend"><span><i className="legend-swatch old" />2005</span><span><i className="legend-swatch recent" />2025</span></div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <span className="badge">Writing Task 1</span>
+                  <h3>{currentTopic.writing.task1Prompt}</h3>
+                  <p className="callout">{currentTopic.writing.task1Prompt}</p>
+                </>
+              )}
             </div>
           ) : (
             <div>
-              <span className="badge">{currentTopic.writing.task2.essayType}</span>
-              <h3>{currentTopic.writing.task2.title}</h3>
-              <p className="callout">{currentTopic.writing.task2.prompt}</p>
-              <div style={{ margin: '12px 0' }}>
-                <b>Gợi ý dàn bài (Outline suggestions):</b>
-                {currentTopic.writing.task2.outlineIdeas.map((idea, i) => (
-                  <p key={i} className="muted" style={{ margin: '4px 0' }}>• {idea}</p>
-                ))}
-              </div>
+              {currentTopic.writing.task2 ? (
+                <>
+                  <span className="badge">{currentTopic.writing.task2.essayType}</span>
+                  <h3>{currentTopic.writing.task2.title}</h3>
+                  <p className="callout">{currentTopic.writing.task2.prompt}</p>
+                  <div style={{ margin: '12px 0' }}>
+                    <b>Gợi ý dàn bài (Outline suggestions):</b>
+                    {currentTopic.writing.task2.outlineIdeas.map((idea, i) => (
+                      <p key={i} className="muted" style={{ margin: '4px 0' }}>• {idea}</p>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <span className="badge">Writing Task 2</span>
+                  <h3>{currentTopic.writing.task2Prompt}</h3>
+                  <p className="callout">{currentTopic.writing.task2Prompt}</p>
+                </>
+              )}
             </div>
           )}
 
@@ -2589,7 +2609,7 @@ function SkillPractice({
               <span>CỤM TỪ & COLLOCATION NÓI NÊN DÙNG</span>
             </div>
             <div className="lexicon-chip-cloud">
-              {currentTopic.speaking.collocations.map((colloc, i) => (
+              {currentTopic.speaking.collocations?.map((colloc, i) => (
                 <span key={i} className="card-colloc-tag">
                   {colloc}
                 </span>

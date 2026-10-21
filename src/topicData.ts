@@ -70,31 +70,20 @@ export type ListeningTopicUnit = {
   }[]
 }
 
+// Accept both the original canonical format and the expanded AI Studio format.
 export type WritingTopicUnit = {
-  task1: {
-    title: string
-    prompt: string
-    chartType: string
-    suggestedCollocations: string[]
-  }
-  task2: {
-    title: string
-    prompt: string
-    essayType: string
-    suggestedCollocations: string[]
-    outlineIdeas: string[]
-  }
+  task1?: { title: string; prompt: string; chartType: string; suggestedCollocations: string[] }
+  task2?: { title: string; prompt: string; essayType: string; suggestedCollocations: string[]; outlineIdeas: string[] }
+  task1Prompt?: string
+  task2Prompt?: string
+  sampleBand8?: string
 }
 
 export type SpeakingTopicUnit = {
   part1: string[]
-  part2: {
-    cueCard: string
-    bulletPoints: string[]
-    followUp: string
-  }
+  part2: { cueCard: string; bulletPoints: string[]; followUp: string }
   part3: string[]
-  collocations: string[]
+  collocations?: string[]
 }
 
 export type TopicDefinition = {
@@ -110,6 +99,8 @@ export type TopicDefinition = {
   listening: ListeningTopicUnit
   writing: WritingTopicUnit
   speaking: SpeakingTopicUnit
+  // AI Studio extension fields (optional)
+  sampleBand8?: string
 }
 
 const CORE_8_TOPICS: TopicDefinition[] = [
