@@ -1760,14 +1760,20 @@ button, input, select, textarea, a {
 
 /* Readability guard for legacy inline dark-theme styles inside the light workspace. */
 .workspace-theme [style*="#182922"],
+.workspace-theme [style*="rgb(24, 41, 34)"],
 .workspace-theme [style*="#111a17"],
-.workspace-theme [style*="#18241f"]{
+.workspace-theme [style*="rgb(17, 26, 23)"],
+.workspace-theme [style*="#18241f"],
+.workspace-theme [style*="rgb(24, 36, 31)"]{
   background:#f1f7e8 !important;
   border-color:#d7e7c8 !important;
 }
 .workspace-theme [style*="#f0f8f1"],
+.workspace-theme [style*="rgb(240, 248, 241)"],
 .workspace-theme [style*="#c5d3ca"],
-.workspace-theme [style*="#b9c8c0"]{
+.workspace-theme [style*="rgb(197, 211, 202)"],
+.workspace-theme [style*="#b9c8c0"],
+.workspace-theme [style*="rgb(185, 200, 192)"]{
   color:#294b40 !important;
 }
 .workspace-theme [style*="#162438"]{
