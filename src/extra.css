@@ -1782,22 +1782,33 @@ button, input, select, textarea, a {
   color:#24574b !important;
 }
 
-.workspace-theme .skill-writing-stimulus{margin:14px 0;padding:14px;background:#f4f7ef;border:1px solid #dfe6d8;border-radius:10px;overflow:hidden;color:#294b40}
-.workspace-theme .skill-writing-chart{display:block;width:100%;min-width:560px;height:auto}
-.workspace-theme .skill-chart-grid{stroke:#d7e3d5;stroke-width:1}
-.workspace-theme .skill-chart-label{fill:#526b62;font-size:12px;font-family:'DM Sans',sans-serif}
-.workspace-theme .skill-writing-legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:8px;font-size:11px;line-height:1.35}
-.workspace-theme .skill-writing-legend span{display:inline-flex;align-items:center;gap:5px}
-.workspace-theme .skill-writing-legend i{display:inline-block;width:9px;height:9px;border-radius:2px}
-.workspace-theme .skill-chart-unit{display:block;margin-top:8px;color:#718578;font-size:10px}
+.workspace-theme .skill-writing-stimulus{margin:16px 0;padding:16px;background:linear-gradient(145deg,#f8fbf5 0%,#eff6ec 100%);border:1px solid #d5e3d0;border-radius:14px;overflow:hidden;color:#294b40;box-shadow:0 5px 16px rgba(25,76,54,.06)}
+.workspace-theme .skill-chart-heading{display:flex;flex-direction:column;gap:3px;margin:0 0 8px;padding-bottom:9px;border-bottom:1px solid #dce9d7}
+.workspace-theme .skill-chart-heading strong{font-size:13px;color:#173f36;letter-spacing:-.01em}
+.workspace-theme .skill-chart-kicker{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#39816b}
+.workspace-theme .skill-writing-chart{display:block;width:100%;min-width:560px;height:auto;padding-top:2px}
+.workspace-theme .skill-chart-grid{stroke:#d6e4d2;stroke-width:1}
+.workspace-theme .skill-chart-axis{stroke:#86a597;stroke-width:1.5}
+.workspace-theme .skill-chart-label{fill:#526b62;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif}
+.workspace-theme .skill-chart-y-label{fill:#789087;font-size:10px;font-family:'DM Sans',sans-serif}
+.workspace-theme .skill-chart-value{fill:#315b4d;font-size:10px;font-weight:800;font-family:'DM Sans',sans-serif}
+.workspace-theme .skill-writing-legend{display:flex;flex-wrap:wrap;gap:7px 10px;margin-top:8px;font-size:11px;line-height:1.35}
+.workspace-theme .skill-writing-legend span{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;background:#fff;border:1px solid #d9e7d5;border-radius:999px;color:#3d6255}
+.workspace-theme .skill-writing-legend i{display:inline-block;width:9px;height:9px;border-radius:3px;box-shadow:0 0 0 2px rgba(255,255,255,.8)}
+.workspace-theme .skill-chart-unit{display:block;margin-top:9px;color:#718578;font-size:10px}
 .workspace-theme .skill-writing-table-wrap{overflow-x:auto}
-.workspace-theme .skill-writing-table{width:100%;border-collapse:collapse;font-size:11px;white-space:nowrap}
-.workspace-theme .skill-writing-table caption{text-align:left;color:#718578;font-size:10px;margin-bottom:7px}
-.workspace-theme .skill-writing-table th,.workspace-theme .skill-writing-table td{border:1px solid #dbe7d8;padding:7px 8px;text-align:right}
+.workspace-theme .skill-writing-table{width:100%;border-collapse:separate;border-spacing:0;font-size:11px;white-space:nowrap;overflow:hidden;border:1px solid #dbe7d8;border-radius:9px;background:#fff}
+.workspace-theme .skill-writing-table caption{text-align:left;color:#718578;font-size:10px;padding:0 0 7px}
+.workspace-theme .skill-writing-table th,.workspace-theme .skill-writing-table td{border-bottom:1px solid #e0eadc;padding:8px 10px;text-align:right}
+.workspace-theme .skill-writing-table tr:last-child th,.workspace-theme .skill-writing-table tr:last-child td{border-bottom:0}
 .workspace-theme .skill-writing-table th:first-child,.workspace-theme .skill-writing-table td:first-child{text-align:left}
 .workspace-theme .skill-writing-table thead th{background:#eaf3e3;color:#24574b}
 .workspace-theme .skill-writing-table tbody th{background:#f9fbf7}
 .workspace-theme .skill-writing-pies{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
 .workspace-theme .skill-pie-block{display:grid;justify-items:center;gap:4px;color:#36584d;font-size:11px}
-.workspace-theme .skill-pie-block svg{width:120px;height:120px}
+.workspace-theme .skill-pie-visual{position:relative;width:120px;height:120px}
+.workspace-theme .skill-pie-block svg{width:120px;height:120px;filter:drop-shadow(0 3px 4px rgba(27,75,56,.08))}
+.workspace-theme .skill-pie-visual span{position:absolute;inset:0;display:grid;place-items:center;font-size:14px;font-weight:800;color:#24574b}
+.workspace-theme .skill-pie-block strong{font-size:11px}
+.workspace-theme .skill-writing-table-wrap{overflow-x:auto}
 @media(max-width:520px){.workspace-theme .skill-writing-stimulus:has(.skill-writing-chart){overflow-x:auto}.workspace-theme .skill-writing-legend{min-width:560px}}
