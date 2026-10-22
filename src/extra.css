@@ -1781,3 +1781,23 @@ button, input, select, textarea, a {
   border-color:#cfe2c4 !important;
   color:#24574b !important;
 }
+
+.workspace-theme .skill-writing-stimulus{margin:14px 0;padding:14px;background:#f4f7ef;border:1px solid #dfe6d8;border-radius:10px;overflow:hidden;color:#294b40}
+.workspace-theme .skill-writing-chart{display:block;width:100%;min-width:560px;height:auto}
+.workspace-theme .skill-chart-grid{stroke:#d7e3d5;stroke-width:1}
+.workspace-theme .skill-chart-label{fill:#526b62;font-size:12px;font-family:'DM Sans',sans-serif}
+.workspace-theme .skill-writing-legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:8px;font-size:11px;line-height:1.35}
+.workspace-theme .skill-writing-legend span{display:inline-flex;align-items:center;gap:5px}
+.workspace-theme .skill-writing-legend i{display:inline-block;width:9px;height:9px;border-radius:2px}
+.workspace-theme .skill-chart-unit{display:block;margin-top:8px;color:#718578;font-size:10px}
+.workspace-theme .skill-writing-table-wrap{overflow-x:auto}
+.workspace-theme .skill-writing-table{width:100%;border-collapse:collapse;font-size:11px;white-space:nowrap}
+.workspace-theme .skill-writing-table caption{text-align:left;color:#718578;font-size:10px;margin-bottom:7px}
+.workspace-theme .skill-writing-table th,.workspace-theme .skill-writing-table td{border:1px solid #dbe7d8;padding:7px 8px;text-align:right}
+.workspace-theme .skill-writing-table th:first-child,.workspace-theme .skill-writing-table td:first-child{text-align:left}
+.workspace-theme .skill-writing-table thead th{background:#eaf3e3;color:#24574b}
+.workspace-theme .skill-writing-table tbody th{background:#f9fbf7}
+.workspace-theme .skill-writing-pies{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.workspace-theme .skill-pie-block{display:grid;justify-items:center;gap:4px;color:#36584d;font-size:11px}
+.workspace-theme .skill-pie-block svg{width:120px;height:120px}
+@media(max-width:520px){.workspace-theme .skill-writing-stimulus:has(.skill-writing-chart){overflow-x:auto}.workspace-theme .skill-writing-legend{min-width:560px}}

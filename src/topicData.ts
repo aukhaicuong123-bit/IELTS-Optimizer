@@ -70,9 +70,16 @@ export type ListeningTopicUnit = {
   }[]
 }
 
+export type WritingChartData = {
+  visualization: 'bar' | 'line' | 'table' | 'scatter' | 'pie' | 'stacked'
+  unit: string
+  categories: string[]
+  series: { label: string; values: number[] }[]
+}
+
 // Accept both the original canonical format and the expanded AI Studio format.
 export type WritingTopicUnit = {
-  task1?: { title: string; prompt: string; chartType: string; suggestedCollocations: string[] }
+  task1?: { title: string; prompt: string; chartType: string; suggestedCollocations: string[]; chartData?: WritingChartData }
   task2?: { title: string; prompt: string; essayType: string; suggestedCollocations: string[]; outlineIdeas: string[] }
   task1Prompt?: string
   task2Prompt?: string
@@ -249,7 +256,8 @@ const CORE_8_TOPICS: TopicDefinition[] = [
         title: 'Task 1: University Enrollment by Field of Study',
         prompt: 'The bar chart illustrates the percentage of university students enrolled in STEM, Humanities, and Business courses across four countries in 2024.',
         chartType: 'Comparative Bar Chart',
-        suggestedCollocations: ['account for the majority', 'a negligible proportion', 'stand at approximately', 'experience an upward trajectory']
+        suggestedCollocations: ['account for the majority', 'a negligible proportion', 'stand at approximately', 'experience an upward trajectory'],
+        chartData: { visualization: 'bar', unit: '% of students', categories: ['Country A', 'Country B', 'Country C', 'Country D'], series: [{ label: 'STEM', values: [42, 35, 51, 38] }, { label: 'Humanities', values: [28, 34, 22, 31] }, { label: 'Business', values: [30, 31, 27, 31] }] }
       },
       task2: {
         title: 'Task 2: Free University Tuition vs Personal Investment',
@@ -430,7 +438,8 @@ const CORE_8_TOPICS: TopicDefinition[] = [
         title: 'Task 1: Renewable Energy Share by Source (2010 - 2024)',
         prompt: 'The line graph shows the proportion of electricity generated from wind, solar, hydro, and fossil fuels in a European country between 2010 and 2024.',
         chartType: 'Trends Line Graph',
-        suggestedCollocations: ['exponential surge', 'overtake conventional sources', 'plateau at', 'dramatic decline']
+        suggestedCollocations: ['exponential surge', 'overtake conventional sources', 'plateau at', 'dramatic decline'],
+        chartData: { visualization: 'line', unit: '% of generation', categories: ['2010', '2014', '2018', '2022', '2024'], series: [{ label: 'Wind', values: [8, 14, 22, 31, 35] }, { label: 'Solar', values: [2, 6, 15, 25, 30] }, { label: 'Hydro', values: [24, 23, 22, 21, 20] }, { label: 'Fossil fuels', values: [66, 57, 41, 23, 15] }] }
       },
       task2: {
         title: 'Task 2: Individual Lifestyle Changes vs Government Environmental Mandates',
@@ -611,7 +620,8 @@ const CORE_8_TOPICS: TopicDefinition[] = [
         title: 'Task 1: AI Adoption Rates Across Industries (2020 - 2025)',
         prompt: 'The table compares the proportion of businesses utilizing AI automated systems in Healthcare, Finance, Logistics, and Education over a five-year period.',
         chartType: 'Comparative Data Table',
-        suggestedCollocations: ['lead the cohort', 'surpass the threshold', 'a fourfold increase', 'remain relatively stagnant']
+        suggestedCollocations: ['lead the cohort', 'surpass the threshold', 'a fourfold increase', 'remain relatively stagnant'],
+        chartData: { visualization: 'table', unit: '% of businesses', categories: ['2020', '2021', '2022', '2023', '2024'], series: [{ label: 'Healthcare', values: [18, 24, 31, 39, 47] }, { label: 'Finance', values: [26, 34, 43, 51, 61] }, { label: 'Logistics', values: [12, 20, 29, 38, 49] }, { label: 'Education', values: [8, 13, 19, 25, 32] }] }
       },
       task2: {
         title: 'Task 2: AI Automation and the Future of Human Labor',
@@ -792,7 +802,8 @@ const CORE_8_TOPICS: TopicDefinition[] = [
         title: 'Task 1: Healthcare Spending vs Life Expectancy',
         prompt: 'The scatter plot illustrates healthcare expenditure per capita and average life expectancy across twelve OECD nations in 2023.',
         chartType: 'Correlation Scatter Plot',
-        suggestedCollocations: ['positive correlation', 'diminishing returns', 'outlier nation', 'significant expenditure gap']
+        suggestedCollocations: ['positive correlation', 'diminishing returns', 'outlier nation', 'significant expenditure gap'],
+        chartData: { visualization: 'scatter', unit: 'USD per capita / years', categories: ['900', '1400', '1900', '2400', '2900', '3400'], series: [{ label: 'Life expectancy', values: [71, 74, 76, 78, 80, 81] }] }
       },
       task2: {
         title: 'Task 2: Junk Food Taxation vs Personal Freedom',
@@ -973,7 +984,8 @@ const CORE_8_TOPICS: TopicDefinition[] = [
         title: 'Task 1: Employment Distribution by Sector (2000 vs 2024)',
         prompt: 'The pie charts illustrate the proportion of workers employed in Agriculture, Manufacturing, Services, and the Digital Sector in 2000 and 2024.',
         chartType: 'Comparative Pie Charts',
-        suggestedCollocations: ['command the largest share', 'shrink substantially', 'quadruple in volume', 'marginal contraction']
+        suggestedCollocations: ['command the largest share', 'shrink substantially', 'quadruple in volume', 'marginal contraction'],
+        chartData: { visualization: 'pie', unit: '% of workforce', categories: ['Agriculture', 'Manufacturing', 'Services', 'Digital'], series: [{ label: '2000', values: [28, 32, 35, 5] }, { label: '2024', values: [10, 22, 48, 20] }] }
       },
       task2: {
         title: 'Task 2: The Four-Day Work Week Trial',
@@ -1154,7 +1166,8 @@ const CORE_8_TOPICS: TopicDefinition[] = [
         title: 'Task 1: Commuter Transit Modes in Capital City (2015 - 2025)',
         prompt: 'The stacked bar chart depicts the percentage breakdown of daily commutes made by private car, bicycle, bus, and metro across four capital cities.',
         chartType: 'Stacked Bar Chart',
-        suggestedCollocations: ['account for an overwhelming share', 'a threefold surge', 'surpass car usage', 'marginal adoption']
+        suggestedCollocations: ['account for an overwhelming share', 'a threefold surge', 'surpass car usage', 'marginal adoption'],
+        chartData: { visualization: 'stacked', unit: '% of daily commutes', categories: ['2015', '2020', '2025'], series: [{ label: 'Private car', values: [52, 45, 38] }, { label: 'Bicycle', values: [8, 11, 15] }, { label: 'Bus', values: [24, 25, 26] }, { label: 'Metro', values: [16, 19, 21] }] }
       },
       task2: {
         title: 'Task 2: High-Density Vertical Cities vs Suburban Expansion',
@@ -1335,7 +1348,8 @@ const CORE_8_TOPICS: TopicDefinition[] = [
         title: 'Task 1: Crime Rates by Category Over Two Decades',
         prompt: 'The multi-line chart illustrates reported incidents of burglary, cyber fraud, vehicle theft, and violent assault per 100,000 citizens from 2004 to 2024.',
         chartType: 'Longitudinal Trend Chart',
-        suggestedCollocations: ['exhibit a precipitous decline', 'a steady downward trajectory', 'a tenfold escalation', 'remain virtually unchanged']
+        suggestedCollocations: ['exhibit a precipitous decline', 'a steady downward trajectory', 'a tenfold escalation', 'remain virtually unchanged'],
+        chartData: { visualization: 'line', unit: 'incidents per 100,000', categories: ['2004', '2009', '2014', '2019', '2024'], series: [{ label: 'Burglary', values: [620, 540, 410, 300, 220] }, { label: 'Cyber fraud', values: [35, 90, 180, 330, 510] }, { label: 'Vehicle theft', values: [280, 260, 240, 230, 225] }, { label: 'Violent assault', values: [110, 120, 118, 125, 122] }] }
       },
       task2: {
         title: 'Task 2: Rehabilitation vs Punitive Prison Sentences',
@@ -1516,7 +1530,8 @@ const CORE_8_TOPICS: TopicDefinition[] = [
         title: 'Task 1: Annual Attendance at National Cultural Venues',
         prompt: 'The bar chart compares annual visitor numbers to Art Galleries, History Museums, Theatres, and Historic Castles from 2018 to 2024.',
         chartType: 'Multi-category Bar Chart',
-        suggestedCollocations: ['remain the preeminent destination', 'witness a marked resurgence', 'outnumber by a wide margin', 'modest foot traffic']
+        suggestedCollocations: ['remain the preeminent destination', 'witness a marked resurgence', 'outnumber by a wide margin', 'modest foot traffic'],
+        chartData: { visualization: 'bar', unit: 'thousand visitors', categories: ['2018', '2020', '2022', '2024'], series: [{ label: 'Art galleries', values: [210, 130, 190, 240] }, { label: 'History museums', values: [180, 120, 165, 205] }, { label: 'Theatres', values: [260, 95, 210, 275] }, { label: 'Historic castles', values: [145, 100, 135, 155] }] }
       },
       task2: {
         title: 'Task 2: Government Funding for Fine Arts vs Practical Services',

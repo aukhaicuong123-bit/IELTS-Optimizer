@@ -63,7 +63,7 @@ import {
 } from './domain'
 import { deriveReadingStates, readingDifficultyId, targetFor } from './readingEngine'
 import { clearStore, loadStore } from './storage'
-import { TOPICS, type TopicId, type TopicDefinition, type VocabItem, type GrammarRule } from './topicData'
+import { TOPICS, type TopicId, type TopicDefinition, type VocabItem, type GrammarRule, type WritingChartData } from './topicData'
 import { READING_DRILLS, LISTENING_DRILLS, WRITING_DRILLS, SPEAKING_DRILLS, GRAMMAR_DRILLS, VOCAB_DRILLS, dailySelection, dayOfYear, type ReadingDrill, type ListeningDrill, type WritingDrill, type SpeakingDrill, type GrammarDrill, type VocabDrill } from './practiceBank'
 import type {
   ActiveSession,
@@ -2264,6 +2264,27 @@ function IELTSSimulation({ s, setS, note }: { s: Store; setS: (store: Store) => 
 /**
  * Listening, Writing, and Speaking with Topic-organized Units
  */
+function SkillWritingStimulus({ data }: { data?: WritingChartData }) {
+  if (!data) return null
+  const colors = ['#075d52', '#3b82f6', '#d97706', '#7c3aed', '#db2777', '#65a30d']
+  const max = Math.max(...data.series.flatMap(series => series.values), 1)
+  if (data.visualization === 'table') {
+    return <div className="skill-writing-stimulus skill-writing-table-wrap"><table className="skill-writing-table"><caption>Số liệu thực tế ({data.unit})</caption><thead><tr><th>Series</th>{data.categories.map(category => <th key={category}>{category}</th>)}</tr></thead><tbody>{data.series.map(series => <tr key={series.label}><th>{series.label}</th>{series.values.map((value, index) => <td key={index}>{value}{data.unit.includes('%') ? '%' : ''}</td>)}</tr>)}</tbody></table></div>
+  }
+  if (data.visualization === 'pie') {
+    const circumference = 100
+    return <div className="skill-writing-stimulus skill-writing-pies">{data.series.map((series, seriesIndex) => { let offset = 0; const total = series.values.reduce((sum, value) => sum + value, 0) || 1; return <div className="skill-pie-block" key={series.label}><svg viewBox="0 0 120 120" role="img" aria-label={`${series.label} pie chart`}><circle cx="60" cy="60" r="42" fill="none" stroke="#e8eee4" strokeWidth="18" />{series.values.map((value, index) => { const part = value / total * circumference; const circle = <circle key={index} cx="60" cy="60" r="42" fill="none" stroke={colors[index % colors.length]} strokeWidth="18" pathLength="100" strokeDasharray={`${part} ${circumference - part}`} strokeDashoffset={-offset} transform="rotate(-90 60 60)" />; offset += part; return circle })}</svg><strong>{series.label}</strong></div> })}<div className="skill-writing-legend">{data.categories.map((category, index) => <span key={category}><i style={{ background: colors[index % colors.length] }} />{category}</span>)}</div></div>
+  }
+  const width = 720; const height = 300; const left = 44; const top = 16; const plotWidth = 650; const plotHeight = 220
+  const x = (index: number) => left + (data.categories.length > 1 ? index * plotWidth / (data.categories.length - 1) : plotWidth / 2)
+  const y = (value: number) => top + plotHeight - value / max * plotHeight
+  return <div className="skill-writing-stimulus"><svg className="skill-writing-chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${data.visualization} chart for Writing Task 1`}>
+    {[0, .25, .5, .75, 1].map(ratio => <line key={ratio} x1={left} x2={width - 20} y1={top + plotHeight - ratio * plotHeight} y2={top + plotHeight - ratio * plotHeight} className="skill-chart-grid" />)}
+    {data.visualization === 'line' || data.visualization === 'scatter' ? data.series.map((series, seriesIndex) => <g key={series.label}>{data.visualization === 'line' && <polyline points={series.values.map((value, index) => `${x(index)},${y(value)}`).join(' ')} fill="none" stroke={colors[seriesIndex % colors.length]} strokeWidth="3" />}{series.values.map((value, index) => <circle key={index} cx={x(index)} cy={y(value)} r="5" fill={colors[seriesIndex % colors.length]} />)}</g>) : data.categories.map((category, categoryIndex) => <g key={category}>{data.visualization === 'stacked' ? (() => { let offset = 0; const groupWidth = plotWidth / data.categories.length; return data.series.map((series, seriesIndex) => { const value = series.values[categoryIndex] || 0; const segment = <rect key={series.label} x={left + categoryIndex * groupWidth + groupWidth * .2} y={y(offset + value)} width={groupWidth * .6} height={value / max * plotHeight} fill={colors[seriesIndex % colors.length]} />; offset += value; return segment }) })() : data.series.map((series, seriesIndex) => { const groupWidth = plotWidth / data.categories.length; const barWidth = Math.min(26, groupWidth * .72 / data.series.length); const barX = left + categoryIndex * groupWidth + (groupWidth - barWidth * data.series.length) / 2 + seriesIndex * barWidth; const value = series.values[categoryIndex] || 0; return <rect key={series.label} x={barX} y={y(value)} width={Math.max(4, barWidth - 2)} height={top + plotHeight - y(value)} fill={colors[seriesIndex % colors.length]} rx="2" /> })}</g>)}
+    {data.categories.map((category, index) => <text key={category} x={data.categories.length > 1 ? x(index) : left + plotWidth / 2} y="260" textAnchor="middle" className="skill-chart-label">{category}</text>)}
+  </svg><div className="skill-writing-legend">{data.series.map((series, index) => <span key={series.label}><i style={{ background: colors[index % colors.length] }} />{series.label}</span>)}</div><small className="skill-chart-unit">Đơn vị: {data.unit}</small></div>
+}
+
 function SkillPractice({
   s,
   setS,
@@ -2630,15 +2651,7 @@ function SkillPractice({
                   <span className="badge">{currentTopic.writing.task1.chartType}</span>
                   <h3>{currentTopic.writing.task1.title}</h3>
                   <p className="callout">{currentTopic.writing.task1.prompt}</p>
-                  <div className="writing-chart-card">
-                    <svg viewBox="0 0 520 230" role="img" aria-label="Bar chart for Academic Writing Task 1 practice">
-                      <line x1="58" y1="185" x2="490" y2="185" stroke="currentColor" />
-                      <line x1="58" y1="25" x2="58" y2="185" stroke="currentColor" />
-                      {[0, 25, 50, 75, 100].map(value => <g key={value}><line x1="53" y1={185 - value * 1.6} x2="58" y2={185 - value * 1.6} stroke="currentColor" /><text x="20" y={189 - value * 1.6} fill="currentColor">{value}</text></g>)}
-                      {[['Science', 54, 84], ['Arts', 38, 59], ['Sports', 27, 68]].map(([label, oldValue, newValue], index) => <g key={label}><rect x={100 + index * 125} y={185 - Number(oldValue) * 1.6} width="36" height={Number(oldValue) * 1.6} fill="#92dcaa" /><rect x={140 + index * 125} y={185 - Number(newValue) * 1.6} width="36" height={Number(newValue) * 1.6} fill="#f4c878" /><text x={98 + index * 125} y="208" fill="currentColor">{label}</text></g>)}
-                    </svg>
-                    <div className="chart-legend"><span><i className="legend-swatch old" />2005</span><span><i className="legend-swatch recent" />2025</span></div>
-                  </div>
+                  <SkillWritingStimulus data={currentTopic.writing.task1.chartData} />
                 </>
               ) : (
                 <>
