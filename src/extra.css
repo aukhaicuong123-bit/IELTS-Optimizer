@@ -1033,12 +1033,26 @@ main {
   box-sizing: border-box;
 }
 
+.skill-quick-bar.skill-4-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+@media (max-width: 680px) {
+  .skill-quick-bar.skill-4-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+}
+
 .skill-quick-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 9px 18px;
-  border-radius: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
   background: transparent;
   border: 1px solid transparent;
   color: #9cb5a7;
@@ -1046,6 +1060,26 @@ main {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
+  min-height: 48px;
+}
+
+.skill-btn-label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  line-height: 1.2;
+}
+
+.skill-btn-label strong {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.skill-btn-label small {
+  font-size: 10px;
+  opacity: 0.8;
+  font-weight: 500;
 }
 
 .skill-quick-btn:hover {
@@ -1058,6 +1092,11 @@ main {
   border-color: #3f6651;
   color: var(--mint);
   box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+.skill-quick-btn.active .skill-btn-label small {
+  color: var(--mint);
+  opacity: 1;
 }
 
 /* Header Top Bar & Timer Live Badge */
@@ -1205,5 +1244,493 @@ main {
   .again-button, .know-button {
     padding: 9px 14px;
     font-size: 12px;
+  }
+}
+
+/* ==========================================================================
+   MOBILE FIRST & TOUCH ERGONOMICS ENHANCEMENTS
+   Optimized for smartphones: 360px - 430px (iPhone, Samsung Galaxy, Pixel)
+   ========================================================================== */
+
+/* 1. Global Touch Hygiene */
+html, body {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
+}
+
+button, input, select, textarea, a {
+  touch-action: manipulation;
+}
+
+/* 2. Desktop Defaults: Hide Mobile Specific Elements */
+.mobile-app-bar {
+  display: none;
+}
+
+.mobile-bottom-nav {
+  display: none;
+}
+
+.mobile-reading-tab-bar {
+  display: none;
+}
+
+.mobile-only-action {
+  display: none;
+}
+
+.mobile-flashcard-hint {
+  display: none;
+}
+
+.mobile-menu-close {
+  display: none;
+}
+
+.sidebar-mobile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* 3. Mobile Viewport Rules (<= 900px) */
+@media (max-width: 900px) {
+  /* Prevent horizontal scrolling under all circumstances */
+  .app {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Sticky Top App Bar */
+  .mobile-app-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    height: 54px;
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: #fffefa;
+    border-bottom: 1px solid #e7e4da;
+    padding: 0 14px;
+    padding-top: env(safe-area-inset-top, 0px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  }
+
+  .mobile-app-bar-btn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 10px;
+    background: #f5f4ed;
+    border: 1px solid #e2dfd5;
+    color: #172236;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+
+  .mobile-app-bar-btn:active {
+    background: #e9e8dd;
+    transform: scale(0.96);
+  }
+
+  .mobile-app-bar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .mobile-app-bar-title {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .mobile-app-bar-title strong {
+    font-size: 15px;
+    font-family: 'Space Grotesk', sans-serif;
+    color: #101a2d;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mobile-app-bar-title small {
+    font-size: 10px;
+    color: #0c5a50;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+  }
+
+  .mobile-app-bar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .mobile-timer-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #075d52;
+    color: #fff;
+    border: 0;
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    height: 36px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(7, 93, 82, 0.25);
+  }
+
+  /* Main Container Clean Spacing (bottom nav removed) */
+  main {
+    padding: 14px 14px calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Bottom Navigation Bar removed by user preference */
+  .mobile-bottom-nav {
+    display: none !important;
+  }
+
+  /* Slide-Over Mobile Drawer */
+  aside.app-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: min(320px, 86vw) !important;
+    min-width: 0 !important;
+    max-width: 86vw !important;
+    z-index: 100 !important;
+    background: #fffefa !important;
+    border-right: 1px solid #ebe8df !important;
+    padding: 20px 16px calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+    transform: translateX(-105%) !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease, visibility 0.28s !important;
+    box-shadow: 8px 0 32px rgba(0, 0, 0, 0.22) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  aside.app-sidebar.nav-mobile-open {
+    transform: translateX(0) !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    opacity: 1 !important;
+  }
+
+  .sidebar-mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #ebe8df;
+  }
+
+  .sidebar-mobile-header .brand {
+    margin: 0;
+  }
+
+  .mobile-menu-close {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 10px;
+    background: #f5f4ed;
+    border: 1px solid #e2dfd5;
+    color: #172236;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+
+  .mobile-menu-close:active {
+    background: #e9e8dd;
+    transform: scale(0.96);
+  }
+
+  /* Drawer navigation buttons */
+  aside.app-sidebar nav button {
+    min-height: 44px;
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+
+  .mobile-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(16, 26, 45, 0.45);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 95;
+    animation: fadeIn 0.2s ease;
+  }
+
+  /* Mobile Reading Segmented Tab Bar */
+  .mobile-reading-tab-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    background: #f4f2eb;
+    border: 1px solid #e5e2d8;
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 14px;
+    width: 100%;
+  }
+
+  .mobile-tab-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    border-radius: 9px;
+    border: 0;
+    background: transparent;
+    color: #516479;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .mobile-tab-btn.active {
+    background: #075d52;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(7, 93, 82, 0.25);
+  }
+
+  .mobile-pane-hidden {
+    display: none !important;
+  }
+
+  .mobile-pane-active {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .mobile-only-action {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  /* Flashcard touch improvements */
+  .mobile-flashcard-hint {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+    color: #65727b;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .flashcard-stage {
+    width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .flashcard-box {
+    width: 100% !important;
+    min-height: 270px;
+    padding: 22px 18px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .forum-controls-bar {
+    display: grid !important;
+    grid-template-columns: 48px 1fr 1fr 48px !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-top: 12px !important;
+  }
+
+  .forum-controls-bar .nav-arrow {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    display: grid !important;
+    place-items: center !important;
+  }
+
+  .forum-status-btn {
+    min-height: 48px !important;
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  /* Horizontal swipeable chip carousels */
+  .forum-cefr-selector,
+  .skill-quick-bar,
+  .passage-chips,
+  .forum-mode-tabs {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    flex-wrap: nowrap !important;
+    padding-bottom: 4px !important;
+  }
+
+  .forum-cefr-selector::-webkit-scrollbar,
+  .skill-quick-bar::-webkit-scrollbar,
+  .passage-chips::-webkit-scrollbar,
+  .forum-mode-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .skill-quick-btn,
+  .cefr-chip,
+  .forum-mode-tab {
+    flex-shrink: 0 !important;
+    min-height: 44px !important;
+  }
+
+  /* Input fields: prevent iOS zoom by ensuring >= 16px */
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  select,
+  textarea {
+    font-size: 16px !important;
+    min-height: 44px;
+  }
+
+  /* Form labels & options touch target sizing */
+  .options label,
+  .fg-quiz-opt,
+  .quiz-option-label {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px !important;
+  }
+
+  .options label input,
+  .quiz-option-label input {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  /* Topic Header Card Mobile */
+  .topic-header-card {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 16px !important;
+    gap: 12px !important;
+  }
+
+  .topic-header-left {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .topic-stat-pills {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+
+  /* Dashboard mobile layout polish */
+  .dashboard-header {
+    margin-bottom: 14px !important;
+  }
+
+  .dashboard-header h1 {
+    font-size: 28px !important;
+  }
+
+  .dashboard-subtitle {
+    font-size: 14px !important;
+  }
+
+  .dashboard-hero {
+    min-height: 280px !important;
+  }
+
+  .dashboard-hero-copy {
+    padding: 24px 18px !important;
+  }
+
+  .dashboard-hero h2 {
+    font-size: 24px !important;
+  }
+}
+
+/* Extra small devices (iPhone SE, Galaxy A series <= 390px) */
+@media (max-width: 390px) {
+  .forum-controls-bar {
+    grid-template-columns: 44px 1fr 1fr 44px !important;
+    gap: 6px !important;
+  }
+
+  .forum-controls-bar .nav-arrow {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+
+  .forum-status-btn {
+    font-size: 11px !important;
+    padding: 6px 6px !important;
+  }
+
+  .mobile-bottom-btn span {
+    font-size: 9px;
+  }
+
+  .mobile-app-bar-brand strong {
+    font-size: 13px;
   }
 }

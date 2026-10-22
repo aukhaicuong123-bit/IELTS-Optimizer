@@ -24,7 +24,8 @@ import {
   HelpCircle,
   Search,
   Layers,
-  Send
+  Send,
+  ListChecks
 } from 'lucide-react'
 import type { Store, Page, Attempt, ErrorRecord, SkillSubmission, Question } from './types'
 import { mergeAttemptErrors } from './domain'
@@ -224,7 +225,7 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
       </div>
 
       {/* Exam Collection Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 }}>
         {filteredExams.map(exam => (
           <div
             key={exam.id}
@@ -405,6 +406,7 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
   const [secondsLeft, setSecondsLeft] = useState<number>(60 * 60) // 60 minutes
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false)
   const [confirmExitOpen, setConfirmExitOpen] = useState(false)
+  const [mobileSimulatorTab, setMobileSimulatorTab] = useState<'passage' | 'questions'>('passage')
   const questionRefs = useRef<Record<number, HTMLDivElement | null>>({})
   const handleSubmitRef = useRef<(() => void) | null>(null)
 
@@ -455,6 +457,7 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
     if (activePassageIndex !== targetPassageIndex) {
       setActivePassageIndex(targetPassageIndex)
     }
+    setMobileSimulatorTab('questions')
 
     setTimeout(() => {
       questionRefs.current[qNum]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -737,11 +740,35 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
         </div>
       </div>
 
+      {/* Mobile Reading Simulator Tab Bar */}
+      <div className="mobile-reading-tab-bar" role="tablist" aria-label="Chuyển chế độ xem di động">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mobileSimulatorTab === 'passage'}
+          className={`mobile-tab-btn ${mobileSimulatorTab === 'passage' ? 'active' : ''}`}
+          onClick={() => setMobileSimulatorTab('passage')}
+        >
+          <BookOpen size={16} />
+          <span>Bài đọc Passage {activePassage.passageNumber}</span>
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mobileSimulatorTab === 'questions'}
+          className={`mobile-tab-btn ${mobileSimulatorTab === 'questions' ? 'active' : ''}`}
+          onClick={() => setMobileSimulatorTab('questions')}
+        >
+          <ListChecks size={16} />
+          <span>Câu hỏi ({answeredCount}/40)</span>
+        </button>
+      </div>
+
       {/* Main Split-Screen Workspace */}
       <div className="practice-layout" style={{ alignItems: 'stretch' }}>
         {/* Left Column: Full Reading Passage */}
         <div
-          className="panel"
+          className={`panel passage ${mobileSimulatorTab === 'passage' ? 'mobile-pane-active' : 'mobile-pane-hidden'}`}
           style={{
             maxHeight: '74vh',
             overflowY: 'auto',
@@ -758,18 +785,39 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
               {para}
             </p>
           ))}
+          <button
+            type="button"
+            className="primary full mobile-only-action"
+            style={{ marginTop: 20 }}
+            onClick={() => setMobileSimulatorTab('questions')}
+          >
+            Làm câu hỏi Passage {activePassage.passageNumber} →
+          </button>
         </div>
 
         {/* Right Column: Questions for Active Passage */}
-        <div className="panel questions" style={{ maxHeight: '74vh', overflowY: 'auto', padding: 24 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+        <div
+          className={`panel questions ${mobileSimulatorTab === 'questions' ? 'mobile-pane-active' : 'mobile-pane-hidden'}`}
+          style={{ maxHeight: '74vh', overflowY: 'auto', padding: 24 }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
             <h3 style={{ fontSize: 16, margin: 0 }}>
               Passage {activePassage.passageNumber} — Questions ({activePassage.questions.length})
             </h3>
-            <span style={{ fontSize: 11, color: 'var(--muted)' }}>
-              Đã trả lời:{' '}
-              {activePassage.questions.filter(q => Boolean(answers[q.id])).length}/{activePassage.questions.length}
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <button
+                type="button"
+                className="secondary mobile-only-action"
+                onClick={() => setMobileSimulatorTab('passage')}
+                style={{ fontSize: 12, padding: '6px 10px' }}
+              >
+                <BookOpen size={13} /> Đọc bài
+              </button>
+              <span style={{ fontSize: 11, color: 'var(--muted)' }}>
+                Đã trả lời:{' '}
+                {activePassage.questions.filter(q => Boolean(answers[q.id])).length}/{activePassage.questions.length}
+              </span>
+            </div>
           </div>
 
           <div className="stack" style={{ gap: 20 }}>

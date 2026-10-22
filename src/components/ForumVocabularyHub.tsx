@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import {
   Volume2,
   RefreshCw,
@@ -98,6 +98,33 @@ export const ForumVocabularyHub: React.FC<ForumVocabularyHubProps> = ({
     setQuizScore(0)
     setQuizFinished(false)
   }, [selectedTopicId])
+
+  // Touch gesture support for mobile swiping
+  const touchStartX = useRef<number | null>(null)
+  const touchStartY = useRef<number | null>(null)
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+    touchStartY.current = e.touches[0].clientY
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current
+    const deltaY = e.changedTouches[0].clientY - touchStartY.current
+    // Register horizontal swipe if > 40px and significantly horizontal
+    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.3) {
+      if (deltaX < 0 && cardIndex < vocabList.length - 1) {
+        setCardIndex(cardIndex + 1)
+        setFlipped(false)
+      } else if (deltaX > 0 && cardIndex > 0) {
+        setCardIndex(cardIndex - 1)
+        setFlipped(false)
+      }
+    }
+    touchStartX.current = null
+    touchStartY.current = null
+  }
 
   // Speech synthesis for native pronunciation
   const speak = useCallback((term: string) => {
@@ -379,12 +406,19 @@ export const ForumVocabularyHub: React.FC<ForumVocabularyHubProps> = ({
             </div>
           </div>
 
+          {/* Mobile swipe helper */}
+          <div className="mobile-flashcard-hint" aria-hidden="true">
+            <span>👈 Vuốt trái / phải để chuyển thẻ · Chạm để lật</span>
+          </div>
+
           <div
             className={`flashcard-box ${flipped ? 'flipped' : ''}`}
             onClick={() => setFlipped(!flipped)}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
             role="button"
             tabIndex={0}
-            aria-label="Lật thẻ từ vựng"
+            aria-label="Lật thẻ từ vựng (chạm để lật hoặc vuốt sang trái/phải)"
           >
             <div className="card-top">
               <span className="card-tag">{currentWord.type}</span>

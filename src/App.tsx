@@ -43,7 +43,9 @@ import {
   CalendarDays,
   UserRound,
   BarChart3,
-  Flame
+  Flame,
+  PenTool,
+  Mic
 } from 'lucide-react'
 import ExamLibraryView from './ExamLibraryView'
 import { ActivityHeatmapHub } from './components/ActivityHeatmapHub'
@@ -94,10 +96,10 @@ const navGroups: { label: string; items: NavItem[] }[] = [
   {
     label: '4 Kỹ năng IELTS',
     items: [
-      ['practice', 'Reading', BookOpen],
-      ['listening', 'Listening', Volume2],
-      ['writing', 'Writing', Palette],
-      ['speaking', 'Speaking', Compass]
+      ['practice', 'Reading (Đọc hiểu)', BookOpen],
+      ['listening', 'Listening (Nghe hiểu)', Volume2],
+      ['writing', 'Writing (Viết luận)', PenTool],
+      ['speaking', 'Speaking (Luyện nói)', Mic]
     ]
   },
   {
@@ -239,20 +241,57 @@ export default function App() {
 
   return (
     <div className={`app workspace-theme ${page === 'dashboard' ? 'app-dashboard' : ''}`}>
-      <button
-        className="mobile-menu-toggle mobile-menu-launcher"
-        onClick={() => setMobileMenuOpen(true)}
-        aria-label="Mở menu"
-      >
-        <Menu size={20} />
-      </button>
-      <aside className={`app-sidebar ${mobileMenuOpen ? 'nav-mobile-open' : ''}`}>
-        <div className="brand">
+      {/* Mobile Top App Bar (sticky on mobile screens) */}
+      <header className="mobile-app-bar">
+        <button
+          className="mobile-app-bar-btn"
+          onClick={() => setMobileMenuOpen(true)}
+          aria-label="Mở danh mục menu (3 dấu gạch ngang)"
+          title="Menu điều hướng (3 dấu gạch ngang)"
+        >
+          <Menu size={22} />
+        </button>
+        <div className="mobile-app-bar-brand" onClick={() => go('dashboard')} role="button" tabIndex={0}>
           <span className="brand-mark" aria-hidden="true"><i /><i /><i /></span>
-          <div>
-            IELTS Optimizer
-            <small>PERSONALIZED LEARNING</small>
+          <div className="mobile-app-bar-title">
+            <strong>IELTS Optimizer</strong>
+            <small>{title}</small>
           </div>
+        </div>
+        <div className="mobile-app-bar-actions">
+          {store.activeSession && (
+            <button
+              className="mobile-timer-pill"
+              onClick={() => go('record')}
+              title="Nhấp để xem nhật ký tính giờ"
+              aria-label="Đồng hồ học tập"
+            >
+              <span className="timer-pulse-dot" />
+              <span>{Math.floor(activeSec / 60).toString().padStart(2, '0')}:{Math.floor(activeSec % 60).toString().padStart(2, '0')}</span>
+            </button>
+          )}
+          <button
+            className="mobile-app-bar-btn"
+            onClick={() => go('profile')}
+            aria-label="Mục tiêu & Hồ sơ"
+          >
+            <UserRound size={20} />
+          </button>
+        </div>
+      </header>
+
+      <aside className={`app-sidebar ${mobileMenuOpen ? 'nav-mobile-open' : ''}`}>
+        <div className="sidebar-mobile-header">
+          <div className="brand">
+            <span className="brand-mark" aria-hidden="true"><i /><i /><i /></span>
+            <div>
+              IELTS Optimizer
+              <small>PERSONALIZED LEARNING</small>
+            </div>
+          </div>
+          <button className="mobile-menu-close" onClick={() => setMobileMenuOpen(false)} aria-label="Đóng menu">
+            <X size={20} />
+          </button>
         </div>
         <nav aria-label="Main navigation" className={mobileMenuOpen ? 'nav-mobile-open' : 'nav-mobile-closed'}>
           {navGroups.map(group => (
@@ -262,7 +301,10 @@ export default function App() {
                 <button
                   aria-label={label}
                   className={page === id ? 'active' : ''}
-                  onClick={() => go(id)}
+                  onClick={() => {
+                    go(id)
+                    setMobileMenuOpen(false)
+                  }}
                   key={id}
                 >
                   <Icon size={18} />
@@ -277,11 +319,6 @@ export default function App() {
             </div>
           ))}
         </nav>
-        {mobileMenuOpen && (
-          <button className="mobile-menu-close" onClick={() => setMobileMenuOpen(false)} aria-label="Đóng menu">
-            <X size={20} />
-          </button>
-        )}
         <div className="sidebar-note">
           <Target size={17} />
           <b>Bằng chứng trước kết luận.</b>
@@ -324,16 +361,20 @@ export default function App() {
           </div>
         </header>
 
-        {/* Quick Navigation Bar across related views */}
+        {/* Quick Navigation Bar across 4 IELTS skills */}
         {['practice', 'listening', 'writing', 'speaking'].includes(page) && (
-          <div className="skill-quick-bar" role="tablist" aria-label="4 Kỹ năng">
+          <div className="skill-quick-bar skill-4-grid" role="tablist" aria-label="4 Kỹ năng IELTS">
             <button
               role="tab"
               aria-selected={page === 'practice'}
               className={`skill-quick-btn ${page === 'practice' ? 'active' : ''}`}
               onClick={() => go('practice')}
             >
-              <BookOpen size={15} /> <span>Reading (Đọc hiểu)</span>
+              <BookOpen size={16} />
+              <span className="skill-btn-label">
+                <strong>Reading</strong>
+                <small>Đọc hiểu</small>
+              </span>
             </button>
             <button
               role="tab"
@@ -341,7 +382,11 @@ export default function App() {
               className={`skill-quick-btn ${page === 'listening' ? 'active' : ''}`}
               onClick={() => go('listening')}
             >
-              <Volume2 size={15} /> <span>Listening (Nghe hiểu)</span>
+              <Volume2 size={16} />
+              <span className="skill-btn-label">
+                <strong>Listening</strong>
+                <small>Nghe hiểu</small>
+              </span>
             </button>
             <button
               role="tab"
@@ -349,7 +394,11 @@ export default function App() {
               className={`skill-quick-btn ${page === 'writing' ? 'active' : ''}`}
               onClick={() => go('writing')}
             >
-              <Palette size={15} /> <span>Writing (Viết luận)</span>
+              <PenTool size={16} />
+              <span className="skill-btn-label">
+                <strong>Writing</strong>
+                <small>Viết luận</small>
+              </span>
             </button>
             <button
               role="tab"
@@ -357,7 +406,11 @@ export default function App() {
               className={`skill-quick-btn ${page === 'speaking' ? 'active' : ''}`}
               onClick={() => go('speaking')}
             >
-              <Compass size={15} /> <span>Speaking (Luyện nói)</span>
+              <Mic size={16} />
+              <span className="skill-btn-label">
+                <strong>Speaking</strong>
+                <small>Luyện nói</small>
+              </span>
             </button>
           </div>
         )}
@@ -478,7 +531,6 @@ export default function App() {
           }}
         />
       )}
-
     </div>
   )
 }
@@ -1850,10 +1902,13 @@ function Practice({
   const [submitted, setSubmitted] = useState(false)
   const [reflection, setReflection] = useState('')
 
+  const [mobileTab, setMobileTab] = useState<'passage' | 'questions'>('passage')
+
   useEffect(() => {
     setAnswers({})
     setSubmitted(false)
     setReflection('')
+    setMobileTab('passage')
   }, [passage?.id])
 
   if (!passage && isRetestMode) {
@@ -1965,92 +2020,140 @@ function Practice({
         </section>
       )}
 
-      {passage ? <div className="practice-layout">
-        <section className="panel passage">
-          <div className="panel-title">
-            <span className="eyebrow">{passage.topicTitle ? passage.topicTitle.toUpperCase() : 'READING'} · {passage.level}</span>
-            <span className="date-pill">{passage.minutes} min target</span>
-          </div>
-          <h2>{passage.title}</h2>
-          {passage.text.split('\n\n').map((paragraph, index) => (
-            <p key={index}>{paragraph}</p>
-          ))}
-        </section>
-
-        <section className="panel questions">
-          <h2>Questions ({passage.questions.length})</h2>
-          {passage.questions.map((q, index) => (
-            <div className="question" key={q.id}>
-              <div className="question-top">
-                <b>{index + 1}</b>
-                <span>{q.type.toUpperCase()} · {q.objective}</span>
-              </div>
-              <h3>{q.prompt}</h3>
-              <div className="options">
-                {q.options.map(option => (
-                  <label key={option} className={answers[q.id] === option ? 'chosen' : ''}>
-                    <input
-                      type="radio"
-                      name={q.id}
-                      checked={answers[q.id] === option}
-                      onChange={() => setAnswers({ ...answers, [q.id]: option })}
-                      disabled={submitted}
-                    />
-                    <span>{option}</span>
-                  </label>
-                ))}
-              </div>
-              {submitted && (
-                <div className={`feedback ${answers[q.id] === q.answer ? 'correct' : 'incorrect'}`}>
-                  <b>{answers[q.id] === q.answer ? '✓ Correct' : '✗ Incorrect'}</b>
-                  <span>Correct answer: {q.answer}</span>
-                  <small>{q.explanation}</small>
-                </div>
-              )}
-            </div>
-          ))}
-
-          {!submitted ? (
+      {passage ? (
+        <div className="practice-container">
+          {/* Mobile Reading Segmented Tab Bar */}
+          <div className="mobile-reading-tab-bar" role="tablist" aria-label="Chuyển chế độ xem di động">
             <button
-              className="primary full"
-              disabled={Object.keys(answers).length < passage.questions.length}
-              onClick={submit}
+              type="button"
+              role="tab"
+              aria-selected={mobileTab === 'passage'}
+              className={`mobile-tab-btn ${mobileTab === 'passage' ? 'active' : ''}`}
+              onClick={() => setMobileTab('passage')}
             >
-              Submit answers ({Object.keys(answers).length}/{passage.questions.length})
+              <BookOpen size={16} />
+              <span>Đoạn văn ({passage.minutes}p)</span>
             </button>
-          ) : (
-            <div className="result">
-              <div className="score-circle">
-                <b>{score}/{passage.questions.length}</b>
-                <span>{Math.round((score / passage.questions.length) * 100)}%</span>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mobileTab === 'questions'}
+              className={`mobile-tab-btn ${mobileTab === 'questions' ? 'active' : ''}`}
+              onClick={() => setMobileTab('questions')}
+            >
+              <ListChecks size={16} />
+              <span>Câu hỏi ({Object.keys(answers).length}/{passage.questions.length})</span>
+            </button>
+          </div>
+
+          <div className="practice-layout">
+            <section className={`panel passage ${mobileTab === 'passage' ? 'mobile-pane-active' : 'mobile-pane-hidden'}`}>
+              <div className="panel-title">
+                <span className="eyebrow">{passage.topicTitle ? passage.topicTitle.toUpperCase() : 'READING'} · {passage.level}</span>
+                <span className="date-pill">{passage.minutes} min target</span>
               </div>
-              <p className="muted">Attempt saved to Learning Record and Error Memory.</p>
-              <div className="reflection">
-                <label className="field-label">
-                  Chiến lược rút ra (nên ghi sau mỗi bài)
-                  <textarea
-                    placeholder="Ví dụ: Mình nhầm False/Not Given vì chưa tìm câu bằng chứng; lần sau sẽ scan theo paraphrase..."
-                    value={reflection}
-                    onChange={e => setReflection(e.target.value)}
-                  />
-                </label>
+              <h2>{passage.title}</h2>
+              {passage.text.split('\n\n').map((paragraph, index) => (
+                <p key={index}>{paragraph}</p>
+              ))}
+
+              <button
+                type="button"
+                className="primary full mobile-only-action"
+                style={{ marginTop: 18 }}
+                onClick={() => setMobileTab('questions')}
+              >
+                Trả lời câu hỏi ({Object.keys(answers).length}/{passage.questions.length}) →
+              </button>
+            </section>
+
+            <section className={`panel questions ${mobileTab === 'questions' ? 'mobile-pane-active' : 'mobile-pane-hidden'}`}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                <h2 style={{ margin: 0 }}>Questions ({passage.questions.length})</h2>
                 <button
-                  className="secondary"
-                  disabled={!reflection.trim()}
-                  onClick={() => {
-                    const lastAttempt = s.attempts[s.attempts.length - 1]
-                    if (!lastAttempt) return
-                    setS({ ...s, attempts: s.attempts.map(attempt => attempt.id === lastAttempt.id ? { ...attempt, reflection: { nextStep: reflection.trim() } } : attempt) })
-                    note('Đã lưu chiến lược rút ra vào Learning Record.')
-                  }}
+                  type="button"
+                  className="secondary mobile-only-action"
+                  onClick={() => setMobileTab('passage')}
+                  style={{ fontSize: 12, padding: '7px 12px' }}
                 >
-                  Lưu chiến lược
+                  <BookOpen size={14} /> Xem lại bài đọc
                 </button>
               </div>
-            </div>
-          )}
-        </section>
-      </div> : (
+
+              {passage.questions.map((q, index) => (
+                <div className="question" key={q.id}>
+                  <div className="question-top">
+                    <b>{index + 1}</b>
+                    <span>{q.type.toUpperCase()} · {q.objective}</span>
+                  </div>
+                  <h3>{q.prompt}</h3>
+                  <div className="options">
+                    {q.options.map(option => (
+                      <label key={option} className={answers[q.id] === option ? 'chosen' : ''}>
+                        <input
+                          type="radio"
+                          name={q.id}
+                          checked={answers[q.id] === option}
+                          onChange={() => setAnswers({ ...answers, [q.id]: option })}
+                          disabled={submitted}
+                        />
+                        <span>{option}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {submitted && (
+                    <div className={`feedback ${answers[q.id] === q.answer ? 'correct' : 'incorrect'}`}>
+                      <b>{answers[q.id] === q.answer ? '✓ Correct' : '✗ Incorrect'}</b>
+                      <span>Correct answer: {q.answer}</span>
+                      <small>{q.explanation}</small>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {!submitted ? (
+                <button
+                  className="primary full"
+                  disabled={Object.keys(answers).length < passage.questions.length}
+                  onClick={submit}
+                >
+                  Submit answers ({Object.keys(answers).length}/{passage.questions.length})
+                </button>
+              ) : (
+                <div className="result">
+                  <div className="score-circle">
+                    <b>{score}/{passage.questions.length}</b>
+                    <span>{Math.round((score / passage.questions.length) * 100)}%</span>
+                  </div>
+                  <p className="muted">Attempt saved to Learning Record and Error Memory.</p>
+                  <div className="reflection">
+                    <label className="field-label">
+                      Chiến lược rút ra (nên ghi sau mỗi bài)
+                      <textarea
+                        placeholder="Ví dụ: Mình nhầm False/Not Given vì chưa tìm câu bằng chứng; lần sau sẽ scan theo paraphrase..."
+                        value={reflection}
+                        onChange={e => setReflection(e.target.value)}
+                      />
+                    </label>
+                    <button
+                      className="secondary"
+                      disabled={!reflection.trim()}
+                      onClick={() => {
+                        const lastAttempt = s.attempts[s.attempts.length - 1]
+                        if (!lastAttempt) return
+                        setS({ ...s, attempts: s.attempts.map(attempt => attempt.id === lastAttempt.id ? { ...attempt, reflection: { nextStep: reflection.trim() } } : attempt) })
+                        note('Đã lưu chiến lược rút ra vào Learning Record.')
+                      }}
+                    >
+                      Lưu chiến lược
+                    </button>
+                  </div>
+                </div>
+              )}
+            </section>
+          </div>
+        </div>
+      ) : (
         <section className="panel empty reading-topic-empty">
           <div className="empty-icon"><BookOpen size={22} /></div>
           <h2>Chủ đề này chưa có bài Reading</h2>
