@@ -70,6 +70,7 @@ export interface FullWritingPaper {
     type: 'academic_task1' | 'general_task1'
     stimulusType: 'chart' | 'diagram' | 'table' | 'letter'
     stimulusDescription: string
+    stimulusData?: WritingStimulusData
     minimumWords: 150
     modelAnswer?: string
   }
@@ -79,6 +80,13 @@ export interface FullWritingPaper {
     minimumWords: 250
     modelAnswer?: string
   }
+}
+
+export interface WritingStimulusData {
+  visualization: 'bar' | 'line' | 'table'
+  unit: string
+  categories: string[]
+  series: { label: string; values: number[] }[]
 }
 
 export interface FullSpeakingPaper {
@@ -1256,6 +1264,16 @@ Moreover, the phenomenon of cross-modal plasticity illustrates the astonishing c
         stimulusType: 'chart',
         stimulusDescription:
           'Comparative bar chart: Country A led in hydropower in 2015 (180 TWh) but experienced exponential solar growth to 220 TWh by 2025. Country B expanded offshore wind from 40 TWh to 190 TWh. Country C maintained consistent biomass reliance (80 TWh) with modest solar investments.',
+        stimulusData: {
+          visualization: 'bar', unit: 'TWh', categories: ['2015', '2025'],
+          series: [
+            { label: 'Country A · hydropower', values: [180, 210] },
+            { label: 'Country A · solar PV', values: [30, 220] },
+            { label: 'Country B · offshore wind', values: [40, 190] },
+            { label: 'Country C · biomass', values: [80, 80] },
+            { label: 'Country C · solar PV', values: [15, 45] }
+          ]
+        },
         minimumWords: 150,
         modelAnswer: `The bar chart illustrates the output of renewable electricity across four energy sources—hydropower, wind, solar photovoltaic (PV), and biomass—in Countries A, B, and C over a ten-year span from 2015 to 2025.
 
@@ -1373,7 +1391,7 @@ function makeFreshQuestions(prefix: string, facts: FreshFact[], startNumber: num
 function buildFreshExam(index: 2 | 3, data: {
   reading: Array<{ title: string; text: string; facts: FreshFact[] }>
   listening: Array<{ title: string; context: string; transcript: string; facts: FreshFact[] }>
-  writingTask1: { title: string; prompt: string; stimulusDescription: string }
+  writingTask1: { title: string; prompt: string; stimulusDescription: string; stimulusData?: WritingStimulusData }
   writingTask2: { title: string; prompt: string }
   speaking: { part1Topic: string; part1: string[]; part2Topic: string; part2: string; part2Bullets: string[]; part3Topic: string; part3: string[] }
 }): FullIELTSExam {
@@ -1400,7 +1418,7 @@ function buildFreshExam(index: 2 | 3, data: {
     listening: { id: `listening-paper-${suffix}`, title: `Academic Listening — Practice Test ${index} (40 Questions)`, timeAllowedMinutes: 30, totalQuestions: 40, sections },
     writing: {
       id: `writing-paper-${suffix}`, title: `Academic Writing — Practice Test ${index}`, timeAllowedMinutes: 60,
-      task1: { ...data.writingTask1, type: 'academic_task1', stimulusType: 'chart', minimumWords: 150 },
+      task1: { ...data.writingTask1, type: 'academic_task1', stimulusType: data.writingTask1.stimulusData?.visualization === 'table' ? 'table' : 'chart', minimumWords: 150 },
       task2: { ...data.writingTask2, minimumWords: 250 }
     },
     speaking: {
@@ -1424,7 +1442,7 @@ const freshExam2 = buildFreshExam(2, {
     { title: 'Section 3: Student Research Seminar', context: 'Two students discuss a seminar presentation.', transcript: 'Maya: Our presentation is about rooftop farming. The tutor wants us to compare hydroponic systems with soil beds, not simply describe them. I will analyse water consumption, while Leo will examine crop yields. We should use the university’s 2024 dataset because the older survey measured only three buildings. The seminar room has a projector, but we must bring an adaptor. The presentation is twelve minutes, followed by questions.', facts: [['The presentation concerns rooftop farming.', 'rooftop farming'], ['The tutor requires a comparison.', 'compare hydroponic systems with soil beds'], ['Maya will analyse water consumption.', 'water consumption'], ['Leo will examine crop yields.', 'crop yields'], ['The recommended dataset is from 2024.', '2024 dataset'], ['The older survey covered three buildings.', 'three buildings'], ['The seminar room has a projector.', 'projector'], ['The students must bring an adaptor.', 'adaptor'], ['The presentation lasts twelve minutes.', 'twelve minutes'], ['Questions follow the presentation.', 'questions']] },
     { title: 'Section 4: Sleep and Memory Lecture', context: 'A lecturer explains how sleep supports learning.', transcript: 'Lecturer: Memory consolidation is not a single event. During the first part of the night, the brain repeatedly replays newly learned patterns, while later sleep appears to integrate them with older knowledge. A controlled study found that participants who slept after learning vocabulary recalled more words than those who stayed awake. However, researchers warn that caffeine late in the day can delay sleep onset. They recommend a regular schedule, moderate evening light and a quiet bedroom rather than relying on weekend catch-up sleep.', facts: [['Memory consolidation occurs in more than one stage.', 'not a single event'], ['The brain replays new patterns early in the night.', 'replays newly learned patterns'], ['Later sleep connects new knowledge with older knowledge.', 'older knowledge'], ['Sleeping after vocabulary study improved recall.', 'recalled more words'], ['The study compared sleepers with people who stayed awake.', 'stayed awake'], ['Late caffeine can delay sleep onset.', 'delay sleep onset'], ['Researchers recommend a regular schedule.', 'regular schedule'], ['Moderate evening light is recommended.', 'moderate evening light'], ['A quiet bedroom is recommended.', 'quiet bedroom'], ['Weekend catch-up sleep is not a complete solution.', 'weekend catch-up sleep']] }
   ],
-  writingTask1: { title: 'Task 1: Household Recycling Rates (20 Minutes)', prompt: 'The bar chart compares household recycling rates for paper, glass, plastic and metal in three cities in 2010 and 2020. Summarise the information by selecting and reporting the main features, and make comparisons where relevant. Write at least 150 words.', stimulusDescription: 'City A increased paper recycling from 52% to 78%; City B recorded the highest glass rate at 81%; City C made the largest improvement in plastic recycling, from 18% to 55%.' },
+  writingTask1: { title: 'Task 1: Household Recycling Rates (20 Minutes)', prompt: 'The table compares household recycling rates for paper, glass, plastic and metal in three cities in 2010 and 2020. Summarise the information by selecting and reporting the main features, and make comparisons where relevant. Write at least 150 words.', stimulusDescription: 'Rates are percentages. City A: paper 52→78, glass 61→74, plastic 28→46, metal 44→67. City B: paper 48→71, glass 66→81, plastic 31→49, metal 51→70. City C: paper 39→64, glass 54→69, plastic 18→55, metal 36→62.', stimulusData: { visualization: 'table', unit: '%', categories: ['Paper', 'Glass', 'Plastic', 'Metal'], series: [{ label: 'City A · 2010', values: [52, 61, 28, 44] }, { label: 'City A · 2020', values: [78, 74, 46, 67] }, { label: 'City B · 2010', values: [48, 66, 31, 51] }, { label: 'City B · 2020', values: [71, 81, 49, 70] }, { label: 'City C · 2010', values: [39, 54, 18, 36] }, { label: 'City C · 2020', values: [64, 69, 55, 62] }] } },
   writingTask2: { title: 'Task 2: Public Transport Investment (40 Minutes)', prompt: 'Some people believe governments should invest more in public transport, while others think expanding roads is the best way to reduce congestion. Discuss both views and give your own opinion. Write at least 250 words.' },
   speaking: { part1Topic: 'Libraries and Reading', part1: ['How often do you visit a library?', 'What kind of books do you prefer to read?', 'Do people read differently because of digital technology?'], part2Topic: 'A useful public place', part2: 'Describe a public place in your town that you think is useful.', part2Bullets: ['what the place is', 'where it is located', 'what people do there', 'and explain why it is useful'], part3Topic: 'Public Services and Communities', part3: ['Which public services are most important in a city?', 'How can communities encourage people to use shared facilities?', 'Should public spaces be designed mainly for children or for all age groups?'] }
 })
@@ -1492,7 +1510,7 @@ const freshExam3 = buildFreshExam(3, {
     { title: 'Section 3: Group Project on Coastal Erosion', context: 'Three students plan a university project about coastal erosion.', transcript: 'Tutor: Your group should focus on one beach rather than compare the entire coastline. Nina will analyse historical photographs, while Omar will use tide-gauge records. Priya has arranged an interview with the local harbour master. The final report needs a map, a short risk assessment and two recommendations for residents. Submit a draft on the fifteenth; the presentation will take place in the geography studio one week later.', facts: [['The group should focus on one beach.', 'one beach'], ['Nina will analyse historical photographs.', 'historical photographs'], ['Omar will use tide-gauge records.', 'tide-gauge records'], ['Priya arranged an interview with the harbour master.', 'harbour master'], ['The report needs a map.', 'map'], ['A risk assessment is required.', 'risk assessment'], ['The report must include two recommendations.', 'two recommendations'], ['The recommendations are for residents.', 'residents'], ['The draft is due on the fifteenth.', 'fifteenth'], ['The presentation is in the geography studio.', 'geography studio']] },
     { title: 'Section 4: The Psychology of Colour', context: 'A lecture considers how colour affects attention and behaviour.', transcript: 'Lecturer: Colour can influence attention, but its effects depend heavily on context and culture. In one experiment, a red warning label attracted faster glances than a grey label. However, participants remembered the information only when the label was accompanied by a clear explanation. Blue walls did not automatically improve concentration; the benefit appeared when lighting and temperature were comfortable. Designers should therefore avoid universal claims and test colour choices with the intended users.', facts: [['Colour effects depend on context.', 'context'], ['Culture also influences colour effects.', 'culture'], ['Red warning labels attracted faster glances.', 'red warning label'], ['Grey labels received slower attention.', 'grey label'], ['Memory improved when explanations were clear.', 'clear explanation'], ['Blue walls did not automatically improve concentration.', 'did not automatically improve'], ['Lighting affected the result.', 'lighting'], ['Temperature affected the result.', 'temperature'], ['Designers should avoid universal claims.', 'universal claims'], ['Colour choices should be tested with intended users.', 'intended users']] }
   ],
-  writingTask1: { title: 'Task 1: Visitor Numbers at Three Museums (20 Minutes)', prompt: 'The line graph compares visitor numbers at three museums between 2012 and 2022. Summarise the information by selecting and reporting the main features, and make comparisons where relevant. Write at least 150 words.', stimulusDescription: 'Museum A rose steadily from 120,000 to 240,000 visitors; Museum B fluctuated around 180,000; Museum C declined until 2018 before recovering to 160,000 in 2022.' },
+  writingTask1: { title: 'Task 1: Visitor Numbers at Three Museums (20 Minutes)', prompt: 'The line graph compares visitor numbers at three museums between 2012 and 2022. Summarise the information by selecting and reporting the main features, and make comparisons where relevant. Write at least 150 words.', stimulusDescription: 'Visitor numbers are shown in thousands. Museum A: 120, 145, 170, 190, 215, 240. Museum B: 180, 175, 185, 178, 182, 180. Museum C: 150, 135, 120, 105, 132, 160 for 2012, 2014, 2016, 2018, 2020 and 2022 respectively.', stimulusData: { visualization: 'line', unit: 'thousand visitors', categories: ['2012', '2014', '2016', '2018', '2020', '2022'], series: [{ label: 'Museum A', values: [120, 145, 170, 190, 215, 240] }, { label: 'Museum B', values: [180, 175, 185, 178, 182, 180] }, { label: 'Museum C', values: [150, 135, 120, 105, 132, 160] }] } },
   writingTask2: { title: 'Task 2: Online Education and Universities (40 Minutes)', prompt: 'Some people think online education will eventually replace face-to-face university teaching. To what extent do you agree or disagree? Write at least 250 words.' },
   speaking: { part1Topic: 'Weather and Seasons', part1: ['Which season do you enjoy most?', 'Does the weather affect your daily plans?', 'Have weather patterns changed in your area?'], part2Topic: 'A journey you remember', part2: 'Describe a journey that you remember well.', part2Bullets: ['where you went', 'how you travelled', 'what happened during the journey', 'and explain why you remember it'], part3Topic: 'Travel and the Environment', part3: ['How can tourism benefit local communities?', 'What problems can mass tourism create?', 'Should governments limit visitors to fragile natural areas?'] }
 })
@@ -1580,6 +1598,7 @@ const academicTest1Exam: FullIELTSExam = {
       type: 'academic_task1',
       stimulusType: 'chart',
       stimulusDescription: 'North America rose from about 70% to 92%; Europe from 60% to 85%; Asia from 25% to 65%; Africa from 5% to 40%.',
+      stimulusData: { visualization: 'bar', unit: '% of population', categories: ['2010', '2022'], series: [{ label: 'North America', values: [70, 92] }, { label: 'Europe', values: [60, 85] }, { label: 'Asia', values: [25, 65] }, { label: 'Africa', values: [5, 40] }] },
       minimumWords: 150,
       modelAnswer: `The bar chart compares the proportion of internet users across four world regions — North America, Europe, Asia and Africa — between 2010 and 2022.
 

@@ -34,6 +34,7 @@ import {
   type FullIELTSExam,
   type ExamPassage,
   type FullListeningSection,
+  type WritingStimulusData,
   calculateAcademicReadingBand,
   calculateListeningBand
 } from './examLibraryData'
@@ -43,6 +44,84 @@ interface Props {
   setStore: (updater: Store | ((prev: Store) => Store)) => void
   onNavigate: (page: Page) => void
   addToast: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void
+}
+
+function Task1StimulusChart({ data }: { data?: WritingStimulusData }) {
+  if (!data) return null
+  const colors = ['#075d52', '#3b82f6', '#d97706', '#7c3aed', '#db2777', '#65a30d']
+  const maxValue = Math.max(...data.series.flatMap(series => series.values), 1)
+
+  if (data.visualization === 'table') {
+    return (
+      <div className="task1-stimulus-visual task1-data-table-wrap">
+        <table className="task1-data-table">
+          <caption>Actual figures ({data.unit})</caption>
+          <thead>
+            <tr><th scope="col">Series</th>{data.categories.map(category => <th scope="col" key={category}>{category}</th>)}</tr>
+          </thead>
+          <tbody>
+            {data.series.map(series => (
+              <tr key={series.label}>
+                <th scope="row">{series.label}</th>
+                {series.values.map((value, index) => <td key={`${series.label}-${index}`}>{value}{data.unit === '%' ? '%' : ''}</td>)}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+
+  const chartWidth = 720
+  const chartHeight = 300
+  const left = 48
+  const right = 16
+  const top = 18
+  const bottom = 42
+  const plotWidth = chartWidth - left - right
+  const plotHeight = chartHeight - top - bottom
+  const xStep = data.categories.length > 1 ? plotWidth / (data.categories.length - 1) : plotWidth
+  const y = (value: number) => top + plotHeight - (value / maxValue) * plotHeight
+  const x = (index: number) => left + (data.categories.length > 1 ? index * xStep : plotWidth / 2)
+
+  return (
+    <div className="task1-stimulus-visual">
+      <svg className="task1-chart" viewBox={`0 0 ${chartWidth} ${chartHeight}`} role="img" aria-label={`Task 1 ${data.visualization} chart in ${data.unit}`}>
+        {[0, .25, .5, .75, 1].map(ratio => {
+          const gridY = top + plotHeight - ratio * plotHeight
+          return <line key={ratio} x1={left} x2={chartWidth - right} y1={gridY} y2={gridY} className="task1-chart-grid" />
+        })}
+        {data.visualization === 'bar' ? data.categories.map((category, categoryIndex) => {
+          const groupWidth = plotWidth / data.categories.length
+          const barWidth = Math.min(28, (groupWidth * .72) / data.series.length)
+          const start = left + categoryIndex * groupWidth + (groupWidth - barWidth * data.series.length) / 2
+          return (
+            <g key={category}>
+              {data.series.map((series, seriesIndex) => {
+                const value = series.values[categoryIndex] || 0
+                const barX = start + seriesIndex * barWidth
+                return <rect key={series.label} x={barX} y={y(value)} width={Math.max(4, barWidth - 2)} height={top + plotHeight - y(value)} rx="2" fill={colors[seriesIndex % colors.length]}><title>{series.label}: {value}{data.unit}</title></rect>
+              })}
+              <text x={left + categoryIndex * groupWidth + groupWidth / 2} y={chartHeight - 16} textAnchor="middle" className="task1-chart-label">{category}</text>
+            </g>
+          )
+        }) : data.series.map((series, seriesIndex) => {
+          const points = series.values.map((value, index) => `${x(index)},${y(value)}`).join(' ')
+          return (
+            <g key={series.label}>
+              <polyline points={points} fill="none" stroke={colors[seriesIndex % colors.length]} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
+              {series.values.map((value, index) => <circle key={index} cx={x(index)} cy={y(value)} r="4" fill={colors[seriesIndex % colors.length]}><title>{series.label}: {value}{data.unit}</title></circle>)}
+            </g>
+          )
+        })}
+        {data.visualization === 'line' && data.categories.map((category, index) => <text key={category} x={x(index)} y={chartHeight - 16} textAnchor="middle" className="task1-chart-label">{category}</text>)}
+      </svg>
+      <div className="task1-chart-legend">
+        {data.series.map((series, index) => <span key={series.label}><i style={{ background: colors[index % colors.length] }} />{series.label}</span>)}
+      </div>
+      <small className="task1-chart-unit">Unit: {data.unit}</small>
+    </div>
+  )
 }
 
 export default function ExamLibraryView({ store, setStore, onNavigate, addToast }: Props) {
@@ -2067,7 +2146,8 @@ function FullWritingExamSimulator({ exam, store, setStore, onExit, addToast }: W
             </p>
 
             <div style={{ padding: 16, background: '#182922', borderRadius: 8, border: '1px solid var(--line)' }}>
-              <span className="eyebrow">MÔ TẢ DỮ LIỆU BIỂU ĐỒ (STIMULUS DATA)</span>
+              <span className="eyebrow">DỮ LIỆU TASK 1 · {writingPaper.task1.stimulusType.toUpperCase()}</span>
+              <Task1StimulusChart data={writingPaper.task1.stimulusData} />
               <p style={{ margin: '8px 0 0', fontSize: 13, color: '#f0f8f1', lineHeight: 1.6 }}>
                 {writingPaper.task1.stimulusDescription}
               </p>

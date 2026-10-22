@@ -1734,3 +1734,26 @@ button, input, select, textarea, a {
     font-size: 13px;
   }
 }
+
+/* Writing Task 1 stimulus visuals */
+.task1-stimulus-visual{margin:12px 0 14px;background:#fffefa;border:1px solid #dbe7d8;border-radius:10px;padding:12px;overflow:hidden}
+.task1-chart{display:block;width:100%;height:auto;min-height:180px}
+.task1-chart-grid{stroke:#d7e3d5;stroke-width:1}
+.task1-chart-label{fill:#526b62;font-size:12px;font-family:'DM Sans',sans-serif}
+.task1-chart-legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:8px;color:#36584d;font-size:11px;line-height:1.35}
+.task1-chart-legend span{display:inline-flex;align-items:center;gap:5px}
+.task1-chart-legend i{display:inline-block;width:9px;height:9px;border-radius:2px}
+.task1-chart-unit{display:block;margin-top:8px;color:#718578;font-size:10px}
+.task1-data-table-wrap{overflow-x:auto}
+.task1-data-table{width:100%;border-collapse:collapse;color:#294b40;font-size:11px;white-space:nowrap}
+.task1-data-table caption{text-align:left;color:#718578;font-size:10px;margin-bottom:7px}
+.task1-data-table th,.task1-data-table td{border:1px solid #dbe7d8;padding:7px 8px;text-align:right}
+.task1-data-table th:first-child,.task1-data-table td:first-child{text-align:left}
+.task1-data-table thead th{background:#edf5e8;color:#24574b;font-weight:800}
+.task1-data-table tbody th{background:#f7faf3;font-weight:700}
+@media(max-width:520px){
+  .task1-stimulus-visual{padding:8px}
+  .task1-chart{min-width:560px}
+  .task1-stimulus-visual:has(.task1-chart){overflow-x:auto}
+  .task1-chart-legend{min-width:560px}
+}

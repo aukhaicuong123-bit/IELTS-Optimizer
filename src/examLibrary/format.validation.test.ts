@@ -30,4 +30,17 @@ describe('IELTS exam library format contracts', () => {
       expect(totalWords).toBeLessThanOrEqual(2750)
     }
   })
+
+  it('provides a faithful visual stimulus for every Writing Task 1 paper', () => {
+    for (const exam of IELTS_EXAM_COLLECTIONS) {
+      const stimulus = exam.writing.task1.stimulusData
+      expect(stimulus).toBeDefined()
+      expect(stimulus!.categories.length).toBeGreaterThan(1)
+      expect(stimulus!.series.length).toBeGreaterThan(0)
+      for (const series of stimulus!.series) {
+        expect(series.values).toHaveLength(stimulus!.categories.length)
+        expect(series.values.every(value => Number.isFinite(value) && value >= 0)).toBe(true)
+      }
+    }
+  })
 })
