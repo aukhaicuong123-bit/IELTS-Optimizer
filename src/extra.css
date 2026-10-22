@@ -1757,3 +1757,21 @@ button, input, select, textarea, a {
   .task1-stimulus-visual:has(.task1-chart){overflow-x:auto}
   .task1-chart-legend{min-width:560px}
 }
+
+/* Readability guard for legacy inline dark-theme styles inside the light workspace. */
+.workspace-theme [style*="#182922"],
+.workspace-theme [style*="#111a17"],
+.workspace-theme [style*="#18241f"]{
+  background:#f1f7e8 !important;
+  border-color:#d7e7c8 !important;
+}
+.workspace-theme [style*="#f0f8f1"],
+.workspace-theme [style*="#c5d3ca"],
+.workspace-theme [style*="#b9c8c0"]{
+  color:#294b40 !important;
+}
+.workspace-theme [style*="#162438"]{
+  background:#edf5e0 !important;
+  border-color:#cfe2c4 !important;
+  color:#24574b !important;
+}
