@@ -702,7 +702,8 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 .forum-tree-card{background:linear-gradient(135deg,#f8fcf7 0%,#edf7f1 58%,#f8f4e9 100%);border:1px solid #c7e1d0;border-radius:24px;padding:26px 28px;color:#172236;box-shadow:0 12px 30px rgba(7,93,82,.08);display:flex;flex-direction:column;gap:22px;margin-bottom:6px;position:relative;overflow:hidden}
 .forum-tree-top{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:stretch;position:relative;z-index:1}
 .forum-tree-motto{display:flex;flex-direction:column;justify-content:center;gap:10px;position:relative;min-height:286px;overflow:visible}
-.journey-mountain-path{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center bottom;transform:translateX(-18%);opacity:.62;pointer-events:none;z-index:0}
+.journey-mountain-fill{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center bottom;opacity:.34;pointer-events:none;z-index:0}
+.journey-mountain-path{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;transform:translateX(-18%);opacity:.62;pointer-events:none;z-index:0}
 .forum-tree-motto>*:not(.journey-mountain-path){position:relative;z-index:1}
 .forum-badge-pill{display:inline-flex;align-items:center;gap:6px;background:#e0f2ea;color:#075d52;font-size:10px;font-weight:900;letter-spacing:.08em;padding:6px 12px;border-radius:8px 18px 18px 8px;width:fit-content;border:1px solid #b7dcca;box-shadow:0 3px 0 rgba(7,93,82,.06)}
 .forum-tree-motto h3{font:700 28px 'Space Grotesk',sans-serif;color:#075d52;margin:0;line-height:1.2;letter-spacing:-.02em}
@@ -931,7 +932,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
   .forum-tree-stepper{grid-template-columns:repeat(2,1fr)}
   .forum-tree-card{padding:16px}
   .forum-tree-motto{min-height:270px}
-  .journey-mountain-path{object-position:58% bottom;transform:translateX(-8%);opacity:.48}
+  .journey-mountain-path{object-position:58% top;transform:translateX(-8%);opacity:.48}
   .step-illustration{width:88px;height:62px}
   .forum-vcard-word{width:100%}
   .forum-vcard-context,.forum-vcard-meaning{width:92%}
