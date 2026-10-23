@@ -13,13 +13,23 @@ describe('journey progression selectors', () => {
     expect(calculateJourneyXp(2, 3)).toBe(2 * VOCABULARY_XP_PER_ITEM + 3 * GRAMMAR_XP_PER_ITEM)
   })
 
-  it('counts only completed grammar evidence used by every journey view', () => {
+  it('counts each completed grammar activity once and ignores invalid evidence', () => {
     const submissions: SkillSubmission[] = [
       { id: 'g1', skill: 'Grammar', activityId: 'grammar-rule-1', response: 'x', createdAt: '2026-01-01', feedbackMode: 'self-review', completed: true },
       { id: 'g2', skill: 'Grammar', activityId: 'grammar-rule-2', response: 'x', createdAt: '2026-01-02', feedbackMode: 'self-review', completed: false },
-      { id: 'r1', skill: 'Reading', activityId: 'reading-1', response: 'x', createdAt: '2026-01-03', feedbackMode: 'self-review', completed: true }
+      { id: 'g1-duplicate', skill: 'Grammar', activityId: 'grammar-rule-1', response: 'x', createdAt: '2026-01-03', feedbackMode: 'self-review', completed: true },
+      { id: 'g-empty', skill: 'Grammar', activityId: '  ', response: 'x', createdAt: '2026-01-04', feedbackMode: 'self-review', completed: true },
+      { id: 'r1', skill: 'Reading', activityId: 'reading-1', response: 'x', createdAt: '2026-01-05', feedbackMode: 'self-review', completed: true }
     ]
     expect(countCompletedGrammar(submissions)).toBe(1)
+  })
+
+  it('keeps dashboard, vocabulary and grammar on the same journey snapshot', () => {
+    const knownVocabulary = 4
+    const completedGrammar = 2
+
+    expect(calculateJourneyXp(knownVocabulary, completedGrammar)).toBe(110)
+    expect(calculateCourseCompletion(knownVocabulary, 10, completedGrammar, 10)).toBe(30)
   })
 
   it('bounds course completion and protects empty totals', () => {

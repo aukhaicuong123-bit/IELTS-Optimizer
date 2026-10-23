@@ -423,9 +423,6 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 .workspace-theme main .panel .eyebrow,.workspace-theme main .panel .badge,.workspace-theme main .panel .date-pill,.workspace-theme main .panel .status,.workspace-theme main .panel .green-text{color:#39705e!important}
 .workspace-theme main .panel .status{color:#bd5a5b!important}
 .workspace-theme main .panel button:not(.primary):not(.secondary):not(.danger):not(.danger-outline){background:#fffefa!important;color:#36536b!important;border-color:#d9dfd8!important}
-.workspace-theme .dashboard-landscape{background-image:url('./assets/dashboard-hero.png');background-color:#075d52;background-position:right center;background-size:cover;background-repeat:no-repeat}
-.workspace-theme .dashboard-landscape .sun,.workspace-theme .dashboard-landscape .mountain,.workspace-theme .dashboard-landscape .lake,.workspace-theme .dashboard-landscape .traveller{display:none}
-.workspace-theme .dashboard-landscape:before{background:linear-gradient(90deg,rgba(3,45,39,.22) 0%,rgba(3,45,39,.08) 46%,rgba(3,45,39,0) 78%)}
 .workspace-theme .audio-upload-box{background:#f1f7e8!important;border:1px dashed #b8d59c!important;color:#45665c!important}
 .workspace-theme .audio-upload-box label,.workspace-theme .audio-upload-box label span,.workspace-theme .audio-upload-box input{color:#45665c!important}
 .workspace-theme .writing-chart-card{background:#f4f7ef!important;border-color:#dfe6d8!important}
@@ -1224,4 +1221,27 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 }
 @media(prefers-reduced-motion:reduce){
   .workspace-theme *, .workspace-theme *::before, .workspace-theme *::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
+}
+
+/* Post-redesign simulator stabilization. Scoped to the full exam workspaces. */
+.workspace-theme .exam-simulator{color:#172236}
+.workspace-theme .exam-simulator .exam-simulator-toolbar,.workspace-theme .exam-simulator .exam-simulator-media-panel,.workspace-theme .exam-simulator .panel{background:#fffefa!important;border-color:#dfe7dc!important;color:#172236!important;box-shadow:0 5px 18px rgba(35,45,50,.035)}
+.workspace-theme .exam-simulator .exam-simulator-toolbar{border-bottom-color:#dfe7dc!important}
+.workspace-theme .exam-simulator .exam-simulator-toolbar strong,.workspace-theme .exam-simulator .exam-simulator-toolbar small,.workspace-theme .exam-simulator .exam-simulator-media-panel strong,.workspace-theme .exam-simulator .exam-simulator-media-panel p{color:#425671!important}
+.workspace-theme .exam-simulator .exam-simulator-toolbar strong{color:#173f36!important}
+.workspace-theme .exam-simulator .passage,.workspace-theme .exam-simulator .questions{background:#fffefa!important;border-color:#dfe7dc!important;color:#425671!important}
+.workspace-theme .exam-simulator .passage h2,.workspace-theme .exam-simulator .questions h3,.workspace-theme .exam-simulator .panel h2,.workspace-theme .exam-simulator .panel h3{color:#173f36!important}
+.workspace-theme .exam-simulator [style*="background: rgb(20, 32, 28)"],.workspace-theme .exam-simulator [style*="background: #14201c"],.workspace-theme .exam-simulator [style*="background: #12201a"]{background:#fffefa!important}
+.workspace-theme .exam-simulator .question{background:#f6f9f3!important;border-color:#dfe7dc!important;color:#425671!important}
+.workspace-theme .exam-simulator .question p,.workspace-theme .exam-simulator .question span,.workspace-theme .exam-simulator .question small{color:#526b60!important}
+.workspace-theme .exam-simulator .question strong{color:#173f36!important}
+.workspace-theme .exam-simulator .feedback{background:#eff8e9!important;border-color:#cfe4c5!important;color:#45665c!important}
+.workspace-theme .exam-simulator textarea{background:#fffefa!important;color:#172236!important;border-color:#d9dfd8!important}
+.workspace-theme .exam-simulator .exam-simulator-result .panel{background:linear-gradient(145deg,#fffefa,#f5faf1)!important}
+.workspace-theme .exam-simulator .exam-simulator-result [style*="background: #13211c"],.workspace-theme .exam-simulator .exam-simulator-result [style*="background: #182922"]{background:#f2f8ed!important;border-color:#d7e7c8!important}
+.workspace-theme .exam-simulator .exam-simulator-result p,.workspace-theme .exam-simulator .exam-simulator-result div{color:#425671}
+.workspace-theme .exam-simulator .exam-simulator-result .eyebrow{color:#39705e!important}
+@media(max-width:680px){
+  .workspace-theme .exam-simulator .exam-simulator-toolbar{position:static!important}
+  .workspace-theme .exam-simulator .exam-simulator-toolbar>div{max-width:100%;overflow-wrap:anywhere}
 }

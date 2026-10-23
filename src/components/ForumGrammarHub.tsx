@@ -18,7 +18,7 @@ import { TOTAL_FORUM_VOCAB_COUNT } from '../data/forumVocab25Topics'
 import { TOPICS, type TopicId } from '../topicData'
 import { ForumStudyTree } from './ForumStudyTree'
 import type { Store } from '../types'
-import { countCompletedGrammar } from '../gamification'
+import { countCompletedGrammar, countKnownVocabulary } from '../gamification'
 import { uiSectionAsset } from '../uiAssets'
 
 const uid = (prefix: string) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
@@ -106,21 +106,35 @@ export const ForumGrammarHub: React.FC<ForumGrammarHubProps> = ({
     const text = drillAnswers[ruleId] || ''
     if (!text.trim()) return note('Vui lòng viết câu luyện tập trước khi lưu.')
 
+    const activityId = `grammar-${ruleId}`
     const submission = {
       id: uid('submission'),
       skill: 'Grammar' as const,
-      activityId: `grammar-${ruleId}`,
+      activityId,
       response: `[${ruleTitle}] ${text.trim()}`,
       createdAt: new Date().toISOString(),
       feedbackMode: 'self-review' as const,
       completed: true
     }
 
+    const alreadyCompleted = (s.submissions || []).some(item =>
+      item.skill === 'Grammar' && item.activityId === activityId && item.completed === true
+    )
+    const nextSubmissions = alreadyCompleted
+      ? (s.submissions || []).map(item =>
+          item.skill === 'Grammar' && item.activityId === activityId
+            ? { ...item, response: submission.response, createdAt: submission.createdAt, completed: true }
+            : item
+        )
+      : [...(s.submissions || []), submission]
+
     setS({
       ...s,
-      submissions: [...(s.submissions || []), submission]
+      submissions: nextSubmissions
     })
-    note(`+25 XP · Đã lưu bài luyện ngữ pháp vào Learning Record!`)
+    note(alreadyCompleted
+      ? 'Đã cập nhật minh chứng ngữ pháp. XP và tiến độ vẫn giữ nguyên.'
+      : '+25 XP · Đã lưu bài luyện ngữ pháp vào Learning Record!')
   }
 
   // Stats
@@ -136,7 +150,7 @@ export const ForumGrammarHub: React.FC<ForumGrammarHubProps> = ({
             onSwitchToVocab()
           }
         }}
-        knownVocabCount={0}
+        knownVocabCount={countKnownVocabulary()}
         totalVocabCount={TOTAL_FORUM_VOCAB_COUNT}
         completedGrammarCount={completedGrammarCount}
         totalGrammarCount={CEFR_GRAMMAR_RULES.length}

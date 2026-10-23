@@ -19,7 +19,7 @@ import { CEFR_GRAMMAR_RULES } from '../data/cefrGrammarData'
 import type { VocabItem } from '../topicData'
 import { ForumStudyTree } from './ForumStudyTree'
 import type { Store } from '../types'
-import { countCompletedGrammar } from '../gamification'
+import { countCompletedGrammar, countKnownVocabulary } from '../gamification'
 import { uiSectionAsset } from '../uiAssets'
 
 export interface ForumVocabularyHubProps {
@@ -199,7 +199,7 @@ export const ForumVocabularyHub: React.FC<ForumVocabularyHubProps> = ({
 
   // Total known counts across all 25 topics
   const totalKnownAcrossAllTopics = useMemo(() => {
-    return Object.values(knownWords).filter(Boolean).length
+    return countKnownVocabulary()
   }, [knownWords])
 
   const knownCountInCurrentTopic = useMemo(() => {

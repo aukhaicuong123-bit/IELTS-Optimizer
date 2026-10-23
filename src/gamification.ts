@@ -22,7 +22,18 @@ export function countKnownVocabulary(): number {
 }
 
 export function countCompletedGrammar(submissions: SkillSubmission[] | undefined): number {
-  return (submissions || []).filter(submission => submission.skill === 'Grammar' && submission.completed).length
+  const completedActivities = new Set<string>()
+  for (const submission of submissions || []) {
+    if (
+      submission.skill === 'Grammar'
+      && submission.completed === true
+      && typeof submission.activityId === 'string'
+      && submission.activityId.trim().length > 0
+    ) {
+      completedActivities.add(submission.activityId.trim())
+    }
+  }
+  return completedActivities.size
 }
 
 export function calculateJourneyXp(knownVocabCount: number, completedGrammarCount: number): number {

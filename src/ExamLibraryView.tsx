@@ -635,7 +635,7 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
 
   if (isSubmitted) {
     return (
-      <div className="stack" style={{ gap: 20 }}>
+      <div className="stack exam-simulator exam-simulator-reading exam-simulator-result" style={{ gap: 20 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <button
             type="button"
@@ -758,10 +758,10 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
 
   // Active Reading Test Workspace
   return (
-    <div className="stack" style={{ gap: 14 }}>
+    <div className="stack exam-simulator exam-simulator-reading" style={{ gap: 14 }}>
       {/* Top Exam Navigation Bar */}
       <div
-        className="panel"
+        className="panel exam-simulator-toolbar"
         style={{
           padding: '12px 20px',
           display: 'flex',
@@ -1400,7 +1400,7 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
 
   if (isSubmitted) {
     return (
-      <div className="stack" style={{ gap: 20 }}>
+      <div className="stack exam-simulator exam-simulator-listening exam-simulator-result" style={{ gap: 20 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <button
             type="button"
@@ -1523,10 +1523,10 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
 
   // Active Listening Test Workspace
   return (
-    <div className="stack" style={{ gap: 14 }}>
+    <div className="stack exam-simulator exam-simulator-listening" style={{ gap: 14 }}>
       {/* Top Controller Bar */}
       <div
-        className="panel"
+        className="panel exam-simulator-toolbar"
         style={{
           padding: '12px 20px',
           display: 'flex',
@@ -1623,7 +1623,7 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
 
       {/* Audio Simulation Player Bar */}
       <div
-        className="panel"
+        className="panel exam-simulator-media-panel"
         style={{
           padding: '14px 20px',
           display: 'flex',
@@ -1990,7 +1990,7 @@ function FullWritingExamSimulator({ exam, store, setStore, onExit, addToast }: W
 
   if (isSubmitted) {
     return (
-      <div className="stack" style={{ gap: 20 }}>
+      <div className="stack exam-simulator exam-simulator-writing exam-simulator-result" style={{ gap: 20 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <button
             type="button"
@@ -2060,10 +2060,10 @@ function FullWritingExamSimulator({ exam, store, setStore, onExit, addToast }: W
 
   // Active Writing Test Workspace
   return (
-    <div className="stack" style={{ gap: 14 }}>
+    <div className="stack exam-simulator exam-simulator-writing" style={{ gap: 14 }}>
       {/* Top Controller Bar */}
       <div
-        className="panel"
+        className="panel exam-simulator-toolbar"
         style={{
           padding: '12px 20px',
           display: 'flex',
@@ -2380,10 +2380,10 @@ function FullSpeakingExamSimulator({ exam, store, setStore, onExit, addToast }: 
   }
 
   return (
-    <div className="stack" style={{ gap: 14 }}>
+    <div className="stack exam-simulator exam-simulator-speaking" style={{ gap: 14 }}>
       {/* Top Header */}
       <div
-        className="panel"
+        className="panel exam-simulator-toolbar"
         style={{
           padding: '12px 20px',
           display: 'flex',

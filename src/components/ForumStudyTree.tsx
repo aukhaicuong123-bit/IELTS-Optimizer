@@ -157,7 +157,7 @@ export const ForumStudyTree: React.FC<StudyTreeProps> = ({
               <b>{currentXp} XP</b>
             </div>
             <div className="tree-metric-col">
-              <small>Toàn khóa học</small>
+              <small>Vocab + Grammar</small>
               <b>{overallPercent}% hoàn thành</b>
             </div>
           </div>
