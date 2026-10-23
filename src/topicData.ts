@@ -1,6 +1,6 @@
 /**
  * IELTS Optimizer — Canonical Topic Data & Lexicon
- * Inspired by ForumFlash (https://forumflash.vercel.app/#study)
+ * Content model for the IELTS Optimizer study journey.
  * Covers core IELTS topics with authentic vocabulary, collocations, grammar patterns,
  * listening passages, writing prompts, and speaking cue cards.
  */

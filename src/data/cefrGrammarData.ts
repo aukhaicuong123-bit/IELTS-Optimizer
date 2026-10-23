@@ -1,6 +1,6 @@
 /**
  * CEFR Grammar Curriculum (A1 to C2)
- * Inspired by ForumFlash (https://www.forumflashstudy.com/#study)
+ * IELTS Optimizer's structured grammar curriculum.
  * Structured with visual sentence formula breakdown, IELTS application, common traps,
  * and integrated interactive checks across 6 CEFR tiers.
  */

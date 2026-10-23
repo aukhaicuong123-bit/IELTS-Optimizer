@@ -69,16 +69,16 @@ export const ForumStudyTree: React.FC<StudyTreeProps> = ({
 
   return (
     <div className="forum-tree-card">
-      {/* Top Banner inspired by ForumFlash */}
+      {/* Shared IELTS journey banner for the vocabulary and grammar tracks */}
       <div className="forum-tree-top">
         <div className="forum-tree-motto">
           <span className="forum-badge-pill">
-            <Sparkles size={13} /> LỘ TRÌNH CHUẨN FORUM STUDY
+            <Sparkles size={13} /> HÀNH TRÌNH IELTS · STUDY PATH
           </span>
           <h3>Học theo từng chặng, nhớ theo từng bài.</h3>
           <p>
-            Từ vựng và ngữ pháp nằm trong hai lộ trình riêng. Mỗi bài gồm phần học trực quan và kiểm tra tương tác;
-            câu trả lời chưa đúng được lưu tự động để ôn lại.
+            Từ nền tảng đến phản xạ thành thạo, mỗi bài học là một cột mốc riêng trên hành trình IELTS của bạn.
+            Kết quả luyện tập được ghi lại để bạn luôn biết bước tiếp theo.
           </p>
           <div className="forum-track-switchers">
             <button

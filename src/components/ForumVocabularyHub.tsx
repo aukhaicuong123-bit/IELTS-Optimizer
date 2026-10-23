@@ -238,7 +238,7 @@ export const ForumVocabularyHub: React.FC<ForumVocabularyHubProps> = ({
 
   return (
     <section className="stack">
-      {/* ForumFlash Tree of Knowledge Header */}
+      {/* Shared IELTS journey header */}
       <ForumStudyTree
         activeTrack="vocabulary"
         onSelectTrack={track => {
@@ -256,10 +256,10 @@ export const ForumVocabularyHub: React.FC<ForumVocabularyHubProps> = ({
       <section className="panel forum-study-panel">
         <div className="forum-panel-head">
           <div className="forum-panel-title">
-            <span className="eyebrow">FORUM STUDY · {FORUM_25_TOPICS.length} THEMATIC VOCABULARY CAMPAIGNS</span>
-            <h2>Từ vựng IELTS theo {FORUM_25_TOPICS.length} chủ đề &amp; Collocations ({TOTAL_FORUM_VOCAB_COUNT} mục học)</h2>
+            <span className="eyebrow">IELTS OPTIMIZER · BỘ SƯU TẬP TỪ VỰNG THEO CHỦ ĐỀ</span>
+            <h2>Kho từ vựng IELTS · {FORUM_25_TOPICS.length} chủ đề học tập ({TOTAL_FORUM_VOCAB_COUNT} mục)</h2>
             <p className="muted">
-              {TOTAL_FORUM_VOCAB_COUNT} mục từ, cụm từ và thành ngữ học thuật theo {FORUM_25_TOPICS.length} chủ đề chuẩn ForumFlash. Phát âm chuẩn IPA, ví dụ theo ngữ cảnh và bài quiz ôn tập.
+              {TOTAL_FORUM_VOCAB_COUNT} từ, cụm từ và thành ngữ học thuật được tuyển chọn riêng cho IELTS Optimizer — có IPA, ví dụ theo ngữ cảnh và quiz ôn tập.
             </p>
           </div>
           <div className="forum-badge-indicator">

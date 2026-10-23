@@ -613,7 +613,7 @@ function EmptyState({ icon, title, message, actionLabel, onAction }: { icon: Rea
 /* ============================================================================ */
 
 /**
- * Shared Topic Navigation Bar (Inspired by ForumFlash #study)
+ * Shared Topic Navigation Bar for the IELTS Optimizer study journey
  */
 function TopicBar({
   selected,
@@ -2688,7 +2688,7 @@ function SkillPractice({
             </div>
           )}
 
-          {/* Lexicon bank drawer inspired by ForumFlash */}
+          {/* Lexicon bank drawer for the IELTS Optimizer study journey */}
           <div className="topic-lexicon-helper">
             <div className="topic-lexicon-title">
               <span>BỘ TỪ & COLLOCATION GỢI Ý (THEMATIC LEXICON)</span>
@@ -2911,7 +2911,7 @@ function SkillPractice({
 }
 
 /**
- * Vocabulary Study Hub (Inspired by ForumFlash https://forumflash.vercel.app/#study)
+ * Vocabulary Study Hub for the IELTS Optimizer curriculum
  * Offers 4 study modes: Flashcard, Learn, Quiz, and Error Memory
  */
 function VocabularyHub({
@@ -3058,7 +3058,7 @@ function VocabularyHub({
         </div>
       </section>
 
-      {/* MODE 1: FLASHCARD (Inspired by ForumFlash) */}
+      {/* MODE 1: FLASHCARD */}
       {mode === 'flashcard' && currentWord && (
         <div className="flashcard-stage">
           <div className="flashcard-header">
@@ -3678,7 +3678,7 @@ function LearningNetwork() {
           ['British Council LearnEnglish', 'Official practice questions, listening audios and writing criteria.', 'https://learnenglish.britishcouncil.org'],
           ['Cambridge English IELTS', 'Format details, scoring descriptors and band score explanations.', 'https://www.cambridgeenglish.org/exams-and-tests/ielts/'],
           ['IDP IELTS Preparation', 'Preparation articles, masterclasses and speaking interview samples.', 'https://www.ieltsidpindia.com/prep-material/'],
-          ['ForumFlash IELTS Lexicon', 'Thematic academic vocabulary, collocations and idiom sets.', 'https://forumflash.vercel.app/#study']
+          ['IELTS Optimizer Study Lab', 'Kho từ vựng theo chủ đề, collocations và cụm diễn đạt được biên soạn riêng cho lộ trình của bạn.', '#study']
         ].map(([name, description, url]) => (
           <div className="network-card" key={name}>
             <b>{name}</b>

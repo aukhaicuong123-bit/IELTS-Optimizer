@@ -131,7 +131,7 @@ export const ForumGrammarHub: React.FC<ForumGrammarHubProps> = ({
 
   return (
     <section className="stack">
-      {/* ForumFlash Tree of Knowledge Header */}
+      {/* Shared IELTS journey header */}
       <ForumStudyTree
         activeTrack="grammar"
         onSelectTrack={track => {
@@ -149,8 +149,8 @@ export const ForumGrammarHub: React.FC<ForumGrammarHubProps> = ({
       <section className="panel forum-study-panel">
         <div className="forum-panel-head">
           <div className="forum-panel-title">
-            <span className="eyebrow">FORUM STUDY · GRAMMAR MASTERY CURRICULUM</span>
-            <h2>Lộ trình ngữ pháp IELTS chuẩn 6 bậc CEFR (A1 → C2)</h2>
+            <span className="eyebrow">IELTS OPTIMIZER · XƯỞNG CẤU TRÚC CÂU</span>
+            <h2>Lộ trình ngữ pháp IELTS · 6 bậc làm chủ (A1 → C2)</h2>
             <p className="muted">
               Xếp theo 6 bậc từ A1 đến C2: từ cấu trúc câu căn bản, thì thời đến đảo ngữ, mệnh đề phân từ và câu chẻ học thuật Band 8.0+.
             </p>
@@ -282,7 +282,7 @@ export const ForumGrammarHub: React.FC<ForumGrammarHubProps> = ({
                 {/* Expanded Detailed Content */}
                 {isExpanded && (
                   <div className="fg-card-body">
-                    {/* Visual Sentence Breakdown inspired by ForumFlash */}
+                    {/* Visual sentence breakdown designed for IELTS Optimizer */}
                     <div className="fg-breakdown-box">
                       <div className="fg-breakdown-title">
                         <Sparkles size={14} />
