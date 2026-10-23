@@ -1328,6 +1328,55 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 .workspace-theme .record-truth-badge{padding:6px 10px;border:1px solid #c8dfba;border-radius:999px;background:#eaf5e4;color:#39704e;font-size:11px;font-weight:800;white-space:nowrap}
 .workspace-theme .record-analytics-card .img2-heatmap-hub{width:100%;max-width:none}
 .workspace-theme .record-analytics-card .img2-giao-dien-2-layout{grid-template-columns:minmax(0,1.45fr) minmax(280px,.75fr)}
+.workspace-theme .record-analytics-dashboard{display:grid;gap:18px}
+.workspace-theme .record-analytics-dashboard-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:4px 2px 0}
+.workspace-theme .record-analytics-dashboard-head h3{margin:4px 0 5px;color:#173f36;font-size:22px}
+.workspace-theme .record-analytics-dashboard-head p{margin:0;max-width:700px}
+.workspace-theme .record-live-indicator{display:inline-flex;align-items:center;gap:7px;align-self:center;padding:8px 11px;border:1px solid #e0e9dc;border-radius:999px;background:#fafcf7;color:#81958a;font-size:10px;font-weight:800;white-space:nowrap}
+.workspace-theme .record-live-indicator>span{width:7px;height:7px;border-radius:50%;background:#afc0b4}
+.workspace-theme .record-live-indicator.is-active{border-color:#c8dfba;background:#eef8e9;color:#39704e}
+.workspace-theme .record-live-indicator.is-active>span{background:#2ca36c;box-shadow:0 0 0 4px rgba(44,163,108,.12)}
+.workspace-theme .record-analytics-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.workspace-theme .record-analytics-kpi{display:flex;align-items:center;gap:10px;min-width:0;padding:13px;border:1px solid #dfe9d8;border-radius:14px;background:#fbfdf8;box-shadow:0 6px 18px rgba(40,92,63,.035)}
+.workspace-theme .record-analytics-kpi>span:last-child{display:grid;gap:3px;min-width:0}
+.workspace-theme .record-kpi-icon{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border-radius:11px}
+.workspace-theme .record-analytics-kpi small{overflow:hidden;color:#799084;font-size:10px;text-overflow:ellipsis;white-space:nowrap}
+.workspace-theme .record-analytics-kpi strong{color:#173f36;font:800 16px 'Space Grotesk'}
+.workspace-theme .record-analytics-main-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(290px,.85fr);gap:12px}
+.workspace-theme .record-chart-card,.workspace-theme .record-recent-activity{min-width:0;padding:18px;border:1px solid #dfe9d8;border-radius:16px;background:linear-gradient(145deg,#fffefa 0%,#f7fbf4 100%);box-shadow:0 8px 24px rgba(40,92,63,.045)}
+.workspace-theme .record-chart-card-head,.workspace-theme .record-recent-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.workspace-theme .record-card-kicker{display:inline-flex;align-items:center;gap:5px;color:#5d8976;font-size:10px;font-weight:900;letter-spacing:.08em}
+.workspace-theme .record-chart-card h4,.workspace-theme .record-recent-heading h4{margin:4px 0 0;color:#173f36;font-size:17px}
+.workspace-theme .record-chart-highlight{display:grid;gap:2px;text-align:right}
+.workspace-theme .record-chart-highlight strong{color:#075d52;font:800 17px 'Space Grotesk'}
+.workspace-theme .record-chart-highlight span{color:#81958a;font-size:10px}
+.workspace-theme .record-chart-wrap{margin:14px -3px 0;min-height:250px}
+.workspace-theme .record-activity-chart{display:block;width:100%;height:auto;min-height:230px;overflow:visible}
+.workspace-theme .record-chart-grid-line{stroke:#dfe9d8;stroke-width:1;stroke-dasharray:3 5}
+.workspace-theme .record-chart-axis-label{fill:#8ca095;font:600 10px 'DM Sans',sans-serif}
+.workspace-theme .record-chart-point{fill:#fffefa;stroke:#0c7668;stroke-width:3}
+.workspace-theme .record-chart-empty-label{fill:#8ca095;font:700 11px 'DM Sans',sans-serif}
+.workspace-theme .record-chart-footnote{display:flex;align-items:center;gap:7px;margin:1px 0 0;color:#81958a;font-size:10px;line-height:1.5}
+.workspace-theme .record-chart-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#0c7668;box-shadow:0 0 0 4px #d8f2eb}
+.workspace-theme .record-skill-card{display:grid;align-content:start;gap:18px}
+.workspace-theme .record-skill-bars{display:grid;gap:15px}
+.workspace-theme .record-skill-row{display:grid;gap:7px}
+.workspace-theme .record-skill-label{display:flex;align-items:center;gap:6px;color:#587267;font-size:11px}
+.workspace-theme .record-skill-label>span:nth-child(2){min-width:0;flex:1}
+.workspace-theme .record-skill-label strong{color:#315d4d;font:800 11px 'Space Grotesk'}
+.workspace-theme .record-skill-dot{width:7px;height:7px;border-radius:50%;flex:0 0 7px}
+.workspace-theme .record-skill-track{height:8px;overflow:hidden;border-radius:999px;background:#e7eee2}
+.workspace-theme .record-skill-track span{display:block;height:100%;border-radius:inherit;transition:width .25s ease}
+.workspace-theme .record-recent-activity{display:grid;gap:14px}
+.workspace-theme .record-recent-count{align-self:center;padding:5px 9px;border-radius:999px;background:#eef8e9;color:#5d8976;font-size:10px;font-weight:800;white-space:nowrap}
+.workspace-theme .record-recent-list{display:grid;gap:0;border-top:1px solid #e7eee2}
+.workspace-theme .record-recent-row{display:flex;align-items:center;gap:10px;min-width:0;padding:11px 0;border-bottom:1px solid #e7eee2}
+.workspace-theme .record-recent-avatar{display:grid;place-items:center;flex:0 0 32px;width:32px;height:32px;border-radius:10px}
+.workspace-theme .record-recent-copy{display:grid;gap:3px;min-width:0;flex:1}
+.workspace-theme .record-recent-copy strong{overflow:hidden;color:#315d4d;font-size:12px;text-overflow:ellipsis;white-space:nowrap}
+.workspace-theme .record-recent-copy small{overflow:hidden;color:#81958a;font-size:10px;text-overflow:ellipsis;white-space:nowrap}
+.workspace-theme .record-recent-minutes{color:#075d52;font:800 12px 'Space Grotesk';white-space:nowrap}
+.workspace-theme .record-analytics-empty{display:flex;align-items:center;gap:9px;padding:15px;border:1px dashed #cbded0;border-radius:12px;background:#fbfdf8;color:#718578;font-size:11px;line-height:1.5}
 .workspace-theme .error-filter-bar{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px;padding-top:14px;border-top:1px solid #e5eadf}
 .workspace-theme .error-filter-bar button{display:inline-flex;align-items:center;gap:6px;border:1px solid #d5e4d2;border-radius:999px;background:#f7faf4;color:#5e776b;padding:8px 11px;font-size:11px;font-weight:700}
 .workspace-theme .error-filter-bar button span{display:grid;place-items:center;min-width:18px;height:18px;padding:0 4px;border-radius:999px;background:#e8f1e4;color:#39704e;font-size:10px}
@@ -1357,6 +1406,8 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 @media(max-width:850px){
   .dashboard-main .dashboard-plan-list{grid-template-columns:1fr}
   .workspace-theme .record-metrics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .workspace-theme .record-analytics-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .workspace-theme .record-analytics-main-grid{grid-template-columns:1fr}
   .workspace-theme .profile-review-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .workspace-theme .record-analytics-card .img2-giao-dien-2-layout{grid-template-columns:1fr}
 }
@@ -1371,6 +1422,12 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
   .workspace-theme .profile-reset-btn{width:100%;justify-content:center}
   .workspace-theme .record-section-heading{display:grid;gap:10px}
   .workspace-theme .record-truth-badge{width:max-content}
+  .workspace-theme .record-analytics-dashboard-head{display:grid;gap:10px}
+  .workspace-theme .record-live-indicator{width:max-content}
+  .workspace-theme .record-chart-card,.workspace-theme .record-recent-activity{padding:14px}
+  .workspace-theme .record-chart-card-head,.workspace-theme .record-recent-heading{display:grid;gap:8px}
+  .workspace-theme .record-chart-highlight{text-align:left}
+  .workspace-theme .record-chart-wrap{margin-inline:-7px}
 }
 @media(max-width:360px){
   .workspace-theme .profile-review-grid{grid-template-columns:1fr}

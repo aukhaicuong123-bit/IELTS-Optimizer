@@ -49,6 +49,7 @@ import {
 } from 'lucide-react'
 import ExamLibraryView from './ExamLibraryView'
 import { ActivityHeatmapHub } from './components/ActivityHeatmapHub'
+import { RecordAnalyticsChart } from './components/RecordAnalyticsChart'
 import { passages } from './content'
 import {
   heatLevel,
@@ -3818,11 +3819,11 @@ function Record({
           <div>
             <span className="eyebrow">ANALYTICS · REAL ACTIVITY</span>
             <h2 id="record-analytics-title">Phân tích nhịp học</h2>
-            <p className="muted">Heatmap chỉ phản ánh số phút học chủ động được đo từ timer và hoạt động đã lưu.</p>
+            <p className="muted">Biểu đồ phản ánh số phút học chủ động, kỹ năng và hoạt động được đo từ timer và hồ sơ thực tế.</p>
           </div>
           <span className="record-truth-badge">Dữ liệu thực</span>
         </div>
-        <ActivityHeatmapHub s={s} initialExpanded />
+        <RecordAnalyticsChart s={s} />
       </section>
       <section className="panel">
          <b>{Math.round(s.sessions.reduce((total, item) => total + measuredMinutes(item), 0))} phút học chủ động</b>
