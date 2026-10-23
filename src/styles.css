@@ -1018,27 +1018,48 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
   transition:transform .15s ease,background .15s ease,box-shadow .15s ease;
 }
 .dashboard-main .dashboard-mission-action:hover{background:#064e46;transform:translateY(-1px);box-shadow:0 6px 15px rgba(7,93,82,.22)}
+.dashboard-main .dashboard-plan-queue{
+  grid-column:1 / -1;
+  grid-row:3;
+  padding:16px 18px;
+  border:1px solid #dce9de;
+  border-radius:16px;
+  background:#fbfdf8;
+}
+.dashboard-main .dashboard-plan-queue-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.dashboard-main .dashboard-plan-queue-heading h2{margin:2px 0 0;color:#173f36;font-size:17px}
+.dashboard-main .dashboard-plan-count{color:#718578;font-size:11px;font-weight:700}
+.dashboard-main .dashboard-plan-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.dashboard-main .dashboard-plan-item{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:9px;padding:10px 11px;border:1px solid #dfe9d8;border-radius:11px;background:#fffefa;text-align:left;color:#173f36;transition:transform .15s ease,border-color .15s ease}
+.dashboard-main .dashboard-plan-item:hover{border-color:#9cc895;transform:translateY(-1px)}
+.dashboard-main .dashboard-plan-index{display:grid;place-items:center;min-width:34px;height:28px;border-radius:8px;background:#e7f4e1;color:#39704e;font-size:11px;font-weight:800}
+.dashboard-main .dashboard-plan-copy{display:grid;gap:3px;min-width:0}
+.dashboard-main .dashboard-plan-copy b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.dashboard-main .dashboard-plan-copy small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#718578;font-size:10px}
+.dashboard-main .dashboard-plan-item>svg{color:#075d52}
+.dashboard-main .dashboard-plan-empty{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#718578;font-size:12px}
+.dashboard-main .dashboard-plan-empty button{border:0;background:transparent;color:#075d52;font-size:12px;font-weight:800;padding:4px}
 
 .dashboard-main .dashboard-gamified-shell .learner-profile-card{
-  grid-column:1 / span 6;
-  grid-row:3;
+  grid-column:7 / -1;
+  grid-row:4;
   min-height:100%;
   height:100%;
 }
 .dashboard-main .dashboard-gamified-shell .timer-card{
-  grid-column:7 / -1;
-  grid-row:3;
+  grid-column:1 / span 6;
+  grid-row:4;
   min-height:100%;
   height:100%;
 }
 .dashboard-main .dashboard-gamified-shell .evidence-card{
   grid-column:1 / -1;
-  grid-row:4;
+  grid-row:5;
   min-height:0;
 }
 .dashboard-main .dashboard-gamified-shell .activity-card.activity-hub-card{
   grid-column:1 / -1!important;
-  grid-row:5!important;
+  grid-row:6!important;
   background:#fffefa!important;
   border:1px solid #dce9de!important;
   border-radius:20px!important;
@@ -1079,6 +1100,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
   .dashboard-main .dashboard-gamified-shell{grid-template-columns:1fr}
   .dashboard-main .dashboard-gamified-shell .dashboard-journey-wrap,
   .dashboard-main .dashboard-gamified-shell .dashboard-mission-card,
+  .dashboard-main .dashboard-gamified-shell .dashboard-plan-queue,
   .dashboard-main .dashboard-gamified-shell .learner-profile-card,
   .dashboard-main .dashboard-gamified-shell .timer-card,
   .dashboard-main .dashboard-gamified-shell .evidence-card,
@@ -1223,6 +1245,138 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
   .workspace-theme *, .workspace-theme *::before, .workspace-theme *::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
 }
 
+/* ============================================================================
+   UI KIT GAP COMPLETION · profile flow, analytics record, simulator states
+   These rules are scoped to the workspace theme and pair with explicit
+   component structure in App.tsx and ExamLibraryView.tsx.
+   ============================================================================ */
+.workspace-theme .profile-stepper{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  margin:20px 0 22px;
+  padding:10px;
+  border:1px solid #dfe9d8;
+  border-radius:16px;
+  background:#f5faef;
+}
+.workspace-theme .profile-step{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-width:0;
+  padding:10px 12px;
+  border-radius:11px;
+  color:#718578;
+}
+.workspace-theme .profile-step>span{
+  width:26px;
+  height:26px;
+  flex:0 0 26px;
+  display:grid;
+  place-items:center;
+  border:1px solid #cbdccc;
+  border-radius:50%;
+  color:#638171;
+  font-size:12px;
+  font-weight:800;
+  background:#fffefa;
+}
+.workspace-theme .profile-step>div{display:grid;gap:2px;min-width:0}
+.workspace-theme .profile-step b{color:#5a7568;font-size:12px}
+.workspace-theme .profile-step small{font-size:10px;color:#81958a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.workspace-theme .profile-step.active{background:#075d52;color:#fff}
+.workspace-theme .profile-step.active>span,.workspace-theme .profile-step.complete>span{background:#dff1df;border-color:#b5d7b6;color:#075d52}
+.workspace-theme .profile-step.active b{color:#fff}
+.workspace-theme .profile-step.active small{color:#d8eee0}
+.workspace-theme .profile-step.complete b{color:#39705e}
+.workspace-theme .profile-step-content{min-height:245px}
+.workspace-theme .profile-step-panel{display:grid;gap:8px;max-width:760px}
+.workspace-theme .profile-step-panel h2{font-size:24px;color:#173f36;margin:0}
+.workspace-theme .profile-step-panel .muted{margin:0;max-width:680px}
+.workspace-theme .profile-field-emphasis{display:grid;gap:7px;max-width:320px;margin-top:12px;color:#315d4d;font-size:13px;font-weight:800}
+.workspace-theme .profile-field-emphasis input{font-size:24px;font-weight:800;color:#173f36;background:#fffefa;border:1px solid #bad6b6;border-radius:12px;padding:12px 14px}
+.workspace-theme .profile-field-emphasis small{font-size:11px;color:#789084;font-weight:500}
+.workspace-theme .profile-form-grid{margin:12px 0 18px}
+.workspace-theme .profile-form-grid label{color:#315d4d}
+.workspace-theme .profile-form-grid input,.workspace-theme .profile-form-grid select{background:#fffefa;color:#173f36;border-color:#cbded0}
+.workspace-theme .rest-day-fieldset{margin:0;padding:14px;border:1px solid #dce8d8;border-radius:13px;background:#f8fbf5}
+.workspace-theme .rest-day-fieldset legend{padding:0 6px;color:#315d4d;font-size:12px;font-weight:800}
+.workspace-theme .rest-day-options{display:flex;flex-wrap:wrap;gap:8px}
+.workspace-theme .rest-day-option{display:flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid #d8e6d6;border-radius:9px;background:#fffefa;color:#567367;font-size:11px;cursor:pointer}
+.workspace-theme .rest-day-option:has(input:checked){border-color:#75aa68;background:#e9f5e4;color:#075d52}
+.workspace-theme .rest-day-option input{accent-color:#075d52}
+.workspace-theme .profile-review-panel{padding:10px 0}
+.workspace-theme .profile-review-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px}
+.workspace-theme .profile-review-grid>div{display:grid;gap:5px;padding:14px;border:1px solid #dce8d8;border-radius:12px;background:#f8fbf5}
+.workspace-theme .profile-review-grid small{color:#789084;font-size:10px}
+.workspace-theme .profile-review-grid strong{color:#173f36;font-size:14px;overflow-wrap:anywhere}
+.workspace-theme .profile-form-error{margin:0 0 12px;padding:10px 12px;border:1px solid #efc7c0;border-radius:10px;background:#fff3f0;color:#a54f48;font-size:12px;font-weight:700}
+.workspace-theme .profile-step-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:16px;padding-top:16px;border-top:1px solid #e5eadf}
+.workspace-theme .profile-step-actions button{display:inline-flex;align-items:center;gap:7px}
+.workspace-theme .profile-reset-btn{margin-top:18px;width:max-content}
+.workspace-theme .skill-chip-band.has-evidence{color:#075d52;font-size:12px}
+.workspace-theme .skill-chip-band.no-evidence{color:#87988c;font-size:10px;font-family:'DM Sans',sans-serif;font-weight:700;line-height:1.15}
+.workspace-theme .record-analytics-card{overflow:hidden}
+.workspace-theme .record-metrics-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.workspace-theme .record-metrics-grid>div{display:grid;gap:4px;padding:14px 16px;border:1px solid #dfe9d8;border-radius:13px;background:#fbfdf8}
+.workspace-theme .record-metrics-grid strong{color:#075d52;font:800 23px 'Space Grotesk'}
+.workspace-theme .record-metrics-grid span{color:#718578;font-size:11px}
+.workspace-theme .record-section-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:18px}
+.workspace-theme .record-section-heading h2{margin:2px 0 6px;color:#173f36;font-size:24px}
+.workspace-theme .record-section-heading p{margin:0;max-width:650px}
+.workspace-theme .record-truth-badge{padding:6px 10px;border:1px solid #c8dfba;border-radius:999px;background:#eaf5e4;color:#39704e;font-size:11px;font-weight:800;white-space:nowrap}
+.workspace-theme .record-analytics-card .img2-heatmap-hub{width:100%;max-width:none}
+.workspace-theme .record-analytics-card .img2-giao-dien-2-layout{grid-template-columns:minmax(0,1.45fr) minmax(280px,.75fr)}
+.workspace-theme .error-filter-bar{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px;padding-top:14px;border-top:1px solid #e5eadf}
+.workspace-theme .error-filter-bar button{display:inline-flex;align-items:center;gap:6px;border:1px solid #d5e4d2;border-radius:999px;background:#f7faf4;color:#5e776b;padding:8px 11px;font-size:11px;font-weight:700}
+.workspace-theme .error-filter-bar button span{display:grid;place-items:center;min-width:18px;height:18px;padding:0 4px;border-radius:999px;background:#e8f1e4;color:#39704e;font-size:10px}
+.workspace-theme .error-filter-bar button.active{border-color:#075d52;background:#075d52;color:#fff}
+.workspace-theme .error-filter-bar button.active span{background:#dff1df;color:#075d52}
+.workspace-theme .route-errors-page .error-card{gap:12px}
+.workspace-theme .route-errors-page .error-card .question-copy{color:#526b60!important}
+
+/* Normalize the four exam surfaces into the same light study workspace. */
+.workspace-theme .exam-simulator{--exam-ink:#173f36;--exam-copy:#526b60;--exam-surface:#fffefa;--exam-soft:#f3f8ef;--exam-border:#dce7da}
+.workspace-theme .exam-simulator .exam-simulator-toolbar{background:var(--exam-surface)!important;border:1px solid var(--exam-border)!important;border-radius:16px!important;padding:14px 18px!important;box-shadow:0 5px 18px rgba(37,91,62,.05)!important}
+.workspace-theme .exam-simulator .exam-simulator-toolbar strong,.workspace-theme .exam-simulator .exam-simulator-toolbar h2{color:var(--exam-ink)!important}
+.workspace-theme .exam-simulator .exam-simulator-toolbar small,.workspace-theme .exam-simulator .exam-simulator-toolbar span{color:var(--exam-copy)!important}
+.workspace-theme .exam-simulator .passage,.workspace-theme .exam-simulator .questions,.workspace-theme .exam-simulator .panel,.workspace-theme .exam-simulator .media-stage,.workspace-theme .exam-simulator .reading-stage,.workspace-theme .exam-simulator .writing-stage,.workspace-theme .exam-simulator .speaking-stage{background:var(--exam-surface)!important;border-color:var(--exam-border)!important;color:var(--exam-copy)!important;border-radius:16px!important;box-shadow:0 5px 18px rgba(37,91,62,.04)!important}
+.workspace-theme .exam-simulator .passage h2,.workspace-theme .exam-simulator .questions h2,.workspace-theme .exam-simulator .questions h3,.workspace-theme .exam-simulator .panel h2,.workspace-theme .exam-simulator .panel h3,.workspace-theme .exam-simulator .panel h4{color:var(--exam-ink)!important}
+.workspace-theme .exam-simulator .passage p,.workspace-theme .exam-simulator .questions p,.workspace-theme .exam-simulator .panel p,.workspace-theme .exam-simulator .panel li{color:var(--exam-copy)!important}
+.workspace-theme .exam-simulator .question,.workspace-theme .exam-simulator .simulation-questions .question{background:var(--exam-soft)!important;border:1px solid var(--exam-border)!important;color:var(--exam-copy)!important;border-radius:13px!important;padding:16px!important}
+.workspace-theme .exam-simulator .question h3,.workspace-theme .exam-simulator .question h4,.workspace-theme .exam-simulator .question strong{color:var(--exam-ink)!important}
+.workspace-theme .exam-simulator .question label,.workspace-theme .exam-simulator .options label{background:#fffefa!important;border-color:#d5e4d2!important;color:#526b60!important}
+.workspace-theme .exam-simulator .question label.chosen,.workspace-theme .exam-simulator .options label.chosen{background:#e8f5e2!important;border-color:#75aa68!important;color:#173f36!important}
+.workspace-theme .exam-simulator textarea,.workspace-theme .exam-simulator input{background:#fffefa!important;color:#173f36!important;border-color:#cadccd!important}
+.workspace-theme .exam-simulator .feedback,.workspace-theme .exam-simulator .callout{background:#eef8e9!important;border-color:#c8dfba!important;color:#39705e!important}
+.workspace-theme .exam-simulator .exam-simulator-result .panel{background:linear-gradient(145deg,#fffefa,#f3f8ef)!important}
+.workspace-theme .exam-simulator .exam-simulator-result .panel strong,.workspace-theme .exam-simulator .exam-simulator-result .panel b{color:#173f36!important}
+.workspace-theme .exam-simulator .exam-simulator-result .panel small{color:#718578!important}
+
+@media(max-width:850px){
+  .dashboard-main .dashboard-plan-list{grid-template-columns:1fr}
+  .workspace-theme .record-metrics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .workspace-theme .profile-review-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .workspace-theme .record-analytics-card .img2-giao-dien-2-layout{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  .workspace-theme .record-metrics-grid{grid-template-columns:1fr 1fr}
+  .workspace-theme .profile-stepper{grid-template-columns:1fr;gap:4px}
+  .workspace-theme .profile-step{padding:8px 10px}
+  .workspace-theme .profile-step-content{min-height:0}
+  .workspace-theme .profile-review-grid{grid-template-columns:1fr 1fr}
+  .workspace-theme .profile-step-actions{align-items:stretch}
+  .workspace-theme .profile-step-actions button{justify-content:center}
+  .workspace-theme .profile-reset-btn{width:100%;justify-content:center}
+  .workspace-theme .record-section-heading{display:grid;gap:10px}
+  .workspace-theme .record-truth-badge{width:max-content}
+}
+@media(max-width:360px){
+  .workspace-theme .profile-review-grid{grid-template-columns:1fr}
+  .workspace-theme .rest-day-options{display:grid;grid-template-columns:1fr 1fr}
+}
+
 /* Post-redesign simulator stabilization. Scoped to the full exam workspaces. */
 .workspace-theme .exam-simulator{color:#172236}
 .workspace-theme .exam-simulator .exam-simulator-toolbar,.workspace-theme .exam-simulator .exam-simulator-media-panel,.workspace-theme .exam-simulator .panel{background:#fffefa!important;border-color:#dfe7dc!important;color:#172236!important;box-shadow:0 5px 18px rgba(35,45,50,.035)}
@@ -1244,4 +1398,31 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 @media(max-width:680px){
   .workspace-theme .exam-simulator .exam-simulator-toolbar{position:static!important}
   .workspace-theme .exam-simulator .exam-simulator-toolbar>div{max-width:100%;overflow-wrap:anywhere}
+}
+
+/* Shared result language: the four simulators use explicit state blocks instead of
+   relying on the legacy dark surface styles to communicate progress. */
+.workspace-theme .exam-simulator[data-state="submitted"] .exam-result-hero{display:grid;gap:10px;overflow:hidden;position:relative}
+.workspace-theme .exam-simulator[data-state="submitted"] .exam-result-hero::after{content:"";position:absolute;right:-60px;top:-80px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,#dff1df 0,rgba(223,241,223,0) 68%);pointer-events:none}
+.workspace-theme .exam-simulator .exam-result-lead{max-width:760px;font-size:14px;line-height:1.7}
+.workspace-theme .exam-simulator .exam-result-metric{display:grid;gap:4px;min-width:125px;padding:12px 16px;border:1px solid #d7e7c8!important;border-radius:12px;background:#f2f8ed!important;color:#526b60}
+.workspace-theme .exam-simulator .exam-result-metric span{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#718578!important}
+.workspace-theme .exam-simulator .exam-result-metric strong{color:#173f36!important;font-size:18px}
+.workspace-theme .exam-simulator .exam-result-summary-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.workspace-theme .exam-simulator .exam-result-review{display:grid;gap:14px}
+.workspace-theme .exam-simulator .exam-result-review-item{transition:border-color .2s ease,background .2s ease}
+.workspace-theme .exam-simulator .exam-result-review-item.is-correct{background:#eef8e9!important;border-color:#beddb4!important}
+.workspace-theme .exam-simulator .exam-result-review-item.is-incorrect{background:#fff3ef!important;border-color:#f2c4b8!important}
+.workspace-theme .exam-simulator .exam-result-reflection{margin:0;padding:14px 16px;border:1px solid #dfe7dc;border-radius:12px;background:#f8fbf5;white-space:pre-wrap;line-height:1.7}
+.workspace-theme .exam-simulator .exam-result-audio{width:min(100%,480px);height:38px}
+.workspace-theme .exam-simulator .exam-runner-status{display:flex;align-items:center}
+.workspace-theme .exam-simulator[data-state="active"] .exam-runner-status{box-shadow:0 5px 18px rgba(37,91,62,.08)!important}
+.workspace-theme .exam-simulator[data-state="active"] .exam-runner-status button:focus-visible,.workspace-theme .exam-simulator[data-state="submitted"] button:focus-visible{outline:3px solid rgba(7,93,82,.22);outline-offset:2px}
+@media(max-width:680px){
+  .workspace-theme .exam-simulator .exam-result-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .workspace-theme .exam-simulator .exam-result-metric{min-width:0}
+}
+@media(max-width:390px){
+  .workspace-theme .exam-simulator .exam-result-summary-grid{grid-template-columns:1fr}
+  .workspace-theme .exam-simulator .exam-result-metric{width:100%}
 }

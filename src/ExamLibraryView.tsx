@@ -635,7 +635,7 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
 
   if (isSubmitted) {
     return (
-      <div className="stack exam-simulator exam-simulator-reading exam-simulator-result" style={{ gap: 20 }}>
+      <div className="stack exam-simulator exam-simulator-reading exam-simulator-result" data-state="submitted" style={{ gap: 20 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <button
             type="button"
@@ -648,7 +648,7 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
           <span style={{ fontSize: 13, color: 'var(--muted)' }}>Mã bài thi: {exam.code}</span>
         </div>
 
-        <div className="panel" style={{ padding: 26, background: '#13211c', borderColor: '#355342' }}>
+        <div className="panel exam-result-hero" style={{ padding: 26, background: '#13211c', borderColor: '#355342' }}>
           <div
             style={{
               display: 'flex',
@@ -667,14 +667,14 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 20, textAlign: 'center' }}>
-              <div style={{ padding: '10px 18px', background: '#182922', borderRadius: 10, border: '1px solid var(--line)' }}>
+              <div className="exam-result-metric exam-result-raw" style={{ padding: '10px 18px', background: '#182922', borderRadius: 10, border: '1px solid var(--line)' }}>
                 <span style={{ fontSize: 11, color: 'var(--muted)', display: 'block' }}>Điểm số thô (Raw)</span>
                 <strong style={{ fontSize: 26, fontFamily: 'Space Grotesk', color: '#f0f8f1' }}>
                   {rawScore} <small style={{ fontSize: 14, color: 'var(--muted)' }}>/ 40</small>
                 </strong>
               </div>
 
-              <div style={{ padding: '10px 22px', background: '#b9f2c318', borderRadius: 10, border: '1px solid var(--mint)' }}>
+              <div className="exam-result-metric exam-result-band" style={{ padding: '10px 22px', background: '#b9f2c318', borderRadius: 10, border: '1px solid var(--mint)' }}>
                 <span style={{ fontSize: 11, color: 'var(--mint)', display: 'block', fontWeight: 600 }}>ƯỚC LƯỢNG BAND</span>
                 <strong style={{ fontSize: 32, fontFamily: 'Space Grotesk', color: 'var(--mint)' }}>
                   {calculatedBand.toFixed(1)}
@@ -685,7 +685,7 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
         </div>
 
         {/* Detailed 40-Question Breakdown */}
-        <div className="panel" style={{ padding: 24 }}>
+        <div className="panel exam-result-review" style={{ padding: 24 }}>
           <h3 style={{ fontSize: 17, marginBottom: 16 }}>Bảng phân tích đáp án & Bằng chứng chi tiết (40 Câu)</h3>
 
           <div className="stack" style={{ gap: 14 }}>
@@ -696,6 +696,7 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
               return (
                 <div
                   key={q.id}
+                  className={`exam-result-review-item ${isCorrect ? 'is-correct' : 'is-incorrect'}`}
                   style={{
                     padding: 16,
                     borderRadius: 8,
@@ -758,10 +759,10 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
 
   // Active Reading Test Workspace
   return (
-    <div className="stack exam-simulator exam-simulator-reading" style={{ gap: 14 }}>
+    <div className="stack exam-simulator exam-simulator-reading" data-state="active" style={{ gap: 14 }}>
       {/* Top Exam Navigation Bar */}
       <div
-        className="panel exam-simulator-toolbar"
+        className="panel exam-simulator-toolbar exam-runner-status"
         style={{
           padding: '12px 20px',
           display: 'flex',
@@ -1400,7 +1401,7 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
 
   if (isSubmitted) {
     return (
-      <div className="stack exam-simulator exam-simulator-listening exam-simulator-result" style={{ gap: 20 }}>
+      <div className="stack exam-simulator exam-simulator-listening exam-simulator-result" data-state="submitted" style={{ gap: 20 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <button
             type="button"
@@ -1413,7 +1414,7 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
           <span style={{ fontSize: 13, color: 'var(--muted)' }}>Mã bài thi: {exam.code}</span>
         </div>
 
-        <div className="panel" style={{ padding: 26, background: '#13211c', borderColor: '#355342' }}>
+        <div className="panel exam-result-hero" style={{ padding: 26, background: '#13211c', borderColor: '#355342' }}>
           <div
             style={{
               display: 'flex',
@@ -1432,14 +1433,14 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 20, textAlign: 'center' }}>
-              <div style={{ padding: '10px 18px', background: '#182922', borderRadius: 10, border: '1px solid var(--line)' }}>
+              <div className="exam-result-metric exam-result-raw" style={{ padding: '10px 18px', background: '#182922', borderRadius: 10, border: '1px solid var(--line)' }}>
                 <span style={{ fontSize: 11, color: 'var(--muted)', display: 'block' }}>Điểm số thô (Raw)</span>
                 <strong style={{ fontSize: 26, fontFamily: 'Space Grotesk', color: '#f0f8f1' }}>
                   {rawScore} <small style={{ fontSize: 14, color: 'var(--muted)' }}>/ 40</small>
                 </strong>
               </div>
 
-              <div style={{ padding: '10px 22px', background: '#e5a84218', borderRadius: 10, border: '1px solid #e5a842' }}>
+              <div className="exam-result-metric exam-result-band" style={{ padding: '10px 22px', background: '#e5a84218', borderRadius: 10, border: '1px solid #e5a842' }}>
                 <span style={{ fontSize: 11, color: '#e5a842', display: 'block', fontWeight: 600 }}>ƯỚC LƯỢNG BAND</span>
                 <strong style={{ fontSize: 32, fontFamily: 'Space Grotesk', color: '#e5a842' }}>
                   {calculatedBand.toFixed(1)}
@@ -1450,7 +1451,7 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
         </div>
 
         {/* Detailed 40-Question Breakdown */}
-        <div className="panel" style={{ padding: 24 }}>
+        <div className="panel exam-result-review" style={{ padding: 24 }}>
           <h3 style={{ fontSize: 17, marginBottom: 16 }}>Bảng phân tích đáp án & Bằng chứng Audio Transcript (40 Câu)</h3>
 
           <div className="stack" style={{ gap: 14 }}>
@@ -1461,6 +1462,7 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
               return (
                 <div
                   key={q.id}
+                  className={`exam-result-review-item ${isCorrect ? 'is-correct' : 'is-incorrect'}`}
                   style={{
                     padding: 16,
                     borderRadius: 8,
@@ -1523,10 +1525,10 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
 
   // Active Listening Test Workspace
   return (
-    <div className="stack exam-simulator exam-simulator-listening" style={{ gap: 14 }}>
+    <div className="stack exam-simulator exam-simulator-listening" data-state="active" style={{ gap: 14 }}>
       {/* Top Controller Bar */}
       <div
-        className="panel exam-simulator-toolbar"
+        className="panel exam-simulator-toolbar exam-runner-status"
         style={{
           padding: '12px 20px',
           display: 'flex',
@@ -1990,7 +1992,7 @@ function FullWritingExamSimulator({ exam, store, setStore, onExit, addToast }: W
 
   if (isSubmitted) {
     return (
-      <div className="stack exam-simulator exam-simulator-writing exam-simulator-result" style={{ gap: 20 }}>
+      <div className="stack exam-simulator exam-simulator-writing exam-simulator-result" data-state="submitted" style={{ gap: 20 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <button
             type="button"
@@ -2003,17 +2005,17 @@ function FullWritingExamSimulator({ exam, store, setStore, onExit, addToast }: W
           <span style={{ fontSize: 13, color: 'var(--muted)' }}>Mã bài thi: {exam.code}</span>
         </div>
 
-        <div className="panel" style={{ padding: 26, background: '#13211c', borderColor: '#355342' }}>
+        <div className="panel exam-result-hero" style={{ padding: 26, background: '#13211c', borderColor: '#355342' }}>
           <span className="eyebrow">BÁO CÁO NỘP BÀI THI WRITING (TASK 1 & TASK 2)</span>
           <h2 style={{ fontSize: 24, margin: '6px 0 10px' }}>{exam.title} — Academic Writing</h2>
           <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', marginTop: 12 }}>
-            <div style={{ padding: '8px 16px', background: '#182922', borderRadius: 8 }}>
+            <div className="exam-result-metric" style={{ padding: '8px 16px', background: '#182922', borderRadius: 8 }}>
               <span>Task 1 Word Count: </span>
               <strong style={{ color: task1Words >= 150 ? 'var(--mint)' : 'var(--accent)' }}>
                 {task1Words} / 150 từ
               </strong>
             </div>
-            <div style={{ padding: '8px 16px', background: '#182922', borderRadius: 8 }}>
+            <div className="exam-result-metric" style={{ padding: '8px 16px', background: '#182922', borderRadius: 8 }}>
               <span>Task 2 Word Count: </span>
               <strong style={{ color: task2Words >= 250 ? 'var(--mint)' : 'var(--accent)' }}>
                 {task2Words} / 250 từ
@@ -2060,10 +2062,10 @@ function FullWritingExamSimulator({ exam, store, setStore, onExit, addToast }: W
 
   // Active Writing Test Workspace
   return (
-    <div className="stack exam-simulator exam-simulator-writing" style={{ gap: 14 }}>
+    <div className="stack exam-simulator exam-simulator-writing" data-state="active" style={{ gap: 14 }}>
       {/* Top Controller Bar */}
       <div
-        className="panel exam-simulator-toolbar"
+        className="panel exam-simulator-toolbar exam-runner-status"
         style={{
           padding: '12px 20px',
           display: 'flex',
@@ -2298,6 +2300,7 @@ function FullSpeakingExamSimulator({ exam, store, setStore, onExit, addToast }: 
   const [speakingSeconds, setSpeakingSeconds] = useState(120)
   const [speakingActive, setSpeakingActive] = useState(false)
   const [recording, setRecording] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
   const [notes, setNotes] = useState('')
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
@@ -2379,11 +2382,69 @@ function FullSpeakingExamSimulator({ exam, store, setStore, onExit, addToast }: 
     }
   }
 
+  const completeSpeaking = () => {
+    if (recording) stopRecording()
+    setPrepActive(false)
+    setSpeakingActive(false)
+    const response = JSON.stringify({
+      notes,
+      hasRecording: Boolean(audioUrl),
+      speakingSecondsUsed: 120 - speakingSeconds
+    })
+    setStore(prev => ({
+      ...prev,
+      submissions: [
+        ...(prev.submissions || []),
+        {
+          id: `exam-speaking-${exam.id}-${Date.now()}`,
+          skill: 'Speaking',
+          activityId: exam.id,
+          response,
+          createdAt: new Date().toISOString(),
+          feedbackMode: 'self-review',
+          completed: true
+        }
+      ]
+    }))
+    setIsSubmitted(true)
+    addToast('Đã lưu bằng chứng phiên Speaking. Chưa có band tự động cho bài nói.', 'success')
+  }
+
+  if (isSubmitted) {
+    return (
+      <div className="stack exam-simulator exam-simulator-speaking exam-simulator-result" data-state="submitted" style={{ gap: 20 }}>
+        <div className="exam-result-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <button type="button" className="secondary" onClick={onExit} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <ArrowLeft size={14} /> Trở về Thư viện đề thi
+          </button>
+          <span className="muted">Mã bài thi: {exam.code}</span>
+        </div>
+        <div className="panel exam-result-hero" style={{ padding: 26, background: '#13211c', borderColor: '#355342' }}>
+          <span className="eyebrow">BÁO CÁO PHIÊN SPEAKING ĐÃ LƯU</span>
+          <h2 style={{ fontSize: 24, margin: '6px 0 10px' }}>{exam.title} — Speaking Interview</h2>
+          <p className="exam-result-lead" style={{ margin: 0 }}>
+            Phiên luyện tập đã được lưu vào Learning Record. IELTS Optimizer không tự suy đoán band Speaking từ bản ghi âm hoặc ghi chú.
+          </p>
+          <div className="exam-result-summary-grid">
+            <div className="exam-result-metric"><span>Trạng thái</span><strong>Đã hoàn thành</strong></div>
+            <div className="exam-result-metric"><span>Bằng chứng</span><strong>{audioUrl ? 'Có bản ghi âm' : 'Ghi chú tự đánh giá'}</strong></div>
+            <div className="exam-result-metric"><span>Part 2 đã dùng</span><strong>{120 - speakingSeconds}s</strong></div>
+          </div>
+        </div>
+        <div className="panel exam-result-review" style={{ padding: 24 }}>
+          <h3>Phản tư sau phiên nói</h3>
+          {notes ? <p className="exam-result-reflection">{notes}</p> : <p className="muted">Bạn chưa thêm ghi chú phản tư cho phiên này.</p>}
+          {audioUrl && <audio controls src={audioUrl} className="exam-result-audio" />}
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="stack exam-simulator exam-simulator-speaking" style={{ gap: 14 }}>
+    <div className="stack exam-simulator exam-simulator-speaking" data-state="active" style={{ gap: 14 }}>
       {/* Top Header */}
       <div
-        className="panel exam-simulator-toolbar"
+        className="panel exam-simulator-toolbar exam-runner-status"
         style={{
           padding: '12px 20px',
           display: 'flex',
@@ -2439,10 +2500,7 @@ function FullSpeakingExamSimulator({ exam, store, setStore, onExit, addToast }: 
         <button
           type="button"
           className="primary"
-          onClick={() => {
-            addToast('Đã hoàn thành phiên phỏng vấn Speaking!', 'success')
-            onExit()
-          }}
+          onClick={completeSpeaking}
           style={{ padding: '8px 18px', fontWeight: 700 }}
         >
           Hoàn thành Speaking

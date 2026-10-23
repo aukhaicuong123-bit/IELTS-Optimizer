@@ -1048,9 +1048,11 @@ function Dashboard({
         onNavigate={() => go(missionPage)}
       />
 
-      <LearnerProfileCard s={s} go={go} />
+      <DashboardPlanQueue s={s} go={go} />
 
       <DashboardTimerCard s={s} setS={setS} note={note} />
+
+      <LearnerProfileCard s={s} go={go} />
 
       <RecentEvidence s={s} go={go} />
 
@@ -1101,6 +1103,59 @@ function DashboardMissionCard({
   )
 }
 
+function DashboardPlanQueue({ s, go }: { s: Store; go: (page: Page) => void }) {
+  const plannedItems = s.plan.filter(item => item.status === 'planned').slice(0, 3)
+
+  return (
+    <section className="dashboard-plan-queue" aria-labelledby="dashboard-plan-queue-title">
+      <div className="dashboard-plan-queue-heading">
+        <div>
+          <span className="dashboard-card-kicker">TODAY · REAL PLAN</span>
+          <h2 id="dashboard-plan-queue-title">Nhiệm vụ đã lên lịch</h2>
+        </div>
+        <span className="dashboard-plan-count">{plannedItems.length} nhiệm vụ mở</span>
+      </div>
+      {plannedItems.length ? (
+        <div className="dashboard-plan-list">
+          {plannedItems.map(item => (
+            <button type="button" className="dashboard-plan-item" key={item.id} onClick={() => go(pageForSkill(item.skill))}>
+              <span className="dashboard-plan-index">{item.minutes}′</span>
+              <span className="dashboard-plan-copy">
+                <b>{item.title}</b>
+                <small>{item.skill} · {item.objective}</small>
+              </span>
+              <ArrowRight size={16} />
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div className="dashboard-plan-empty">
+          <span>Chưa có nhiệm vụ phụ được lên lịch.</span>
+          <button type="button" onClick={() => go('profile')}>Cập nhật mục tiêu</button>
+        </div>
+      )}
+    </section>
+  )
+}
+
+function skillEvidenceFor(s: Store, skill: Skill): { status: string; hasEvidence: boolean } {
+  if (skill === 'Reading') {
+    const latestReading = s.attempts
+      .filter(attempt => attempt.skill === 'Reading')
+      .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))[0]
+    return latestReading
+      ? { status: `${latestReading.score}/${latestReading.total}`, hasEvidence: true }
+      : { status: 'Chưa có dữ liệu', hasEvidence: false }
+  }
+
+  const hasCompletedSubmission = (s.submissions || []).some(submission =>
+    submission.skill === skill && submission.completed
+  )
+  return hasCompletedSubmission
+    ? { status: 'Đã luyện', hasEvidence: true }
+    : { status: 'Chưa có dữ liệu', hasEvidence: false }
+}
+
 function LearnerProfileCard({ s, go }: { s: Store; go: (page: Page) => void }) {
   const targetBand = s.profile.targetBand
   const currentLevel = s.profile.currentLevel || 'Chưa cập nhật'
@@ -1116,11 +1171,11 @@ function LearnerProfileCard({ s, go }: { s: Store; go: (page: Page) => void }) {
   const todayMinutes = Math.round(minutesByDate(s.sessions)[localDate(new Date().toISOString())] || 0)
   const progressPercent = Math.min(100, Math.round((todayMinutes / dailyGoal) * 100))
 
-  const skillTargets: { skill: Skill; label: string; icon: string; band?: number }[] = [
-    { skill: 'Listening', label: 'Nghe', icon: '🎧', band: targetBand },
-    { skill: 'Reading', label: 'Đọc', icon: '📖', band: targetBand },
-    { skill: 'Writing', label: 'Viết', icon: '✍️', band: targetBand },
-    { skill: 'Speaking', label: 'Nói', icon: '🗣️', band: targetBand }
+  const skillEvidence: { skill: Skill; label: string; icon: string; status: string; hasEvidence: boolean }[] = [
+    { skill: 'Listening', label: 'Nghe', icon: '🎧', ...skillEvidenceFor(s, 'Listening') },
+    { skill: 'Reading', label: 'Đọc', icon: '📖', ...skillEvidenceFor(s, 'Reading') },
+    { skill: 'Writing', label: 'Viết', icon: '✍️', ...skillEvidenceFor(s, 'Writing') },
+    { skill: 'Speaking', label: 'Nói', icon: '🗣️', ...skillEvidenceFor(s, 'Speaking') }
   ]
 
   return (
@@ -1161,15 +1216,15 @@ function LearnerProfileCard({ s, go }: { s: Store; go: (page: Page) => void }) {
         </div>
 
         <div className="profile-skills-grid">
-          {skillTargets.map(item => (
+          {skillEvidence.map(item => (
             <div
               key={item.skill}
               className={`profile-skill-chip ${s.profile.priority === item.skill ? 'priority' : ''}`}
-              title={`Kỹ năng ${item.label}${item.band !== undefined ? ` - Mục tiêu Band ${item.band.toFixed(1)}` : ''}`}
+              title={`Kỹ năng ${item.label} · ${item.hasEvidence ? 'Đã có dữ liệu luyện tập' : 'Chưa có dữ liệu luyện tập'}`}
             >
               <span className="skill-chip-icon">{item.icon}</span>
               <span className="skill-chip-name">{item.label}</span>
-              <b className="skill-chip-band">{item.band !== undefined ? item.band.toFixed(1) : '—'}</b>
+              <b className={`skill-chip-band ${item.hasEvidence ? 'has-evidence' : 'no-evidence'}`}>{item.status}</b>
             </div>
           ))}
         </div>
@@ -3631,6 +3686,18 @@ function Errors({
   go: (page: Page) => void
 }) {
   const projection = deriveReadingStates(s.errors, s.attempts, passages)
+  const [errorFilter, setErrorFilter] = useState<'all' | 'open' | 'resolved' | 'insufficient-evidence'>('all')
+  const errorRows = s.errors.map(error => ({
+    error,
+    state: projection.statesByDifficulty[readingDifficultyId(error)]
+  }))
+  const errorCounts = {
+    all: errorRows.length,
+    open: errorRows.filter(row => row.state?.status === 'open').length,
+    resolved: errorRows.filter(row => row.state?.status === 'resolved').length,
+    insufficient: errorRows.filter(row => row.state?.status === 'insufficient-evidence').length
+  }
+  const visibleRows = errorRows.filter(row => errorFilter === 'all' || row.state?.status === errorFilter)
   return (
     <section className="stack route-errors-page">
       <section className="panel study-page-panel">
@@ -3643,33 +3710,51 @@ function Errors({
         />
         <h2>Error Review ({s.errors.length})</h2>
         <p className="muted">
-          Evidence resolves open errors only when a new equivalent attempt demonstrates correct performance.
+          Chỉ một bài tương đương có bằng chứng đúng mới được đóng lỗi. Mỗi occurrence được theo dõi độc lập để không mất lịch sử retest.
         </p>
+        <div className="error-filter-bar" role="tablist" aria-label="Lọc trạng thái lỗi">
+          {[
+            ['all', 'Tất cả', errorCounts.all],
+            ['open', 'Đang mở', errorCounts.open],
+            ['resolved', 'Đã xử lý', errorCounts.resolved],
+            ['insufficient-evidence', 'Chưa đủ bằng chứng', errorCounts.insufficient]
+          ].map(([value, label, count]) => (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={errorFilter === value}
+              className={errorFilter === value ? 'active' : ''}
+              key={value}
+              onClick={() => setErrorFilter(value as typeof errorFilter)}
+            >
+              {label} <span>{count}</span>
+            </button>
+          ))}
+        </div>
       </section>
-      {s.errors.length ? (
-        s.errors.map(error => {
-          const state = projection.statesByDifficulty[readingDifficultyId(error)]
+      {visibleRows.length ? (
+        visibleRows.map(({ error, state }) => {
           const target = targetFor(error)
           return (
             <section className="panel error-card" key={error.id}>
               <div className="error-head">
                 <span className="badge">{error.type}</span>
                 <span className={`status ${state?.status === 'resolved' ? 'good' : ''}`}>
-                  {state?.status === 'resolved' ? 'Resolved by retest' : 'Open'}
+                  {state?.status === 'resolved' ? 'Đã xử lý bằng Retest' : state?.status === 'insufficient-evidence' ? 'Chưa đủ bằng chứng' : 'Đang mở'}
                 </span>
               </div>
               <h3>{error.objective}</h3>
               <p className="question-copy">{error.prompt || error.explanation}</p>
               <div className="explanation">
-                <span>Learner answer: {error.learnerAnswer}</span>
-                <span className="green-text">Evidence answer: {error.correctAnswer}</span>
+                <span>Câu trả lời của bạn: {error.learnerAnswer}</span>
+                <span className="green-text">Đáp án có bằng chứng: {error.correctAnswer}</span>
                 <small>{error.explanation}</small>
               </div>
               <div className="error-actions">
-                <small>Reviewed {error.reviewCount} times</small>
+                <small>Đã xem lại {error.reviewCount} lần · {error.occurrences?.length || 1} occurrence</small>
                 {state?.status === 'open' && target && (
                   <button className="primary" onClick={() => openRetest(target)}>
-                    Retest now
+                    Làm Retest
                   </button>
                 )}
                 <button
@@ -3684,7 +3769,7 @@ function Errors({
                     note('Error reviewed.')
                   }}
                 >
-                  Mark reviewed
+                  Đánh dấu đã xem
                 </button>
               </div>
             </section>
@@ -3692,9 +3777,11 @@ function Errors({
         })
       ) : (
         <section className="panel empty">
-          <p>No errors yet.</p>
+          <div className="empty-icon"><CheckCircle2 size={22} /></div>
+          <h3>{s.errors.length ? 'Không có lỗi ở bộ lọc này' : 'Chưa có lỗi cần xem lại'}</h3>
+          <p>{s.errors.length ? 'Chọn một trạng thái khác để xem bằng chứng đang theo dõi.' : 'Hoàn thành Reading practice để tạo Error Memory từ câu trả lời thực tế.'}</p>
           <button className="secondary" onClick={() => go('practice')}>
-            Go to practice
+            Đi tới Reading practice
           </button>
         </section>
       )}
@@ -3717,13 +3804,30 @@ function Record({
           description="Theo dõi phiên học, bài Reading và các minh chứng kỹ năng đã lưu — mọi dữ liệu lấy trực tiếp từ hồ sơ của bạn."
           meta={<span className="badge">{s.sessions.length} phiên đã lưu</span>}
         />
-        <h2>Learning Record</h2>
-        <p className="muted">Lưu lại lịch sử các buổi học tập đã thực hiện.</p>
+        <h2>Nhật ký học tập</h2>
+        <p className="muted">Lưu lại lịch sử các buổi học tập đã thực hiện và những bằng chứng đã tạo.</p>
+      </section>
+      <section className="record-metrics-grid" aria-label="Tóm tắt nhật ký học tập">
+        <div><strong>{Math.round(s.sessions.reduce((total, item) => total + measuredMinutes(item), 0))}</strong><span>phút học chủ động</span></div>
+        <div><strong>{s.attempts.length}</strong><span>bài Reading</span></div>
+        <div><strong>{(s.submissions || []).length}</strong><span>bằng chứng kỹ năng</span></div>
+        <div><strong>{s.errors.length}</strong><span>lỗi đang theo dõi</span></div>
+      </section>
+      <section className="panel record-analytics-card" aria-labelledby="record-analytics-title">
+        <div className="record-section-heading">
+          <div>
+            <span className="eyebrow">ANALYTICS · REAL ACTIVITY</span>
+            <h2 id="record-analytics-title">Phân tích nhịp học</h2>
+            <p className="muted">Heatmap chỉ phản ánh số phút học chủ động được đo từ timer và hoạt động đã lưu.</p>
+          </div>
+          <span className="record-truth-badge">Dữ liệu thực</span>
+        </div>
+        <ActivityHeatmapHub s={s} initialExpanded />
       </section>
       <section className="panel">
-        <b>{Math.round(s.sessions.reduce((total, item) => total + measuredMinutes(item), 0))} measured minutes</b>
+         <b>{Math.round(s.sessions.reduce((total, item) => total + measuredMinutes(item), 0))} phút học chủ động</b>
         {s.sessions.length === 0 ? (
-          <p className="muted">No study sessions yet.</p>
+          <p className="muted">Chưa có phiên học nào được lưu.</p>
         ) : (
           s.sessions
             .slice()
@@ -3736,15 +3840,15 @@ function Record({
                     {new Date(item.startedAt).toLocaleString()} → {new Date(item.endedAt).toLocaleString()}
                   </small>
                 </div>
-                <strong>{measuredMinutes(item) > 0 ? `${Math.round(measuredMinutes(item))} min` : 'Not counted'}</strong>
+                    <strong>{measuredMinutes(item) > 0 ? `${Math.round(measuredMinutes(item))} phút` : 'Không tính'}</strong>
               </div>
             ))
         )}
       </section>
       <section className="panel">
-        <h3>Reading history</h3>
+        <h3>Lịch sử Reading</h3>
         {s.attempts.length === 0 ? (
-          <p className="muted">No Reading attempts yet.</p>
+          <p className="muted">Chưa có bài Reading nào.</p>
         ) : (
           s.attempts
             .slice()
@@ -3756,8 +3860,8 @@ function Record({
                     {attempt.kind === 'retest' ? 'Retest' : 'Reading practice'} · {attempt.score}/{attempt.total}
                   </b>
                   <small>
-                    {new Date(attempt.createdAt).toLocaleString()} · {attempt.objectiveIds.length} objectives ·{' '}
-                    {attempt.reflection ? 'Reflection saved' : 'No reflection yet'}
+                      {new Date(attempt.createdAt).toLocaleString('vi-VN')} · {attempt.objectiveIds.length} mục tiêu ·{' '}
+                      {attempt.reflection ? 'Đã lưu phản tư' : 'Chưa có phản tư'}
                   </small>
                 </div>
                 <strong>{attempt.total ? Math.round((attempt.score / attempt.total) * 100) : 0}%</strong>
@@ -3766,7 +3870,7 @@ function Record({
         )}
       </section>
       <section className="panel">
-        <h3>Other skill submissions</h3>
+        <h3>Bằng chứng kỹ năng khác</h3>
         {(s.submissions || []).length ? (
           (s.submissions || [])
             .slice()
@@ -3776,15 +3880,15 @@ function Record({
                 <div>
                   <b>{item.skill} · {item.activityId}</b>
                   <small>
-                    {new Date(item.createdAt).toLocaleString()} ·{' '}
-                    {item.feedbackMode === 'transcript-fallback' ? 'Transcript fallback' : 'Self-review only'}
+                     {new Date(item.createdAt).toLocaleString('vi-VN')} ·{' '}
+                     {item.feedbackMode === 'transcript-fallback' ? 'Đã nghe lại transcript' : 'Tự đánh giá'}
                   </small>
                 </div>
-                <strong>Saved</strong>
+                <strong>Đã lưu</strong>
               </div>
             ))
         ) : (
-          <p className="muted">No other skill submissions yet.</p>
+          <p className="muted">Chưa có bằng chứng kỹ năng Listening, Writing hoặc Speaking.</p>
         )}
       </section>
     </section>
@@ -3869,10 +3973,51 @@ function Profile({
   openConfirm: (title: string, message: string, onConfirm: () => void, onCancel?: () => void) => void
 }) {
   const [profile, setLocalProfile] = useState<Profile>(s.profile)
+  const [profileStep, setProfileStep] = useState(0)
+  const [profileError, setProfileError] = useState('')
+
+  const steps = [
+    { label: 'Mục tiêu', hint: 'Bạn muốn đạt điều gì?' },
+    { label: 'Nhịp học', hint: 'Bạn học thế nào?' },
+    { label: 'Xác nhận', hint: 'Kiểm tra lộ trình' }
+  ]
+  const restDayOptions = [
+    ['Mon', 'Thứ 2'],
+    ['Tue', 'Thứ 3'],
+    ['Wed', 'Thứ 4'],
+    ['Thu', 'Thứ 5'],
+    ['Fri', 'Thứ 6'],
+    ['Sat', 'Thứ 7'],
+    ['Sun', 'Chủ nhật']
+  ] as const
+
+  const validateStep = (step: number) => {
+    if (step === 0 && (profile.targetBand === undefined || profile.targetBand < 4 || profile.targetBand > 9)) {
+      setProfileError('Chọn target band từ 4.0 đến 9.0 để hệ thống tạo mục tiêu minh bạch.')
+      return false
+    }
+    if (step === 1 && (profile.dailyGoalMinutes === undefined || profile.dailyGoalMinutes < 10 || profile.dailyGoalMinutes > 240)) {
+      setProfileError('Chọn thời lượng học từ 10 đến 240 phút mỗi ngày.')
+      return false
+    }
+    setProfileError('')
+    return true
+  }
+
+  const moveNext = () => {
+    if (!validateStep(profileStep)) return
+    setProfileStep(current => Math.min(2, current + 1))
+  }
+
+  const moveBack = () => {
+    setProfileError('')
+    setProfileStep(current => Math.max(0, current - 1))
+  }
 
   const save = () => {
+    if (!validateStep(0) || !validateStep(1)) return
     setS({ ...s, profile })
-    note('Profile updated.')
+    note('Đã cập nhật mục tiêu và nhịp học.')
   }
 
   const resetAll = () => {
@@ -3892,59 +4037,113 @@ function Profile({
           title="Thiết lập một lộ trình vừa sức"
           description="Mục tiêu, thời lượng học và kỹ năng ưu tiên được dùng để gợi ý hoạt động tiếp theo — không tạo thành tích giả."
         />
-        <h2>Learner Profile</h2>
-        <p className="muted">Set targets, daily goals, and planned rest days.</p>
-        <div className="form-grid">
-          <label>
-            Target Band Score
-            <input
-              type="number"
-              step="0.5"
-              min="4"
-              max="9"
-              value={profile.targetBand || ''}
-              onChange={e => setLocalProfile({ ...profile, targetBand: parseFloat(e.target.value) || undefined })}
-            />
-          </label>
-          <label>
-            Daily Goal (Minutes)
-            <input
-              type="number"
-              min="10"
-              max="240"
-              value={profile.dailyGoalMinutes || ''}
-              onChange={e => setLocalProfile({ ...profile, dailyGoalMinutes: parseInt(e.target.value) || undefined })}
-            />
-          </label>
-          <label>
-            Priority Skill
-            <select
-              value={profile.priority}
-              onChange={e => setLocalProfile({ ...profile, priority: e.target.value as any })}
-            >
-              <option value="Reading">Reading</option>
-              <option value="Listening">Listening</option>
-              <option value="Writing">Writing</option>
-              <option value="Speaking">Speaking</option>
-            </select>
-          </label>
-          <label>
-            Exam Date
-            <input
-              type="date"
-              value={profile.examDate || ''}
-              onChange={e => setLocalProfile({ ...profile, examDate: e.target.value || undefined })}
-            />
-          </label>
+        <div className="profile-stepper" aria-label="Các bước thiết lập mục tiêu">
+          {steps.map((step, index) => (
+            <div className={`profile-step ${index === profileStep ? 'active' : ''} ${index < profileStep ? 'complete' : ''}`} key={step.label}>
+              <span>{index < profileStep ? '✓' : index + 1}</span>
+              <div><b>{step.label}</b><small>{step.hint}</small></div>
+            </div>
+          ))}
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button className="primary" onClick={save}>
-            Save profile
-          </button>
-          <button className="danger-outline" onClick={resetAll}>
-            Reset data
-          </button>
+
+        <div className="profile-step-content" aria-live="polite">
+          {profileStep === 0 && (
+            <div className="profile-step-panel">
+              <span className="eyebrow">BƯỚC 1 · MỤC TIÊU</span>
+              <h2>Bạn đang hướng tới band nào?</h2>
+              <p className="muted">Đây là mục tiêu tham chiếu cho kế hoạch học, không phải band hiện tại.</p>
+              <label className="profile-field-emphasis">
+                Target band score
+                <input
+                  type="number"
+                  step="0.5"
+                  min="4"
+                  max="9"
+                  value={profile.targetBand ?? ''}
+                  onChange={e => setLocalProfile({ ...profile, targetBand: e.target.value ? parseFloat(e.target.value) : undefined })}
+                  aria-describedby="profile-target-help"
+                />
+                <small id="profile-target-help">Phạm vi IELTS Academic hợp lệ: 4.0–9.0</small>
+              </label>
+            </div>
+          )}
+
+          {profileStep === 1 && (
+            <div className="profile-step-panel">
+              <span className="eyebrow">BƯỚC 2 · NHỊP HỌC</span>
+              <h2>Chọn nhịp học bạn có thể duy trì</h2>
+              <p className="muted">Các thông tin này chỉ điều chỉnh gợi ý nhiệm vụ và timer mục tiêu.</p>
+              <div className="form-grid profile-form-grid">
+                <label>
+                  Thời lượng mỗi ngày (phút)
+                  <input
+                    type="number"
+                    min="10"
+                    max="240"
+                    value={profile.dailyGoalMinutes ?? ''}
+                    onChange={e => setLocalProfile({ ...profile, dailyGoalMinutes: e.target.value ? parseInt(e.target.value, 10) : undefined })}
+                  />
+                </label>
+                <label>
+                  Kỹ năng ưu tiên
+                  <select value={profile.priority} onChange={e => setLocalProfile({ ...profile, priority: e.target.value as Skill })}>
+                    <option value="Reading">Reading</option>
+                    <option value="Listening">Listening</option>
+                    <option value="Writing">Writing</option>
+                    <option value="Speaking">Speaking</option>
+                  </select>
+                </label>
+                <label>
+                  Ngày thi (tuỳ chọn)
+                  <input type="date" value={profile.examDate || ''} onChange={e => setLocalProfile({ ...profile, examDate: e.target.value || undefined })} />
+                </label>
+              </div>
+              <fieldset className="rest-day-fieldset">
+                <legend>Ngày nghỉ dự kiến</legend>
+                <div className="rest-day-options">
+                  {restDayOptions.map(([value, label]) => (
+                    <label key={value} className="rest-day-option">
+                      <input
+                        type="checkbox"
+                        checked={profile.daysOff.includes(value)}
+                        onChange={event => setLocalProfile({
+                          ...profile,
+                          daysOff: event.target.checked ? [...profile.daysOff, value] : profile.daysOff.filter(day => day !== value)
+                        })}
+                      />
+                      <span>{label}</span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            </div>
+          )}
+
+          {profileStep === 2 && (
+            <div className="profile-step-panel profile-review-panel">
+              <span className="eyebrow">BƯỚC 3 · XÁC NHẬN</span>
+              <h2>Lộ trình của bạn đã sẵn sàng</h2>
+              <p className="muted">Kiểm tra lại thông tin trước khi lưu. Không có tiến độ hay thành tích nào được tạo tự động.</p>
+              <div className="profile-review-grid">
+                <div><small>Target band</small><strong>{profile.targetBand?.toFixed(1) || 'Chưa đặt'}</strong></div>
+                <div><small>Mỗi ngày</small><strong>{profile.dailyGoalMinutes || 'Chưa đặt'} phút</strong></div>
+                <div><small>Ưu tiên</small><strong>{profile.priority}</strong></div>
+                <div><small>Ngày thi</small><strong>{profile.examDate || 'Chưa đặt'}</strong></div>
+              </div>
+            </div>
+          )}
         </div>
+
+        {profileError && <p className="profile-form-error" role="alert">{profileError}</p>}
+        <div className="profile-step-actions">
+          {profileStep > 0 ? <button className="secondary" onClick={moveBack}>Quay lại</button> : <span />}
+          {profileStep < 2 ? (
+            <button className="primary" onClick={moveNext}>Tiếp tục <ArrowRight size={16} /></button>
+          ) : (
+            <button className="primary" onClick={save}><Check size={16} /> Lưu lộ trình</button>
+          )}
+        </div>
+        <button className="danger-outline profile-reset-btn" onClick={resetAll}>Xóa toàn bộ dữ liệu học tập</button>
       </section>
     </section>
   )
