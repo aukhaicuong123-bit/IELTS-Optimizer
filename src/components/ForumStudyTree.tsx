@@ -28,13 +28,15 @@ export const TREE_STAGES: TreeStage[] = [
   { step: '06', name: 'Bậc thầy IELTS', icon: '♛', minXp: 1500, maxXp: 2500, description: 'Sẵn sàng chinh phục mục tiêu IELTS Band 8.0+' }
 ]
 
+const JOURNEY_ASSET_BASE = `${import.meta.env.BASE_URL}assets/ielts-journey`
+
 const MILESTONE_ASSETS = [
-  '/assets/ielts-journey/milestone-backpack.png',
-  '/assets/ielts-journey/milestone-lantern.png',
-  '/assets/ielts-journey/milestone-signpost.png',
-  '/assets/ielts-journey/milestone-treasure-map.png',
-  '/assets/ielts-journey/milestone-flag-mountain.png',
-  '/assets/ielts-journey/milestone-crowned-summit.png'
+  `${JOURNEY_ASSET_BASE}/milestone-backpack.png`,
+  `${JOURNEY_ASSET_BASE}/milestone-lantern.png`,
+  `${JOURNEY_ASSET_BASE}/milestone-signpost.png`,
+  `${JOURNEY_ASSET_BASE}/milestone-treasure-map.png`,
+  `${JOURNEY_ASSET_BASE}/milestone-flag-mountain.png`,
+  `${JOURNEY_ASSET_BASE}/milestone-crowned-summit.png`
 ]
 
 export const ForumStudyTree: React.FC<StudyTreeProps> = ({
@@ -81,7 +83,7 @@ export const ForumStudyTree: React.FC<StudyTreeProps> = ({
       {/* Shared IELTS journey banner for the vocabulary and grammar tracks */}
       <div className="forum-tree-top">
         <div className="forum-tree-motto">
-          <img className="journey-mountain-path" src="/assets/ielts-journey/journey-mountain-path.png" alt="" aria-hidden="true" />
+          <img className="journey-mountain-path" src={`${JOURNEY_ASSET_BASE}/journey-mountain-path.png`} alt="" aria-hidden="true" />
           <span className="forum-badge-pill">
             <Sparkles size={13} /> HÀNH TRÌNH IELTS · STUDY PATH
           </span>
@@ -116,7 +118,7 @@ export const ForumStudyTree: React.FC<StudyTreeProps> = ({
         <div className="forum-tree-status-box">
           <div className="tree-stage-visual">
             <div className={`tree-stage-avatar stage-art-${currentStageIndex}`}>
-              <img src="/assets/ielts-journey/stage-badge-mountain.png" alt="" aria-hidden="true" />
+              <img src={`${JOURNEY_ASSET_BASE}/stage-badge-mountain.png`} alt="" aria-hidden="true" />
             </div>
             <div className="tree-stage-meta">
               <div className="tree-stage-kicker">GIAI ĐOẠN {currentStage.step}</div>
