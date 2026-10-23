@@ -81,9 +81,9 @@ export const ForumStudyTree: React.FC<StudyTreeProps> = ({
   return (
     <div className="forum-tree-card">
       {/* Shared IELTS journey banner for the vocabulary and grammar tracks */}
+      <img className="journey-mountain-path" src={`${JOURNEY_ASSET_BASE}/journey-mountain-backdrop.png`} alt="" aria-hidden="true" />
       <div className="forum-tree-top">
         <div className="forum-tree-motto">
-          <img className="journey-mountain-path" src={`${JOURNEY_ASSET_BASE}/journey-mountain-path.png`} alt="" aria-hidden="true" />
           <span className="forum-badge-pill">
             <Sparkles size={13} /> HÀNH TRÌNH IELTS · STUDY PATH
           </span>
