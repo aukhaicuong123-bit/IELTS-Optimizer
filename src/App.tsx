@@ -482,6 +482,19 @@ export default function App() {
             </button>
           </div>
         )}
+        {page === 'errors' && (
+          <div className="skill-quick-bar skill-quick-bar-errors" role="tablist" aria-label="Bá»™ nhá»› lá»—i & Retest">
+            <button
+              role="tab"
+              aria-selected={page === 'errors'}
+              className={`skill-quick-btn ${page === 'errors' ? 'active' : ''}`}
+              onClick={() => go('errors')}
+            >
+              <RotateCcw size={15} />{' '}
+              <span>Bá»™ nhá»› lá»—i & Retest {openErrors.length > 0 ? `(${openErrors.length})` : ''}</span>
+            </button>
+          </div>
+        )}
 
         {page === 'dashboard' && <Dashboard s={store} go={setPage} setS={setStore} note={note} />}
         {page === 'question-bank' && <ExamLibraryView store={store} setStore={setStore} onNavigate={setPage} addToast={addToast} />}
@@ -1554,6 +1567,19 @@ function DashboardTimerCard({
             </button>
           </div>
         )}
+        {page === 'errors' && (
+          <div className="skill-quick-bar skill-quick-bar-errors" role="tablist" aria-label="Bá»™ nhá»› lá»—i & Retest">
+            <button
+              role="tab"
+              aria-selected={page === 'errors'}
+              className={`skill-quick-btn ${page === 'errors' ? 'active' : ''}`}
+              onClick={() => go('errors')}
+            >
+              <RotateCcw size={15} />{' '}
+              <span>Bá»™ nhá»› lá»—i & Retest {openErrors.length > 0 ? `(${openErrors.length})` : ''}</span>
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="timer-quick-stats">
@@ -1800,6 +1826,19 @@ function DashboardRecord({
             </button>
             <button className="danger" onClick={stop}>
               Stop and save
+            </button>
+          </div>
+        )}
+        {page === 'errors' && (
+          <div className="skill-quick-bar skill-quick-bar-errors" role="tablist" aria-label="Bá»™ nhá»› lá»—i & Retest">
+            <button
+              role="tab"
+              aria-selected={page === 'errors'}
+              className={`skill-quick-btn ${page === 'errors' ? 'active' : ''}`}
+              onClick={() => go('errors')}
+            >
+              <RotateCcw size={15} />{' '}
+              <span>Bá»™ nhá»› lá»—i & Retest {openErrors.length > 0 ? `(${openErrors.length})` : ''}</span>
             </button>
           </div>
         )}
@@ -4152,3 +4191,4 @@ function Profile({
     </section>
   )
 }
+
