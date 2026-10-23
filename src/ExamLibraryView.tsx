@@ -38,12 +38,18 @@ import {
   calculateAcademicReadingBand,
   calculateListeningBand
 } from './examLibraryData'
+import { uiSectionAsset } from './uiAssets'
 
 interface Props {
   store: Store
   setStore: (updater: Store | ((prev: Store) => Store)) => void
   onNavigate: (page: Page) => void
   addToast: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void
+}
+
+function countExamQuestions(exam: FullIELTSExam): number {
+  return exam.reading.passages.reduce((total, passage) => total + passage.questions.length, 0)
+    + exam.listening.sections.reduce((total, section) => total + section.questions.length, 0)
 }
 
 function Task1StimulusChart({ data }: { data?: WritingStimulusData }) {
@@ -208,10 +214,10 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
   }
 
   return (
-    <div className="stack" style={{ gap: 20 }}>
+    <div className="stack exam-library-view" style={{ gap: 20 }}>
       {/* Header Banner - Modeled after IELTS Online Tests Exam Library */}
-      <div className="hero-card" style={{ minHeight: 'auto', padding: '24px 28px' }}>
-        <div>
+      <div className="hero-card exam-library-hero" style={{ minHeight: 'auto', padding: '24px 28px' }}>
+        <div className="exam-library-hero-copy">
           <span className="eyebrow" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <ShieldCheck size={14} /> IELTS EXAM LIBRARY — MÔ PHỎNG FORMAT IELTS
           </span>
@@ -224,25 +230,28 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
             Đây không phải đề chính thức của IELTS.
           </p>
         </div>
-        <div className="header-meta" style={{ gap: 24 }}>
-          <div style={{ textAlign: 'right' }}>
+        <div className="exam-library-hero-art" aria-hidden="true">
+          <img src={uiSectionAsset('exam-library')} alt="" />
+        </div>
+        <div className="header-meta exam-library-hero-stats" style={{ gap: 24 }}>
+          <div className="exam-library-stat" style={{ textAlign: 'right' }}>
             <strong style={{ fontSize: 30, fontFamily: 'Space Grotesk', color: 'var(--mint)' }}>
               {IELTS_EXAM_COLLECTIONS.length}
             </strong>
             <small style={{ display: 'block', color: 'var(--muted)' }}>Bộ đề hoàn chỉnh</small>
           </div>
-          <div style={{ textAlign: 'right' }}>
+          <div className="exam-library-stat" style={{ textAlign: 'right' }}>
             <strong style={{ fontSize: 30, fontFamily: 'Space Grotesk', color: 'var(--accent)' }}>
-              {IELTS_EXAM_COLLECTIONS.length * 80}+
+              {IELTS_EXAM_COLLECTIONS.reduce((total, exam) => total + countExamQuestions(exam), 0)}
             </strong>
-            <small style={{ display: 'block', color: 'var(--muted)' }}>Câu hỏi chuẩn hóa</small>
+            <small style={{ display: 'block', color: 'var(--muted)' }}>Câu hỏi trong thư viện</small>
           </div>
         </div>
       </div>
 
       {/* Filter and Search Controls */}
       <div
-        className="panel"
+        className="panel exam-library-filters"
         style={{
           padding: '14px 18px',
           display: 'flex',
@@ -252,7 +261,7 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
           gap: 12
         }}
       >
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <div className="exam-library-module-tabs" role="tablist" aria-label="Lọc module đề thi" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {(['All', 'Academic', 'General Training'] as const).map(mod => {
             const isActive = selectedModule === mod
             return (
@@ -260,6 +269,8 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
                 key={mod}
                 type="button"
                 onClick={() => setSelectedModule(mod)}
+                aria-pressed={isActive}
+                className={`exam-library-module-tab ${isActive ? 'active' : ''}`}
                 style={{
                   padding: '8px 16px',
                   borderRadius: 8,
@@ -278,10 +289,12 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
           })}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ position: 'relative', minWidth: 240 }}>
+        <div className="exam-library-filter-tools" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div className="exam-library-search" style={{ position: 'relative', minWidth: 240 }}>
             <Search size={14} style={{ position: 'absolute', left: 10, top: 10, color: 'var(--muted)' }} />
+            <label className="sr-only" htmlFor="exam-library-search">Tìm kiếm đề thi</label>
             <input
+              id="exam-library-search"
               type="text"
               placeholder="Tìm kiếm đề thi, mã đề..."
               value={searchTerm}
@@ -296,19 +309,31 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
                 color: '#f0f8f1'
               }}
             />
+            {searchTerm && (
+              <button type="button" className="exam-library-clear-search" onClick={() => setSearchTerm('')} aria-label="Xóa tìm kiếm">×</button>
+            )}
           </div>
-          <span style={{ fontSize: 12, color: 'var(--muted)' }}>
-            Chuẩn Computer-Delivered IELTS
+          <span className="exam-library-format-note" style={{ fontSize: 12, color: 'var(--muted)' }}>
+            {filteredExams.length} bộ đề · Computer-Delivered IELTS
           </span>
         </div>
       </div>
 
       {/* Exam Collection Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 }}>
-        {filteredExams.map(exam => (
+      <div className="exam-library-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 }}>
+        {filteredExams.length === 0 ? (
+          <div className="exam-library-empty panel">
+            <img src={uiSectionAsset('empty-map')} alt="" aria-hidden="true" />
+            <h2>Không tìm thấy bộ đề phù hợp</h2>
+            <p>Thử xóa từ khóa hoặc chọn lại module để xem các bộ đề đang có.</p>
+            <button type="button" className="secondary" onClick={() => { setSearchTerm(''); setSelectedModule('All') }}>
+              Xóa bộ lọc
+            </button>
+          </div>
+        ) : filteredExams.map(exam => (
           <div
             key={exam.id}
-            className="panel"
+            className="panel exam-library-card"
             style={{
               padding: 24,
               display: 'flex',
@@ -338,7 +363,13 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
               </div>
 
               {/* Title */}
-              <h2 style={{ fontSize: 20, margin: '0 0 12px', color: '#f0f8f1' }}>{exam.title}</h2>
+              <div className="exam-library-card-title">
+                <img src={uiSectionAsset('mock-test-paper')} alt="" aria-hidden="true" />
+                <div>
+                  <h2 style={{ fontSize: 20, margin: '0 0 4px', color: '#f0f8f1' }}>{exam.title}</h2>
+                  <span className="exam-library-card-subtitle">{exam.module} · {countExamQuestions(exam)} câu Reading + Listening</span>
+                </div>
+              </div>
 
               {/* Exam specs summary */}
               <div style={{ display: 'grid', gap: 8, fontSize: 12, color: '#c5d3ca', marginBottom: 14 }}>
@@ -389,7 +420,7 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
             </div>
 
             {/* Action Buttons for Each Skill or Full Test */}
-            <div style={{ display: 'grid', gap: 8 }}>
+            <div className="exam-card-actions" style={{ display: 'grid', gap: 8 }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 <button
                   type="button"

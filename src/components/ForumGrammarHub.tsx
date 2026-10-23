@@ -18,6 +18,8 @@ import { TOTAL_FORUM_VOCAB_COUNT } from '../data/forumVocab25Topics'
 import { TOPICS, type TopicId } from '../topicData'
 import { ForumStudyTree } from './ForumStudyTree'
 import type { Store } from '../types'
+import { countCompletedGrammar } from '../gamification'
+import { uiSectionAsset } from '../uiAssets'
 
 const uid = (prefix: string) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
 
@@ -122,12 +124,7 @@ export const ForumGrammarHub: React.FC<ForumGrammarHubProps> = ({
   }
 
   // Stats
-  const completedGrammarCount = Object.keys(quizSubmitted).filter(
-    id => {
-      const rule = CEFR_GRAMMAR_RULES.find(r => r.id === id)
-      return rule && quizAnswers[id] === rule.quiz.answer
-    }
-  ).length
+  const completedGrammarCount = countCompletedGrammar(s.submissions)
 
   return (
     <section className="stack">
@@ -147,6 +144,14 @@ export const ForumGrammarHub: React.FC<ForumGrammarHubProps> = ({
 
       {/* Main Grammar Study Hub Panel */}
       <section className="panel forum-study-panel">
+        <div className="hub-panel-intro">
+          <div>
+            <span className="eyebrow">GRAMMAR LAB · STRUCTURE IN CONTEXT</span>
+            <h2>Luyện cấu trúc để viết và nói chắc hơn</h2>
+            <p className="muted">Mỗi quy tắc đi cùng ví dụ, bài kiểm tra ngắn và một câu luyện tập được lưu vào hồ sơ.</p>
+          </div>
+          <img src={uiSectionAsset('grammar-books')} alt="" aria-hidden="true" />
+        </div>
         <div className="forum-panel-head">
           <div className="forum-panel-title">
             <span className="eyebrow">IELTS OPTIMIZER · XƯỞNG CẤU TRÚC CÂU</span>

@@ -936,3 +936,292 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
   .forum-vcard-word{width:100%}
   .forum-vcard-context,.forum-vcard-meaning{width:92%}
 }
+
+/* ============================================================================
+   PHASE 1 · GAMIFIED DASHBOARD
+   Dashboard-only composition and visual treatment. The shared journey component
+   keeps its existing vocabulary/grammar presentation outside this namespace.
+   ============================================================================ */
+.dashboard-main .dashboard-gamified-shell{
+  display:grid;
+  grid-template-columns:repeat(12,minmax(0,1fr));
+  gap:18px;
+  align-items:stretch;
+}
+.dashboard-main .dashboard-journey-wrap{grid-column:1 / -1;grid-row:1;min-width:0}
+.dashboard-main .dashboard-journey-wrap .forum-tree-card-dashboard{
+  margin:0;
+  min-height:0;
+  padding:28px 30px 22px;
+  border-radius:24px;
+  background:linear-gradient(135deg,#f7fcf8 0%,#edf7f1 58%,#faf6e9 100%);
+  border-color:#c6e1d1;
+  box-shadow:0 12px 30px rgba(7,93,82,.09);
+}
+.dashboard-main .forum-tree-card-dashboard .journey-mountain-path{
+  object-position:center center;
+  opacity:.62;
+  filter:saturate(.9) contrast(.98);
+}
+.dashboard-main .forum-tree-card-dashboard .forum-tree-top{gap:30px}
+.dashboard-main .forum-tree-card-dashboard .forum-tree-motto{min-height:300px}
+.dashboard-main .forum-tree-card-dashboard .forum-tree-motto h3{font-size:30px}
+.dashboard-main .forum-tree-card-dashboard .forum-tree-status-box{background:rgba(255,255,252,.9)}
+.dashboard-main .forum-tree-card-dashboard .forum-tree-stepper{padding-top:6px}
+
+.dashboard-main .dashboard-mission-card{
+  grid-column:1 / -1;
+  grid-row:2;
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;
+  gap:16px;
+  padding:18px 22px;
+  border:1px solid #cfe3d1;
+  border-radius:18px;
+  background:linear-gradient(110deg,#f3faee 0%,#fffefa 66%);
+  box-shadow:0 6px 18px rgba(37,91,62,.06);
+  color:#173b35;
+}
+.dashboard-main .dashboard-mission-icon{
+  width:44px;
+  height:44px;
+  display:grid;
+  place-items:center;
+  border-radius:14px;
+  color:#075d52;
+  background:#dff1df;
+  border:1px solid #b8d9bd;
+}
+.dashboard-main .dashboard-mission-copy{min-width:0;display:grid;gap:4px}
+.dashboard-main .dashboard-card-kicker{
+  color:#478a64;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.12em;
+}
+.dashboard-main .dashboard-mission-copy h2{margin:0;color:#123f3a;font:700 19px 'Space Grotesk',sans-serif}
+.dashboard-main .dashboard-mission-copy p{margin:0;color:#567367;font-size:12px;line-height:1.45}
+.dashboard-main .dashboard-mission-destination{color:#39705e;font-size:11px;font-weight:700}
+.dashboard-main .dashboard-mission-action{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  min-height:42px;
+  padding:10px 16px;
+  border:1px solid #075d52;
+  border-radius:12px;
+  background:#075d52;
+  color:#fff;
+  font-size:12px;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 4px 12px rgba(7,93,82,.18);
+  transition:transform .15s ease,background .15s ease,box-shadow .15s ease;
+}
+.dashboard-main .dashboard-mission-action:hover{background:#064e46;transform:translateY(-1px);box-shadow:0 6px 15px rgba(7,93,82,.22)}
+
+.dashboard-main .dashboard-gamified-shell .learner-profile-card{
+  grid-column:1 / span 6;
+  grid-row:3;
+  min-height:100%;
+  height:100%;
+}
+.dashboard-main .dashboard-gamified-shell .timer-card{
+  grid-column:7 / -1;
+  grid-row:3;
+  min-height:100%;
+  height:100%;
+}
+.dashboard-main .dashboard-gamified-shell .evidence-card{
+  grid-column:1 / -1;
+  grid-row:4;
+  min-height:0;
+}
+.dashboard-main .dashboard-gamified-shell .activity-card.activity-hub-card{
+  grid-column:1 / -1!important;
+  grid-row:5!important;
+  background:#fffefa!important;
+  border:1px solid #dce9de!important;
+  border-radius:20px!important;
+  padding:22px 24px!important;
+  color:#173b35!important;
+  box-shadow:0 8px 24px rgba(37,91,62,.06)!important;
+}
+.dashboard-main .dashboard-gamified-shell .img2-main-title{color:#173f36}
+.dashboard-main .dashboard-gamified-shell .img2-subtitle{color:#718578}
+.dashboard-main .dashboard-gamified-shell .img2-badge-icon{background:#e6f4e3;border-color:#c8e1c4;color:#075d52;box-shadow:none}
+.dashboard-main .dashboard-gamified-shell .img2-view-switcher{background:#f2f7ee;border-color:#d5e5d1}
+.dashboard-main .dashboard-gamified-shell .img2-view-tab{color:#547267}
+.dashboard-main .dashboard-gamified-shell .img2-view-tab.active{background:#075d52;color:#fff;box-shadow:0 2px 6px rgba(7,93,82,.16)}
+.dashboard-main .dashboard-gamified-shell .img2-today-btn,.dashboard-main .dashboard-gamified-shell .img2-year-btn{background:#fffefa;border-color:#d6e3d3;color:#365b4e}
+.dashboard-main .dashboard-gamified-shell .img2-cal-card,.dashboard-main .dashboard-gamified-shell .img2-overview-card,.dashboard-main .dashboard-gamified-shell .img2-day-detail-card,.dashboard-main .dashboard-gamified-shell .img2-heatmap-card{
+  background:#fdfefb;
+  border-color:#dce9de;
+  box-shadow:0 4px 16px rgba(37,91,62,.05);
+}
+.dashboard-main .dashboard-gamified-shell .img2-cal-header-date,.dashboard-main .dashboard-gamified-shell .img2-overview-title,.dashboard-main .dashboard-gamified-shell .img2-detail-date{color:#173f36}
+.dashboard-main .dashboard-gamified-shell .img2-cal-month-title,.dashboard-main .dashboard-gamified-shell .img2-cal-weekdays,.dashboard-main .dashboard-gamified-shell .img2-cal-legend,.dashboard-main .dashboard-gamified-shell .img2-subtitle,.dashboard-main .dashboard-gamified-shell .img2-stat-label,.dashboard-main .dashboard-gamified-shell .img2-detail-empty,.dashboard-main .dashboard-gamified-shell .img2-legend-text{color:#718578}
+.dashboard-main .dashboard-gamified-shell .img2-cal-cell{color:#365b4e}
+.dashboard-main .dashboard-gamified-shell .img2-cal-cell.outside{color:#b3c2b7}
+.dashboard-main .dashboard-gamified-shell .img2-cal-cell:hover:not(.selected){background:#edf6e9}
+.dashboard-main .dashboard-gamified-shell .img2-cal-cell.selected{background:#075d52!important;color:#fff!important;box-shadow:0 0 12px rgba(7,93,82,.2)}
+.dashboard-main .dashboard-gamified-shell .img2-detail-item{background:#f2f8ef;border-color:#dcebd8}
+.dashboard-main .dashboard-gamified-shell .img2-item-info strong{color:#2e594c}
+.dashboard-main .dashboard-gamified-shell .img2-item-sub{color:#718578}
+.dashboard-main .dashboard-gamified-shell .img2-heat-tile.lvl-0{background:#edf3e9;outline:1px solid #e0eadc}
+.dashboard-main .dashboard-gamified-shell .img2-heat-tile.lvl-1{background:#dcefd0}
+.dashboard-main .dashboard-gamified-shell .img2-heat-tile.lvl-2{background:#b9dc9e}
+.dashboard-main .dashboard-gamified-shell .img2-heat-tile.lvl-3{background:#83bd7b}
+.dashboard-main .dashboard-gamified-shell .img2-heat-tile.lvl-4{background:#4e9d68}
+.dashboard-main .dashboard-gamified-shell .img2-heat-tile.lvl-5{background:#075d52}
+.dashboard-main .dashboard-gamified-shell .img2-heat-tile.tile-active{outline:2px solid #075d52!important}
+
+@media(max-width:1100px){
+  .dashboard-main .dashboard-gamified-shell{grid-template-columns:1fr}
+  .dashboard-main .dashboard-gamified-shell .dashboard-journey-wrap,
+  .dashboard-main .dashboard-gamified-shell .dashboard-mission-card,
+  .dashboard-main .dashboard-gamified-shell .learner-profile-card,
+  .dashboard-main .dashboard-gamified-shell .timer-card,
+  .dashboard-main .dashboard-gamified-shell .evidence-card,
+  .dashboard-main .dashboard-gamified-shell .activity-card.activity-hub-card{
+    grid-column:1;
+    grid-row:auto;
+  }
+}
+@media(max-width:850px){
+  .dashboard-main .dashboard-journey-wrap .forum-tree-card-dashboard{padding:22px 18px 18px}
+  .dashboard-main .forum-tree-card-dashboard .forum-tree-motto{min-height:280px}
+  .dashboard-main .forum-tree-card-dashboard .forum-tree-motto h3{font-size:26px}
+  .dashboard-main .dashboard-mission-card{grid-template-columns:auto minmax(0,1fr);align-items:start;padding:16px}
+  .dashboard-main .dashboard-mission-action{grid-column:2;justify-self:start;margin-top:4px}
+}
+@media(max-width:520px){
+  .dashboard-main .dashboard-journey-wrap .forum-tree-card-dashboard{padding:16px}
+  .dashboard-main .forum-tree-card-dashboard .forum-tree-motto{min-height:260px}
+  .dashboard-main .forum-tree-card-dashboard .forum-tree-motto h3{font-size:23px}
+  .dashboard-main .forum-tree-card-dashboard .journey-mountain-path{object-position:58% center;opacity:.5}
+  .dashboard-main .dashboard-mission-card{grid-template-columns:1fr;gap:10px}
+  .dashboard-main .dashboard-mission-action{grid-column:1;width:100%;margin-top:0}
+  .dashboard-main .dashboard-gamified-shell .learner-profile-card,.dashboard-main .dashboard-gamified-shell .timer-card,.dashboard-main .dashboard-gamified-shell .evidence-card,.dashboard-main .dashboard-gamified-shell .activity-card.activity-hub-card{padding:18px!important}
+}
+
+/* ============================================================================
+   IELTS OPTIMIZER · SHARED LEARNING LAB POLISH
+   Route-scoped styles only. The existing stateful components remain the source
+   of truth for scoring, timers, drafts, persistence and navigation.
+   ============================================================================ */
+.workspace-theme .study-page-panel{overflow:hidden}
+.workspace-theme .study-page-intro{display:flex;align-items:center;justify-content:space-between;gap:22px;margin:-22px -24px 22px;padding:22px 24px 18px;background:linear-gradient(120deg,#eef8ee 0%,#f9fbf3 65%,#fffefa 100%);border-bottom:1px solid #e1eadc}
+.workspace-theme .study-page-intro-copy{min-width:0;max-width:760px}
+.workspace-theme .study-page-intro h2{margin:2px 0 7px;font-size:24px;color:#173f36!important}
+.workspace-theme .study-page-intro p{margin:0;max-width:640px;color:#60766c!important;line-height:1.55}
+.workspace-theme .study-page-intro-meta{margin-top:12px;display:flex;align-items:center;gap:8px}
+.workspace-theme .study-page-intro-art{width:108px;height:88px;flex:0 0 108px;display:grid;place-items:center;border-radius:22px;background:#e1f1df;border:1px solid #c8dfc2}
+.workspace-theme .study-page-intro-art img{width:78px;height:78px;object-fit:contain}
+.workspace-theme .hub-panel-intro{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:-24px -26px 20px;padding:20px 26px 17px;background:linear-gradient(115deg,#f0f8ed 0%,#fffefa 70%);border-bottom:1px solid #e1eadc}
+.workspace-theme .hub-panel-intro h2{margin:2px 0 6px;font-size:22px;color:#173f36!important}
+.workspace-theme .hub-panel-intro p{margin:0;max-width:700px;color:#60766c!important}
+.workspace-theme .hub-panel-intro img{width:88px;height:72px;object-fit:contain;flex:0 0 88px}
+
+.workspace-theme .exam-library-view{gap:18px!important}
+.workspace-theme .exam-library-hero{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:24px;min-height:210px;background:linear-gradient(120deg,#e7f5ee 0%,#f8fbf2 63%,#fffefa 100%)!important;border-color:#cfe3d2!important;overflow:hidden}
+.workspace-theme .exam-library-hero::after{content:'';position:absolute;right:-80px;bottom:-110px;width:290px;height:290px;border-radius:50%;background:radial-gradient(circle,#cfe8cf88 0%,transparent 68%);pointer-events:none}
+.workspace-theme .exam-library-hero-copy{position:relative;z-index:1}
+.workspace-theme .exam-library-hero h1{color:#173f36!important}
+.workspace-theme .exam-library-hero p{color:#60766c!important}
+.workspace-theme .exam-library-hero-art{width:112px;height:112px;display:grid;place-items:center;border-radius:28px;background:#dcefdc;border:1px solid #c3ddc2;position:relative;z-index:1}
+.workspace-theme .exam-library-hero-art img{width:86px;height:86px;object-fit:contain}
+.workspace-theme .exam-library-hero-stats{position:relative;z-index:1}
+.workspace-theme .exam-library-stat{min-width:84px}
+.workspace-theme .exam-library-stat strong{color:#075d52!important}
+.workspace-theme .exam-library-stat:nth-child(2) strong{color:#b17b18!important}
+.workspace-theme .exam-library-stat small{color:#60766c!important}
+.workspace-theme .exam-library-filters{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;background:#fffefa!important;border-color:#e1e7dc!important;padding:12px 16px!important}
+.workspace-theme .exam-library-module-tab{color:#516a61!important;background:#f6f8f2!important;border-color:#dce5d8!important}
+.workspace-theme main .exam-library-filters button.exam-library-module-tab.active{background:#075d52!important;color:#fff!important;border-color:#075d52!important;box-shadow:0 3px 9px rgba(7,93,82,.16)}
+.workspace-theme .exam-library-filter-tools{margin-left:auto}
+.workspace-theme .exam-library-search{min-width:260px!important}
+.workspace-theme .exam-library-search input{padding-right:30px!important}
+.workspace-theme main .exam-library-search button.exam-library-clear-search{position:absolute;right:5px;top:4px;width:26px;height:26px;padding:0!important;border:0!important;background:transparent!important;color:#708376!important;font-size:19px;line-height:1}
+.workspace-theme .exam-library-format-note{white-space:nowrap;color:#6a7c73!important}
+.workspace-theme .exam-library-grid{align-items:stretch}
+.workspace-theme .exam-library-card{display:flex!important;background:linear-gradient(160deg,#fffefa 0%,#f6faf3 100%)!important;border-color:#dce7da!important;color:#172236!important;box-shadow:0 8px 22px rgba(40,74,48,.06)!important}
+.workspace-theme .exam-library-card:hover{border-color:#a8ca9a!important;box-shadow:0 12px 28px rgba(40,74,48,.11)!important;transform:translateY(-2px);transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
+.workspace-theme .exam-library-card-title{display:flex;align-items:flex-start;gap:10px;margin:0 0 12px}
+.workspace-theme .exam-library-card-title img{width:38px;height:38px;object-fit:contain;padding:5px;border-radius:11px;background:#e8f4e3;border:1px solid #d0e4cb;flex:0 0 38px}
+.workspace-theme .exam-library-card-title h2{color:#173f36!important}
+.workspace-theme .exam-library-card-subtitle{font-size:11px;color:#6d8175!important}
+.workspace-theme .exam-library-card .exam-code-badge{color:#39705e!important}
+.workspace-theme .exam-library-card>div:first-child>div:nth-of-type(2){color:#526b60!important}
+.workspace-theme .exam-library-card>div:first-child>div:nth-of-type(2) span{color:#526b60!important}
+.workspace-theme .exam-library-card>div:first-child>div:nth-of-type(2) strong{color:#234d40!important}
+.workspace-theme .exam-library-card>div:first-child>div:nth-of-type(3){border-top-color:#e0e8dc!important;color:#72857a!important}
+.workspace-theme .exam-library-card .exam-card-actions .primary{background:#075d52!important;color:#fff!important}
+.workspace-theme .exam-library-card .exam-card-actions .primary:nth-child(2){background:#d7a843!important;color:#27351f!important}
+.workspace-theme .exam-library-card .exam-card-actions .secondary{background:#fffefa!important;color:#245548!important}
+.workspace-theme .exam-library-empty{grid-column:1/-1;display:grid;place-items:center;gap:9px;text-align:center;padding:40px!important;background:#fffefa!important}
+.workspace-theme .exam-library-empty img{width:74px;height:74px;object-fit:contain;opacity:.85}
+.workspace-theme .exam-library-empty h2{font-size:20px;color:#173f36!important}
+.workspace-theme .exam-library-empty p{margin:0;color:#6b7d74!important}
+
+.workspace-theme .skill-practice-page>.panel:not(.study-page-panel),.workspace-theme .study-page-panel~.panel{border-color:#e1e7dc!important}
+.workspace-theme .skill-practice-page .panel-title h3,.workspace-theme .skill-practice-page .panel-title h2{color:#173f36!important}
+.workspace-theme .skill-practice-page .audio-controls,.workspace-theme .skill-practice-page .audio-upload-box,.workspace-theme .skill-practice-page .listening-quiz-section,.workspace-theme .skill-practice-page .topic-lexicon-helper{border-radius:14px}
+.workspace-theme .skill-practice-page .audio-controls{padding:12px;background:#f5f8f1;border:1px solid #e1e9dc}
+.workspace-theme .skill-practice-page .audio-upload-box{padding:14px}
+.workspace-theme .skill-practice-page .listening-quiz-section{padding:18px;background:#fbfcf8;border:1px solid #e4ebe1}
+.workspace-theme .skill-practice-page .topic-lexicon-helper{padding:16px;background:#f5f9f0!important;border:1px solid #dfe9d7!important}
+
+.workspace-theme main>.stack>.panel:first-child h2{color:#173f36!important}
+.workspace-theme .error-card{background:linear-gradient(145deg,#fffefa,#fafcf7)!important;border-color:#e2e9df!important}
+.workspace-theme .error-card .explanation{background:#fff5f1!important;border-color:#f0d4ca!important}
+.workspace-theme .error-card .error-actions{border-top:1px solid #ebebe3;padding-top:10px}
+.workspace-theme .record-grid div{border:1px solid #e1e8dd}
+.workspace-theme .network-card,.workspace-theme .design-row{box-shadow:0 4px 14px rgba(40,74,48,.04)!important}
+.workspace-theme .network-card a{color:#075d52!important;font-weight:700}
+.workspace-theme .design-row em{background:#e7f3dc!important;color:#39704e!important;border-color:#c8dfba!important}
+.workspace-theme .form-grid{gap:16px}
+.workspace-theme .form-grid label{font-weight:700}
+.workspace-theme .form-grid input:focus,.workspace-theme .form-grid select:focus,.workspace-theme .skill-response:focus,.workspace-theme .exam-library-search input:focus{outline:3px solid #bde3a8;outline-offset:1px;border-color:#75aa68!important}
+.workspace-theme button:focus-visible,.workspace-theme a:focus-visible{outline:3px solid #8dbff0;outline-offset:2px}
+.workspace-theme .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+@media(max-width:1080px){
+  .workspace-theme .exam-library-hero{grid-template-columns:minmax(0,1fr) auto}
+  .workspace-theme .exam-library-hero-stats{grid-column:1/-1;justify-content:flex-start}
+  .workspace-theme .exam-library-stat{text-align:left!important}
+}
+@media(max-width:680px){
+  .workspace-theme .study-page-intro,.workspace-theme .hub-panel-intro{align-items:flex-start;padding:18px 18px 16px;margin:-16px -16px 18px}
+  .workspace-theme .study-page-intro-art{width:76px;height:70px;flex-basis:76px;border-radius:18px}
+  .workspace-theme .study-page-intro-art img{width:56px;height:56px}
+  .workspace-theme .study-page-intro h2,.workspace-theme .hub-panel-intro h2{font-size:20px}
+  .workspace-theme .hub-panel-intro img{width:62px;height:56px;flex-basis:62px}
+  .workspace-theme .exam-library-hero{grid-template-columns:1fr;gap:14px;padding:20px!important}
+  .workspace-theme .exam-library-hero-art{position:absolute;right:18px;top:18px;width:76px;height:76px;border-radius:20px;opacity:.9}
+  .workspace-theme .exam-library-hero-art img{width:58px;height:58px}
+  .workspace-theme .exam-library-hero-copy{padding-right:72px}
+  .workspace-theme .exam-library-hero h1{font-size:22px!important}
+  .workspace-theme .exam-library-hero-stats{grid-column:auto;gap:22px}
+  .workspace-theme .exam-library-filters{align-items:stretch}
+  .workspace-theme .exam-library-filter-tools{width:100%;display:grid!important;grid-template-columns:1fr;gap:8px!important;margin-left:0}
+  .workspace-theme .exam-library-search{min-width:0!important;width:100%}
+  .workspace-theme .exam-library-format-note{white-space:normal}
+}
+@media(max-width:390px){
+  .workspace-theme main{padding-left:10px!important;padding-right:10px!important}
+  .workspace-theme .panel{padding:14px!important}
+  .workspace-theme .study-page-intro,.workspace-theme .hub-panel-intro{margin:-14px -14px 16px;padding:15px 14px}
+  .workspace-theme .study-page-intro-art,.workspace-theme .hub-panel-intro img{display:none}
+  .workspace-theme .exam-library-hero-copy{padding-right:0}
+  .workspace-theme .exam-library-hero-art{display:none}
+  .workspace-theme .exam-library-hero-stats{display:flex;flex-wrap:wrap;gap:15px}
+  .workspace-theme .exam-library-module-tabs{display:grid!important;grid-template-columns:1fr;gap:6px!important}
+  .workspace-theme .exam-library-module-tab{width:100%}
+  .workspace-theme .exam-library-card{padding:16px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .workspace-theme *, .workspace-theme *::before, .workspace-theme *::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
+}

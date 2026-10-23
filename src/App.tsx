@@ -64,6 +64,8 @@ import {
 import { deriveReadingStates, readingDifficultyId, targetFor } from './readingEngine'
 import { clearStore, loadStore } from './storage'
 import { TOPICS, type TopicId, type TopicDefinition, type VocabItem, type GrammarRule, type WritingChartData } from './topicData'
+import { CEFR_GRAMMAR_RULES } from './data/cefrGrammarData'
+import { TOTAL_FORUM_VOCAB_COUNT } from './data/forumVocab25Topics'
 import { READING_DRILLS, LISTENING_DRILLS, WRITING_DRILLS, SPEAKING_DRILLS, GRAMMAR_DRILLS, VOCAB_DRILLS, dailySelection, dayOfYear, type ReadingDrill, type ListeningDrill, type WritingDrill, type SpeakingDrill, type GrammarDrill, type VocabDrill } from './practiceBank'
 import type {
   ActiveSession,
@@ -80,7 +82,10 @@ import type {
 } from './types'
 import { ForumVocabularyHub } from './components/ForumVocabularyHub'
 import { ForumGrammarHub } from './components/ForumGrammarHub'
+import { ForumStudyTree } from './components/ForumStudyTree'
 import { SKILL_MODEL_CONTENT } from './skillModelContent'
+import { uiSectionAsset } from './uiAssets'
+import { countCompletedGrammar, countKnownVocabulary } from './gamification'
 
 type NavItem = [Page, string, any]
 
@@ -985,6 +990,25 @@ function DailyVocabDrill() {
   )
 }
 
+function readKnownForumVocabularyCount() {
+  return countKnownVocabulary()
+}
+
+function pageForSkill(skill: Skill): Page {
+  if (skill === 'Listening') return 'listening'
+  if (skill === 'Writing') return 'writing'
+  if (skill === 'Speaking') return 'speaking'
+  if (skill === 'Vocabulary') return 'vocabulary'
+  if (skill === 'Grammar') return 'grammar'
+  return 'practice'
+}
+
+function pageForRecommendation(s: Store, recommendation: ReturnType<typeof recommendations>): Page {
+  if (recommendation.page !== 'dashboard') return recommendation.page
+  const pendingPlan = s.plan.find(item => item.status === 'planned')
+  return pendingPlan ? pageForSkill(pendingPlan.skill) : 'practice'
+}
+
 function Dashboard({
   s,
   go,
@@ -996,26 +1020,33 @@ function Dashboard({
   setS: (store: Store) => void
   note: (message: string) => void
 }) {
-  const minutes = minutesByDate(s.sessions)
-  const today = Math.round(minutes[localDate(new Date().toISOString())] || 0)
   const projection = deriveReadingStates(s.errors, s.attempts, passages)
   const rec = recommendations(s.profile, s.attempts, s.errors, s.plan, projection.statesByDifficulty)
+  const knownVocabCount = readKnownForumVocabularyCount()
+  const completedGrammarCount = countCompletedGrammar(s.submissions)
+  const missionPage = pageForRecommendation(s, rec)
 
   const [heatmapExpanded, setHeatmapExpanded] = useState(false)
 
   return (
-    <div className="dashboard-shell">
-      <section className="dashboard-hero">
-        <div className="dashboard-hero-copy">
-          <span className="dashboard-hero-label">LỜI NHẮN HÔM NAY</span>
-          <span className="dashboard-quote-mark">“</span>
-          <h2>Mỗi ngày tiến một chút,<br />rồi bạn sẽ đi xa hơn<br />mình nghĩ.</h2>
-        </div>
-        <span className="dashboard-recommendation-hidden"><p>{rec.reason}</p></span>
-        <div className="dashboard-landscape" aria-hidden="true">
-          <span className="sun" /><span className="mountain mountain-back" /><span className="mountain mountain-front" /><span className="lake" /><span className="traveller" />
-        </div>
+    <div className="dashboard-shell dashboard-gamified-shell">
+      <section className="dashboard-journey-wrap" aria-label="Hành trình học IELTS">
+        <ForumStudyTree
+          variant="dashboard"
+          activeTrack="vocabulary"
+          onSelectTrack={track => go(track === 'grammar' ? 'grammar' : 'vocabulary')}
+          knownVocabCount={knownVocabCount}
+          totalVocabCount={TOTAL_FORUM_VOCAB_COUNT}
+          completedGrammarCount={completedGrammarCount}
+          totalGrammarCount={CEFR_GRAMMAR_RULES.length}
+        />
       </section>
+
+      <DashboardMissionCard
+        recommendation={rec}
+        destination={missionPage}
+        onNavigate={() => go(missionPage)}
+      />
 
       <LearnerProfileCard s={s} go={go} />
 
@@ -1030,6 +1061,43 @@ function Dashboard({
         />
       </section>
     </div>
+  )
+}
+
+function DashboardMissionCard({
+  recommendation: rec,
+  destination,
+  onNavigate
+}: {
+  recommendation: ReturnType<typeof recommendations>
+  destination: Page
+  onNavigate: () => void
+}) {
+  const destinationLabels: Partial<Record<Page, string>> = {
+    profile: 'Mục tiêu & hồ sơ',
+    practice: 'Reading',
+    errors: 'Bộ nhớ lỗi & Retest',
+    listening: 'Listening',
+    writing: 'Writing',
+    speaking: 'Speaking',
+    vocabulary: 'Từ vựng',
+    grammar: 'Ngữ pháp ứng dụng'
+  }
+
+  return (
+    <section className="dashboard-mission-card" aria-labelledby="dashboard-mission-title">
+      <div className="dashboard-mission-icon" aria-hidden="true"><Target size={21} /></div>
+      <div className="dashboard-mission-copy">
+        <span className="dashboard-card-kicker">NEXT STUDY MISSION</span>
+        <h2 id="dashboard-mission-title">{rec.title}</h2>
+        <p>{rec.reason}</p>
+        <span className="dashboard-mission-destination">Điểm đến: {destinationLabels[destination] || 'Hoạt động học tập'}</span>
+      </div>
+      <button type="button" className="dashboard-mission-action" onClick={onNavigate}>
+        Bắt đầu
+        <ArrowRight size={17} />
+      </button>
+    </section>
   )
 }
 
@@ -1844,6 +1912,34 @@ function YearHeatmap({ s }: { s: Store }) {
 /**
  * Reading Practice with Topic Filtering and Retest Support
  */
+function StudyPageIntro({
+  asset,
+  kicker,
+  title,
+  description,
+  meta
+}: {
+  asset: string
+  kicker: string
+  title: string
+  description: string
+  meta?: ReactNode
+}) {
+  return (
+    <div className="study-page-intro">
+      <div className="study-page-intro-copy">
+        <span className="eyebrow">{kicker}</span>
+        <h2>{title}</h2>
+        <p>{description}</p>
+        {meta && <div className="study-page-intro-meta">{meta}</div>}
+      </div>
+      <div className="study-page-intro-art" aria-hidden="true">
+        <img src={uiSectionAsset(asset)} alt="" />
+      </div>
+    </div>
+  )
+}
+
 function Practice({
   s,
   setS,
@@ -1962,7 +2058,14 @@ function Practice({
     <section className="stack">
       {!isRetestMode && (
         <>
-        <section className="panel">
+        <section className="panel study-page-panel">
+          <StudyPageIntro
+            asset="reading-book"
+            kicker="READING · EVIDENCE-LED PRACTICE"
+            title="Mỗi đoạn đọc là một bước tiến"
+            description="Chọn chủ đề, đọc kỹ bằng chứng và luyện lại những mục tiêu còn chưa chắc chắn."
+            meta={<span className="badge">{practiceCount} lượt luyện đã lưu</span>}
+          />
           <div className="panel-title">
             <div>
               <span className="eyebrow">CHỦ ĐỀ ĐỌC HIỂU (READING BY TOPIC)</span>
@@ -2516,8 +2619,14 @@ function SkillPractice({
   const modelContent = SKILL_MODEL_CONTENT[currentTopic.id]
 
   return (
-    <section className="stack">
-      <section className="panel">
+    <section className={`stack skill-practice-page skill-practice-${skill.toLowerCase()}`}>
+      <section className="panel study-page-panel">
+        <StudyPageIntro
+          asset={skill === 'Listening' ? 'listening-headphones' : skill === 'Writing' ? 'writing-notebook' : 'speaking-microphone'}
+          kicker={`${skill.toUpperCase()} · GUIDED PRACTICE`}
+          title={skill === 'Listening' ? 'Nghe để bắt được ý chính' : skill === 'Writing' ? 'Viết có cấu trúc, sửa có bằng chứng' : 'Nói thành tiếng, tiến bộ rõ ràng'}
+          description={skill === 'Listening' ? 'Luyện bằng transcript dự phòng, tốc độ linh hoạt và câu hỏi kiểm tra mức độ nghe hiểu.' : skill === 'Writing' ? 'Chọn dạng bài, phát triển ý và lưu bản nháp để tự rà soát từng tiêu chí.' : 'Chuẩn bị, nói, ghi âm hoặc dán transcript để tạo minh chứng luyện tập của riêng bạn.'}
+        />
         <span className="eyebrow">{skill.toUpperCase()} · THEMATIC STUDY UNITS</span>
         <h2>Chọn chủ đề ôn tập ({skill})</h2>
         <TopicBar selected={selectedTopicId} onSelect={id => id !== 'all' && setSelectedTopicId(id)} collapsible />
@@ -3523,8 +3632,15 @@ function Errors({
 }) {
   const projection = deriveReadingStates(s.errors, s.attempts, passages)
   return (
-    <section className="stack">
-      <section className="panel">
+    <section className="stack route-errors-page">
+      <section className="panel study-page-panel">
+        <StudyPageIntro
+          asset="error-review"
+          kicker="ERROR MEMORY · REVIEW LOOP"
+          title="Biến lỗi sai thành bước tiếp theo"
+          description="Xem lại bằng chứng, làm Retest có mục tiêu và chỉ đóng lỗi khi kết quả mới chứng minh bạn đã tiến bộ."
+          meta={<span className="badge">{s.errors.length} mục đang được theo dõi</span>}
+        />
         <h2>Error Review ({s.errors.length})</h2>
         <p className="muted">
           Evidence resolves open errors only when a new equivalent attempt demonstrates correct performance.
@@ -3592,8 +3708,15 @@ function Record({
   s: Store
 }) {
   return (
-    <section className="stack">
-      <section className="panel">
+    <section className="stack route-record-page">
+      <section className="panel study-page-panel">
+        <StudyPageIntro
+          asset="study-timer"
+          kicker="LEARNING RECORD · REAL TIME"
+          title="Nhật ký phản ánh đúng thời gian bạn học"
+          description="Theo dõi phiên học, bài Reading và các minh chứng kỹ năng đã lưu — mọi dữ liệu lấy trực tiếp từ hồ sơ của bạn."
+          meta={<span className="badge">{s.sessions.length} phiên đã lưu</span>}
+        />
         <h2>Learning Record</h2>
         <p className="muted">Lưu lại lịch sử các buổi học tập đã thực hiện.</p>
       </section>
@@ -3670,8 +3793,14 @@ function Record({
 
 function LearningNetwork() {
   return (
-    <section className="stack">
-      <section className="panel">
+    <section className="stack route-network-page">
+      <section className="panel study-page-panel">
+        <StudyPageIntro
+          asset="analytics-chart"
+          kicker="LEARNING NETWORK · TRUSTED SOURCES"
+          title="Một nơi để chọn nguồn học đáng tin"
+          description="Kết nối hoạt động trong IELTS Optimizer với tài liệu chính thống và các nội dung học tập được biên soạn riêng."
+        />
         <h2>Learning Network</h2>
         <p className="muted">Curated authoritative IELTS resources linked by skill and objective.</p>
         {[
@@ -3695,8 +3824,14 @@ function LearningNetwork() {
 
 function LearningDesign() {
   return (
-    <section className="stack">
-      <section className="panel">
+    <section className="stack route-design-page">
+      <section className="panel study-page-panel">
+        <StudyPageIntro
+          asset="achievement-trophy"
+          kicker="LEARNING DESIGN · WHY IT WORKS"
+          title="Mỗi hoạt động đều tạo ra bằng chứng"
+          description="Thiết kế học tập nối liền luyện tập, phản hồi, phản tư và Retest để bạn luôn biết mình nên làm gì tiếp theo."
+        />
         <h2>Learning Design</h2>
         <p className="muted">Implemented learning theory is tied to evidence-producing activities.</p>
         {[
@@ -3749,8 +3884,14 @@ function Profile({
   }
 
   return (
-    <section className="stack">
-      <section className="panel">
+    <section className="stack route-profile-page">
+      <section className="panel study-page-panel">
+        <StudyPageIntro
+          asset="profile-settings"
+          kicker="PROFILE · PERSONAL PLAN"
+          title="Thiết lập một lộ trình vừa sức"
+          description="Mục tiêu, thời lượng học và kỹ năng ưu tiên được dùng để gợi ý hoạt động tiếp theo — không tạo thành tích giả."
+        />
         <h2>Learner Profile</h2>
         <p className="muted">Set targets, daily goals, and planned rest days.</p>
         <div className="form-grid">

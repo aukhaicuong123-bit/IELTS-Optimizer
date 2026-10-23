@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420" role="img" aria-label="Minh hoa Grammar - sach va cau truc"><defs>
+    <linearGradient id="page" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFDF7"/><stop offset="1" stop-color="#E8F5E9"/></linearGradient>
+    <linearGradient id="teal" x1="0" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="#159783"/><stop offset="1" stop-color="#075D52"/></linearGradient>
+    <linearGradient id="mint" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#DFF2E5"/><stop offset="1" stop-color="#A6D9C3"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFE9A9"/><stop offset="1" stop-color="#F3BD4D"/></linearGradient>
+    <linearGradient id="forest" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4D986D"/><stop offset="1" stop-color="#1F604C"/></linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#315F4E" flood-opacity=".16"/></filter>
+    </defs><title>Minh hoa Grammar - sach va cau truc</title><ellipse cx="320" cy="365" rx="230" ry="25" fill="#DDEFE0" opacity=".85"/><ellipse cx="320" cy="371" rx="165.6" ry="13" fill="#C5E2CF" opacity=".7"/><g transform="translate(315 341) scale(1.35)" filter="url(#shadow)">
+    <path d="M-125 0 L80 0 Q105 0 116 13 L-90 29 Q-118 27 -125 0Z" fill="#D9B979" stroke="#916F44" stroke-width="3"/>
+    <path d="M-125 -33 L83 -33 Q102 -33 111 -20 L-92 -3 Q-119 -3 -125 -33Z" fill="#F8E7B8" stroke="#B99A62" stroke-width="3"/>
+    <path d="M-125 -66 L76 -66 Q101 -66 112 -53 L-95 -35 Q-119 -37 -125 -66Z" fill="#4D986D" stroke="#2E6D56" stroke-width="3"/>
+    <path d="M-111 -59 L66 -59" stroke="#A9D9B7" stroke-width="3"/><path d="M-112 -25 L73 -25" stroke="#FFFFFF" stroke-width="3"/><path d="M-111 8 L79 8" stroke="#F5D99B" stroke-width="3"/>
+    </g><g filter="url(#shadow)">
+ <circle cx="190" cy="196" r="42" fill="#E0F2E5" stroke="#8BC8A4" stroke-width="4"/><path d="M176 179 Q163 195 178 211 M202 179 Q215 195 200 211" fill="none" stroke="#075D52" stroke-width="7" stroke-linecap="round"/><path d="M185 183 L194 207" stroke="#F5C766" stroke-width="5" stroke-linecap="round"/>
+ <circle cx="446" cy="187" r="35" fill="#FFF0C7" stroke="#E2BF66" stroke-width="4"/><path d="M431 179 H461 M431 193 H461 M446 166 V209" stroke="#916F44" stroke-width="5" stroke-linecap="round"/>
+ </g>{leaf(479,283,-25,.75)}</svg>

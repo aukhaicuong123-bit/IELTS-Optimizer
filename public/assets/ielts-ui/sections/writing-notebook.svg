@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420" role="img" aria-label="Minh hoa Writing - sổ và bút"><defs>
+    <linearGradient id="page" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFDF7"/><stop offset="1" stop-color="#E8F5E9"/></linearGradient>
+    <linearGradient id="teal" x1="0" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="#159783"/><stop offset="1" stop-color="#075D52"/></linearGradient>
+    <linearGradient id="mint" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#DFF2E5"/><stop offset="1" stop-color="#A6D9C3"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFE9A9"/><stop offset="1" stop-color="#F3BD4D"/></linearGradient>
+    <linearGradient id="forest" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4D986D"/><stop offset="1" stop-color="#1F604C"/></linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#315F4E" flood-opacity=".16"/></filter>
+    </defs><title>Minh hoa Writing - sổ và bút</title><ellipse cx="320" cy="365" rx="230" ry="25" fill="#DDEFE0" opacity=".85"/><ellipse cx="320" cy="371" rx="165.6" ry="13" fill="#C5E2CF" opacity=".7"/><g transform="rotate(-5 315 280)" filter="url(#shadow)">
+ <rect x="175" y="145" width="270" height="198" rx="14" fill="#C7A66D"/>
+ <rect x="188" y="133" width="270" height="198" rx="12" fill="#FFF9E9" stroke="#D4BD8D" stroke-width="4"/>
+ <path d="M219 175 H423 M219 204 H423 M219 233 H390 M219 262 H412 M219 291 H370" stroke="#A8CDB7" stroke-width="5" stroke-linecap="round"/>
+ <path d="M211 142 V324" stroke="#E8B2A1" stroke-width="4"/>
+ <circle cx="199" cy="168" r="5" fill="#78B995"/><circle cx="199" cy="198" r="5" fill="#78B995"/><circle cx="199" cy="228" r="5" fill="#78B995"/><circle cx="199" cy="258" r="5" fill="#78B995"/><circle cx="199" cy="288" r="5" fill="#78B995"/>
+ </g><g transform="rotate(28 468 224)" filter="url(#shadow)"><rect x="452" y="153" width="22" height="176" rx="8" fill="#0D8271"/><rect x="456" y="165" width="14" height="125" rx="5" fill="#6BC6AB"/><path d="M452 153 L463 128 L474 153Z" fill="#F5C766" stroke="#916F44" stroke-width="2"/><path d="M459 132 L463 123 L467 132" fill="#21483D"/></g>{leaf(155,256,-35,.75)}</svg>

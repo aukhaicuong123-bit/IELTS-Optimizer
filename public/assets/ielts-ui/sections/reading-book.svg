@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420" role="img" aria-label="Minh hoa Reading - sách mở"><defs>
+    <linearGradient id="page" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFDF7"/><stop offset="1" stop-color="#E8F5E9"/></linearGradient>
+    <linearGradient id="teal" x1="0" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="#159783"/><stop offset="1" stop-color="#075D52"/></linearGradient>
+    <linearGradient id="mint" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#DFF2E5"/><stop offset="1" stop-color="#A6D9C3"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFE9A9"/><stop offset="1" stop-color="#F3BD4D"/></linearGradient>
+    <linearGradient id="forest" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4D986D"/><stop offset="1" stop-color="#1F604C"/></linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#315F4E" flood-opacity=".16"/></filter>
+    </defs><title>Minh hoa Reading - sách mở</title><ellipse cx="320" cy="365" rx="230" ry="25" fill="#DDEFE0" opacity=".85"/><ellipse cx="320" cy="371" rx="165.6" ry="13" fill="#C5E2CF" opacity=".7"/><g filter="url(#shadow)">
+ <path d="M135 275 Q216 233 303 276 L303 336 Q220 293 135 327Z" fill="#E7C889" stroke="#B18B4F" stroke-width="4"/>
+ <path d="M303 276 Q390 233 505 267 L505 320 Q391 290 303 336Z" fill="#FFF6D9" stroke="#B18B4F" stroke-width="4"/>
+ <path d="M303 276 L303 336" stroke="#B18B4F" stroke-width="5"/>
+ <path d="M159 285 Q221 258 278 282 M158 299 Q219 275 278 297 M330 283 Q393 254 478 276 M330 300 Q397 275 478 292" fill="none" stroke="#A4C6AD" stroke-width="4" stroke-linecap="round"/>
+ <path d="M123 341 Q313 321 520 334" fill="none" stroke="#7EB38C" stroke-width="5" stroke-linecap="round"/>
+ </g><g transform="translate(475 255) rotate(-25) scale(0.8)"><path d="M0 0 C-27 -20 -27 -44 0 -49 C25 -31 20 -8 0 0Z" fill="#75B98A" stroke="#407E62" stroke-width="2"/><path d="M0 -2 Q0 -24 0 -43" stroke="#D8EEE2" stroke-width="2" fill="none"/></g><g transform="translate(514 282) rotate(35) scale(0.65)"><path d="M0 0 C-27 -20 -27 -44 0 -49 C25 -31 20 -8 0 0Z" fill="#8BCB98" stroke="#407E62" stroke-width="2"/><path d="M0 -2 Q0 -24 0 -43" stroke="#D8EEE2" stroke-width="2" fill="none"/></g><path d="M124 256 Q104 232 122 218 Q141 228 132 248" fill="#F5C766" stroke="#B18B4F" stroke-width="3"/></svg>

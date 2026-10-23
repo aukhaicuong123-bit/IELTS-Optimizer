@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420" role="img" aria-label="Minh hoa Empty State - ban do hanh trinh"><defs>
+    <linearGradient id="page" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFDF7"/><stop offset="1" stop-color="#E8F5E9"/></linearGradient>
+    <linearGradient id="teal" x1="0" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="#159783"/><stop offset="1" stop-color="#075D52"/></linearGradient>
+    <linearGradient id="mint" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#DFF2E5"/><stop offset="1" stop-color="#A6D9C3"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFE9A9"/><stop offset="1" stop-color="#F3BD4D"/></linearGradient>
+    <linearGradient id="forest" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4D986D"/><stop offset="1" stop-color="#1F604C"/></linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#315F4E" flood-opacity=".16"/></filter>
+    </defs><title>Minh hoa Empty State - ban do hanh trinh</title><ellipse cx="320" cy="365" rx="230" ry="25" fill="#DDEFE0" opacity=".85"/><ellipse cx="320" cy="371" rx="165.6" ry="13" fill="#C5E2CF" opacity=".7"/><g filter="url(#shadow)">
+ <path d="M150 208 L238 172 L324 205 L408 168 L490 199 V319 L408 288 L324 326 L238 294 L150 322Z" fill="#FFF9E9" stroke="#C7DCC8" stroke-width="5" stroke-linejoin="round"/>
+ <path d="M238 172 V294 M324 205 V326 M408 168 V288" stroke="#C7DCC8" stroke-width="4"/>
+ <path d="M176 281 C210 245 232 263 268 235 S329 272 359 239 S410 229 454 212" fill="none" stroke="#D8A94E" stroke-width="7" stroke-linecap="round" stroke-dasharray="8 10"/>
+ <path d="M450 180 L475 224 L425 224Z" fill="#0D8271"/><circle cx="450" cy="212" r="8" fill="#FFF9E9"/>
+ </g>{leaf(123,303,-35,.68)}{leaf(523,305,25,.68)}</svg>

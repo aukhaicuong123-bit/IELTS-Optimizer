@@ -18,7 +18,9 @@ import { FORUM_25_TOPICS, TOTAL_FORUM_VOCAB_COUNT, type ForumTopic } from '../da
 import { CEFR_GRAMMAR_RULES } from '../data/cefrGrammarData'
 import type { VocabItem } from '../topicData'
 import { ForumStudyTree } from './ForumStudyTree'
-import type { Store, SkillSubmission } from '../types'
+import type { Store } from '../types'
+import { countCompletedGrammar } from '../gamification'
+import { uiSectionAsset } from '../uiAssets'
 
 export interface ForumVocabularyHubProps {
   s: Store
@@ -248,12 +250,20 @@ export const ForumVocabularyHub: React.FC<ForumVocabularyHubProps> = ({
         }}
         knownVocabCount={totalKnownAcrossAllTopics}
         totalVocabCount={TOTAL_FORUM_VOCAB_COUNT}
-        completedGrammarCount={s.submissions?.filter((sub: SkillSubmission) => sub.skill === 'Grammar').length || 0}
+        completedGrammarCount={countCompletedGrammar(s.submissions)}
         totalGrammarCount={CEFR_GRAMMAR_RULES.length}
       />
 
       {/* Main Study Hub Panel */}
       <section className="panel forum-study-panel">
+        <div className="hub-panel-intro">
+          <div>
+            <span className="eyebrow">VOCABULARY LAB · TOPIC MEMORY</span>
+            <h2>Gom từ vựng theo chủ đề, nhớ theo ngữ cảnh</h2>
+            <p className="muted">Flashcard, phát âm, ví dụ và quiz nối thành một vòng học rõ ràng — mỗi từ đã nhớ được lưu ngay trên thiết bị của bạn.</p>
+          </div>
+          <img src={uiSectionAsset('vocabulary-flashcards')} alt="" aria-hidden="true" />
+        </div>
         <div className="forum-panel-head">
           <div className="forum-panel-title">
             <span className="eyebrow">IELTS OPTIMIZER · BỘ SƯU TẬP TỪ VỰNG THEO CHỦ ĐỀ</span>

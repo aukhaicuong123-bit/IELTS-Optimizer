@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
 import { Sparkles, ArrowRight, BookOpen, Layers } from 'lucide-react'
+import { calculateCourseCompletion, calculateJourneyXp } from '../gamification'
 
 export interface StudyTreeProps {
   activeTrack: 'vocabulary' | 'grammar'
@@ -8,6 +9,7 @@ export interface StudyTreeProps {
   totalVocabCount: number
   completedGrammarCount: number
   totalGrammarCount: number
+  variant?: 'track' | 'dashboard'
 }
 
 interface TreeStage {
@@ -45,11 +47,12 @@ export const ForumStudyTree: React.FC<StudyTreeProps> = ({
   knownVocabCount,
   totalVocabCount,
   completedGrammarCount,
-  totalGrammarCount
+  totalGrammarCount,
+  variant = 'track'
 }) => {
   // Calculate total XP dynamically
   const currentXp = useMemo(() => {
-    return knownVocabCount * 15 + completedGrammarCount * 25
+    return calculateJourneyXp(knownVocabCount, completedGrammarCount)
   }, [knownVocabCount, completedGrammarCount])
 
   // Determine current stage
@@ -71,17 +74,25 @@ export const ForumStudyTree: React.FC<StudyTreeProps> = ({
 
   // Overall course completion
   const overallPercent = useMemo(() => {
-    const totalItems = (totalVocabCount || 64) + (totalGrammarCount || 24)
-    const completedItems = knownVocabCount + completedGrammarCount
-    return Math.min(100, Math.round((completedItems / totalItems) * 100))
+    return calculateCourseCompletion(
+      knownVocabCount,
+      totalVocabCount || 64,
+      completedGrammarCount,
+      totalGrammarCount || 24
+    )
   }, [knownVocabCount, totalVocabCount, completedGrammarCount, totalGrammarCount])
 
   const xpNeeded = nextStage ? Math.max(0, nextStage.minXp - currentXp) : 0
 
   return (
-    <div className="forum-tree-card">
+    <div className={`forum-tree-card ${variant === 'dashboard' ? 'forum-tree-card-dashboard' : ''}`}>
       {/* Shared IELTS journey banner for the vocabulary and grammar tracks */}
-      <img className="journey-mountain-path" src={`${JOURNEY_ASSET_BASE}/journey-mountain-backdrop-v2.png`} alt="" aria-hidden="true" />
+      <img
+        className="journey-mountain-path"
+        src={`${JOURNEY_ASSET_BASE}/${variant === 'dashboard' ? 'journey-mountain-with-birds.png' : 'journey-mountain-backdrop-v2.png'}`}
+        alt=""
+        aria-hidden="true"
+      />
       <div className="forum-tree-top">
         <div className="forum-tree-motto">
           <span className="forum-badge-pill">
