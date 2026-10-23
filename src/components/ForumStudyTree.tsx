@@ -28,6 +28,15 @@ export const TREE_STAGES: TreeStage[] = [
   { step: '06', name: 'Bậc thầy IELTS', icon: '♛', minXp: 1500, maxXp: 2500, description: 'Sẵn sàng chinh phục mục tiêu IELTS Band 8.0+' }
 ]
 
+const MILESTONE_ASSETS = [
+  '/assets/ielts-journey/milestone-backpack.png',
+  '/assets/ielts-journey/milestone-lantern.png',
+  '/assets/ielts-journey/milestone-signpost.png',
+  '/assets/ielts-journey/milestone-treasure-map.png',
+  '/assets/ielts-journey/milestone-flag-mountain.png',
+  '/assets/ielts-journey/milestone-crowned-summit.png'
+]
+
 export const ForumStudyTree: React.FC<StudyTreeProps> = ({
   activeTrack,
   onSelectTrack,
@@ -70,9 +79,9 @@ export const ForumStudyTree: React.FC<StudyTreeProps> = ({
   return (
     <div className="forum-tree-card">
       {/* Shared IELTS journey banner for the vocabulary and grammar tracks */}
-      <img className="journey-map-art" src="/assets/ielts-journey-map.png" alt="Minh họa hành trình chinh phục IELTS" />
       <div className="forum-tree-top">
         <div className="forum-tree-motto">
+          <img className="journey-mountain-path" src="/assets/ielts-journey/journey-mountain-path.png" alt="" aria-hidden="true" />
           <span className="forum-badge-pill">
             <Sparkles size={13} /> HÀNH TRÌNH IELTS · STUDY PATH
           </span>
@@ -107,7 +116,7 @@ export const ForumStudyTree: React.FC<StudyTreeProps> = ({
         <div className="forum-tree-status-box">
           <div className="tree-stage-visual">
             <div className={`tree-stage-avatar stage-art-${currentStageIndex}`}>
-              <span className="tree-emoji">{currentStage.icon}</span>
+              <img src="/assets/ielts-journey/stage-badge-mountain.png" alt="" aria-hidden="true" />
             </div>
             <div className="tree-stage-meta">
               <div className="tree-stage-kicker">GIAI ĐOẠN {currentStage.step}</div>
@@ -152,6 +161,7 @@ export const ForumStudyTree: React.FC<StudyTreeProps> = ({
               key={st.step}
               className={`tree-step-item ${isCurrent ? 'current' : isDone ? 'done' : 'future'}`}
             >
+              <img className="step-illustration" src={MILESTONE_ASSETS[i]} alt="" aria-hidden="true" />
               <div className="step-badge">
                 <span className="step-num">{st.step}</span>
                 <span className="step-icon">{st.icon}</span>
