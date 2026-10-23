@@ -421,15 +421,15 @@ export default function App() {
           </div>
         )}
 
-        {['vocabulary', 'grammar', 'errors'].includes(page) && (
-          <div className="skill-quick-bar" role="tablist" aria-label="Nền tảng & Lỗi sai">
+        {['vocabulary', 'grammar'].includes(page) && (
+          <div className="skill-quick-bar" role="tablist" aria-label="Ná»n táº£ng tÆ¡ Ä‘á»ng">
             <button
               role="tab"
               aria-selected={page === 'vocabulary'}
               className={`skill-quick-btn ${page === 'vocabulary' ? 'active' : ''}`}
               onClick={() => go('vocabulary')}
             >
-              <Layers size={15} /> <span>Từ vựng theo chủ đề (Flashcards)</span>
+              <Layers size={15} /> <span>Tá»« vá»±ng theo chá»§ Ä‘á» (Flashcards)</span>
             </button>
             <button
               role="tab"
@@ -437,8 +437,12 @@ export default function App() {
               className={`skill-quick-btn ${page === 'grammar' ? 'active' : ''}`}
               onClick={() => go('grammar')}
             >
-              <ListChecks size={15} /> <span>Ngữ pháp ứng dụng</span>
+              <ListChecks size={15} /> <span>Ngá»¯ phÃ¡p á»©ng dá»¥ng</span>
             </button>
+          </div>
+        )}
+        {page === 'errors' && (
+          <div className="skill-quick-bar skill-quick-bar-errors" role="tablist" aria-label="Bá»™ nhá»› lá»—i & Retest">
             <button
               role="tab"
               aria-selected={page === 'errors'}
@@ -446,12 +450,11 @@ export default function App() {
               onClick={() => go('errors')}
             >
               <RotateCcw size={15} />{' '}
-              <span>Bộ nhớ lỗi & Retest {openErrors.length > 0 ? `(${openErrors.length})` : ''}</span>
+              <span>Bá»™ nhá»› lá»—i & Retest {openErrors.length > 0 ? `(${openErrors.length})` : ''}</span>
             </button>
           </div>
         )}
-
-          {['question-bank', 'record'].includes(page) && (
+{['question-bank', 'record'].includes(page) && (
           <div className="skill-quick-bar" role="tablist" aria-label="Tổng quan học tập">
             <button
               role="tab"
