@@ -20,12 +20,12 @@ interface TreeStage {
 }
 
 export const TREE_STAGES: TreeStage[] = [
-  { step: '01', name: 'Hạt giống', icon: '🌱', minXp: 0, maxXp: 150, description: 'Bắt đầu gieo mầm kiến thức nền tảng' },
-  { step: '02', name: 'Nảy mầm', icon: '🌿', minXp: 150, maxXp: 350, description: 'Từ vựng và cấu trúc bắt đầu bén rễ' },
-  { step: '03', name: 'Phát triển thân', icon: '🎋', minXp: 350, maxXp: 650, description: 'Củng cố ngữ pháp trung cấp và phản xạ' },
-  { step: '04', name: 'Phân cành', icon: '🌳', minXp: 650, maxXp: 1050, description: 'Tự tin ứng dụng vào bài viết và bài nói' },
-  { step: '05', name: 'Ra lá', icon: '🍃', minXp: 1050, maxXp: 1500, description: 'Làm chủ các cấu trúc học thuật Band 7.5+' },
-  { step: '06', name: 'Kết trái', icon: '🍎', minXp: 1500, maxXp: 2500, description: 'Sẵn sàng chinh phục mục tiêu IELTS Band 8.0+' }
+  { step: '01', name: 'Người mới', icon: '★', minXp: 0, maxXp: 150, description: 'Làm quen nền tảng và xây thói quen học tập' },
+  { step: '02', name: 'Người khám phá', icon: '✦', minXp: 150, maxXp: 350, description: 'Mở rộng vốn từ và các cấu trúc cốt lõi' },
+  { step: '03', name: 'Người rèn luyện', icon: '✦', minXp: 350, maxXp: 650, description: 'Củng cố phản xạ qua bài học và luyện tập' },
+  { step: '04', name: 'Kỳ cựu', icon: '✦', minXp: 650, maxXp: 1050, description: 'Tự tin ứng dụng vào bài viết và bài nói' },
+  { step: '05', name: 'Chuyên gia', icon: '✦', minXp: 1050, maxXp: 1500, description: 'Làm chủ cấu trúc học thuật Band 7.5+' },
+  { step: '06', name: 'Bậc thầy IELTS', icon: '♛', minXp: 1500, maxXp: 2500, description: 'Sẵn sàng chinh phục mục tiêu IELTS Band 8.0+' }
 ]
 
 export const ForumStudyTree: React.FC<StudyTreeProps> = ({
@@ -70,6 +70,7 @@ export const ForumStudyTree: React.FC<StudyTreeProps> = ({
   return (
     <div className="forum-tree-card">
       {/* Shared IELTS journey banner for the vocabulary and grammar tracks */}
+      <img className="journey-map-art" src="/assets/ielts-journey-map.png" alt="Minh họa hành trình chinh phục IELTS" />
       <div className="forum-tree-top">
         <div className="forum-tree-motto">
           <span className="forum-badge-pill">
@@ -105,7 +106,7 @@ export const ForumStudyTree: React.FC<StudyTreeProps> = ({
         {/* Tree Growth Status Box */}
         <div className="forum-tree-status-box">
           <div className="tree-stage-visual">
-            <div className="tree-stage-avatar">
+            <div className={`tree-stage-avatar stage-art-${currentStageIndex}`}>
               <span className="tree-emoji">{currentStage.icon}</span>
             </div>
             <div className="tree-stage-meta">

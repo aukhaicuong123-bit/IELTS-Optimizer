@@ -699,7 +699,8 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
    ========================================================================== */
 
 /* Tree of Knowledge Banner & Gamification */
-.forum-tree-card{background:radial-gradient(circle at 82% 18%,rgba(255,255,255,.78) 0 8%,transparent 30%),linear-gradient(135deg,#f7fbf5 0%,#edf7f0 52%,#f7f2e8 100%);border:1px solid #c7e1d0;border-radius:24px;padding:26px 28px;color:#172236;box-shadow:0 12px 30px rgba(7,93,82,.08);display:flex;flex-direction:column;gap:22px;margin-bottom:6px;position:relative;overflow:hidden}
+.forum-tree-card{background:linear-gradient(135deg,#f8fcf7 0%,#edf7f1 58%,#f8f4e9 100%);border:1px solid #c7e1d0;border-radius:24px;padding:26px 28px;color:#172236;box-shadow:0 12px 30px rgba(7,93,82,.08);display:flex;flex-direction:column;gap:22px;margin-bottom:6px;position:relative;overflow:hidden}
+.journey-map-art{position:absolute;inset:auto 0 0;width:100%;height:auto;max-height:100%;object-fit:contain;object-position:center bottom;opacity:.42;mix-blend-mode:multiply;pointer-events:none;z-index:0}
 .forum-tree-top{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:stretch;position:relative;z-index:1}
 .forum-tree-motto{display:flex;flex-direction:column;justify-content:center;gap:10px}
 .forum-badge-pill{display:inline-flex;align-items:center;gap:6px;background:#e0f2ea;color:#075d52;font-size:10px;font-weight:900;letter-spacing:.08em;padding:6px 12px;border-radius:8px 18px 18px 8px;width:fit-content;border:1px solid #b7dcca;box-shadow:0 3px 0 rgba(7,93,82,.06)}
@@ -715,10 +716,11 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 /* Status Box */
 .forum-tree-status-box{background:rgba(255,255,252,.88);border:1px solid #c8dfcf;border-radius:18px;padding:20px 22px;display:flex;flex-direction:column;justify-content:space-between;gap:14px;box-shadow:0 8px 22px rgba(7,93,82,.07);backdrop-filter:blur(6px)}
 .tree-stage-visual{display:flex;align-items:center;gap:14px}
-.tree-stage-avatar{width:54px;height:54px;border-radius:14px;background:#eef7eb;border:1px solid #c2dec0;display:grid;place-items:center;font-size:28px;flex-shrink:0}
+.tree-stage-avatar{width:64px;height:64px;border-radius:18px;background-color:#eef7eb;background-image:url('/assets/ielts-journey-map.png');background-repeat:no-repeat;background-size:390px auto;background-position:-28px -28px;border:1px solid #c2dec0;display:grid;place-items:center;font-size:24px;flex-shrink:0;box-shadow:0 4px 10px rgba(7,93,82,.08);overflow:hidden}
+.tree-stage-avatar .tree-emoji{opacity:0}
 .tree-stage-meta{display:grid;gap:2px}
 .tree-stage-kicker{font-size:10px;font-weight:800;letter-spacing:.08em;color:#075d52;text-transform:uppercase}
-.tree-stage-meta h4{font:700 18px 'Space Grotesk',sans-serif;margin:0;color:#172236}
+.tree-stage-meta h4{font:700 18px 'Space Grotesk',sans-serif;margin:0;color:#172236;line-height:1.1}
 .tree-stage-meta p{margin:0;font-size:11px;color:#475569;line-height:1.4}
 
 .tree-xp-bar-wrap{display:grid;gap:6px}
@@ -736,10 +738,10 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 .tree-step-item{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;position:relative;opacity:.55;transition:all .15s}
 .tree-step-item.done,.tree-step-item.current{opacity:1}
 .tree-step-item.current{transform:scale(1.05)}
-.step-badge{display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:999px;background:#fffefa;border:1px solid #c2dec0;font-size:10px;font-weight:700;color:#244d3b}
+.step-badge{display:flex;align-items:center;gap:4px;padding:5px 9px;border-radius:999px;background:rgba(255,255,250,.88);border:1px solid #c2dec0;font-size:10px;font-weight:700;color:#244d3b;box-shadow:0 2px 6px rgba(7,93,82,.04)}
 .tree-step-item.current .step-badge{background:#075d52;border-color:#075d52;color:#fff;box-shadow:0 3px 8px rgba(7,93,82,.25)}
 .tree-step-item.done .step-badge{background:#e2f0de;border-color:#bad8b5;color:#075d52}
-.step-title{font-size:11px;font-weight:600;color:#244d3b}
+.step-title{font-size:11px;font-weight:700;color:#244d3b;white-space:nowrap}
 .tree-step-item.current .step-title{color:#075d52;font-weight:800}
 
 /* Main Forum Study Panel */
