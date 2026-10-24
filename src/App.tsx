@@ -422,14 +422,14 @@ export default function App() {
         )}
 
         {['vocabulary', 'grammar'].includes(page) && (
-          <div className="skill-quick-bar" role="tablist" aria-label="Ná»n táº£ng tÆ¡ Ä‘á»ng">
+          <div className="skill-quick-bar" role="tablist" aria-label="Nền tảng từ vựng và ngữ pháp">
             <button
               role="tab"
               aria-selected={page === 'vocabulary'}
               className={`skill-quick-btn ${page === 'vocabulary' ? 'active' : ''}`}
               onClick={() => go('vocabulary')}
             >
-              <Layers size={15} /> <span>Tá»« vá»±ng theo chá»§ Ä‘á» (Flashcards)</span>
+              <Layers size={15} /> <span>Từ vựng theo chủ đề (Flashcards)</span>
             </button>
             <button
               role="tab"
@@ -437,7 +437,7 @@ export default function App() {
               className={`skill-quick-btn ${page === 'grammar' ? 'active' : ''}`}
               onClick={() => go('grammar')}
             >
-              <ListChecks size={15} /> <span>Ngá»¯ phÃ¡p á»©ng dá»¥ng</span>
+              <ListChecks size={15} /> <span>Ngữ pháp ứng dụng</span>
             </button>
           </div>
         )}
