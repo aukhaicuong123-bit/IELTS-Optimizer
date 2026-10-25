@@ -12,9 +12,33 @@ const PORT = Number(process.env.PORT) || 3000
 
 app.use(express.json({ limit: '2mb' }))
 
-// Initialize Gemini SDK if key is present in environment
-const geminiApiKey = process.env.GEMINI_API_KEY || ''
-const aiClient = geminiApiKey ? new GoogleGenAI({ apiKey: geminiApiKey }) : null
+import fs from 'fs'
+
+// Initialize Gemini SDK if key is present in environment or .env file
+let geminiApiKey = process.env.GEMINI_API_KEY || ''
+if (!geminiApiKey || geminiApiKey === 'MY_GEMINI_API_KEY') {
+  try {
+    const envPath = path.resolve(__dirname, '.env')
+    if (fs.existsSync(envPath)) {
+      const envContent = fs.readFileSync(envPath, 'utf-8')
+      const m = envContent.match(/GEMINI_API_KEY=([^\s\r\n]+)/)
+      if (m && m[1] && m[1] !== 'MY_GEMINI_API_KEY') {
+        geminiApiKey = m[1].trim()
+      }
+    }
+  } catch {}
+}
+
+const aiClient = geminiApiKey
+  ? new GoogleGenAI({
+      apiKey: geminiApiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build'
+        }
+      }
+    })
+  : null
 
 // Health check endpoint
 app.get('/api/health', (_req: Request, res: Response) => {
@@ -241,6 +265,199 @@ Respond ONLY with valid JSON matching this schema:
   } catch (error: any) {
     console.error('[AI Coach] Unexpected error:', error)
     res.status(500).json({ error: error.message || 'Internal server error' })
+  }
+})
+
+// In-memory cache for generated TTS audio to prevent redundant API calls
+const ttsAudioCache = new Map<string, string>()
+
+// Helper to parse transcript lines into structured speaker turns
+function parseDialogueTurns(rawText: string): { speaker: string; text: string }[] {
+  const lines = rawText.split('\n')
+  const turns: { speaker: string; text: string }[] = []
+  let currentSpeaker = 'Speaker'
+  let currentBuffer = ''
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim()
+    if (!line) continue
+
+    const match = line.match(/^([A-Za-z0-9\.\s'-]{1,30}):\s*(.*)$/)
+    if (match) {
+      if (currentBuffer.trim()) {
+        turns.push({ speaker: currentSpeaker, text: currentBuffer.trim() })
+        currentBuffer = ''
+      }
+      currentSpeaker = match[1].trim()
+      currentBuffer = match[2].trim()
+    } else {
+      if (currentBuffer) {
+        currentBuffer += ' ' + line
+      } else {
+        currentBuffer = line
+      }
+    }
+  }
+
+  if (currentBuffer.trim()) {
+    turns.push({ speaker: currentSpeaker, text: currentBuffer.trim() })
+  }
+
+  return turns
+}
+
+// Human-like Studio Speech Synthesis Endpoint (Gemini TTS: multi-speaker & single-speaker)
+app.post('/api/ai/tts', async (req: Request, res: Response) => {
+  try {
+    const {
+      text,
+      voiceName = 'Kore',
+      style = 'Clear, engaging British IELTS academic speaker with natural intonation, authentic pauses, and lively pacing'
+    } = req.body || {}
+
+    if (!text || typeof text !== 'string') {
+      res.status(400).json({ error: 'text is required' })
+      return
+    }
+
+    if (!aiClient) {
+      res.status(503).json({
+        error: 'Gemini API is not configured on this server. Browser SpeechSynthesis fallback should be used.',
+        isFallback: true
+      })
+      return
+    }
+
+    // Supported prebuilt voices: 'Kore', 'Puck', 'Charon', 'Fenrir', 'Zephyr'
+    const allowedVoices = ['Kore', 'Puck', 'Charon', 'Fenrir', 'Zephyr']
+    const selectedVoice = allowedVoices.includes(voiceName) ? voiceName : 'Kore'
+
+    const turns = parseDialogueTurns(text)
+    const distinctSpeakers = Array.from(new Set(turns.map(t => t.speaker))).filter(s => s !== 'Speaker')
+
+    // Determine voice assignments for characters
+    // Primary speaker gets selectedVoice. Secondary speaker gets a distinct complementary voice.
+    let voice1 = selectedVoice
+    let voice2 = 'Puck'
+    if (voice1 === 'Kore') voice2 = 'Puck'
+    else if (voice1 === 'Puck') voice2 = 'Kore'
+    else if (voice1 === 'Fenrir') voice2 = 'Kore'
+    else if (voice1 === 'Charon') voice2 = 'Kore'
+    else if (voice1 === 'Zephyr') voice2 = 'Puck'
+
+    const cacheKey = `${selectedVoice}::${distinctSpeakers.length}::${turns.map(t => `${t.speaker}:${t.text}`).join('|')}`
+    if (ttsAudioCache.has(cacheKey)) {
+      res.json({
+        success: true,
+        cached: true,
+        audioBase64: ttsAudioCache.get(cacheKey),
+        mimeType: 'audio/wav',
+        voice: selectedVoice,
+        speakers: distinctSpeakers
+      })
+      return
+    }
+
+    let base64Audio: string | undefined
+
+    // If exactly 2 distinct speakers in dialogue, synthesize with multi-speaker Gemini TTS
+    if (distinctSpeakers.length === 2) {
+      try {
+        const multiResponse = await aiClient.models.generateContent({
+          model: 'gemini-3.8-flash-tts',
+          contents: [
+            {
+              role: 'user',
+              parts: turns.map(turn => ({
+                text: `${turn.speaker}: ${turn.text}`,
+                speechMetadata: {
+                  speaker: turn.speaker
+                }
+              }))
+            }
+          ],
+          config: {
+            responseModalities: ['AUDIO'],
+            speechConfig: {
+              multiSpeakerVoiceConfig: {
+                speakerVoiceConfigs: [
+                  {
+                    speaker: distinctSpeakers[0],
+                    voiceConfig: {
+                      prebuiltVoiceConfig: { voiceName: voice1 }
+                    }
+                  },
+                  {
+                    speaker: distinctSpeakers[1],
+                    voiceConfig: {
+                      prebuiltVoiceConfig: { voiceName: voice2 }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        })
+        base64Audio = multiResponse.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data
+      } catch (multiErr) {
+        console.warn('[AI TTS] Multi-speaker failed, falling back to clean single-speaker TTS:', multiErr)
+      }
+    }
+
+    // Fallback or single-speaker monologue: strip character labels so it never reads "Advisor:", "Student:", etc.
+    if (!base64Audio) {
+      const cleanMonologueText = turns.map(t => t.text).join(' ')
+      const singleResponse = await aiClient.models.generateContent({
+        model: 'gemini-3.8-flash-lite-tts',
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              {
+                text: cleanMonologueText,
+                speechMetadata: {
+                  style
+                }
+              }
+            ]
+          }
+        ],
+        config: {
+          responseModalities: ['AUDIO'],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: { voiceName: selectedVoice }
+            }
+          }
+        }
+      })
+      base64Audio = singleResponse.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data
+    }
+
+    if (!base64Audio) {
+      throw new Error('No audio data received from Gemini TTS')
+    }
+
+    // Cache up to 100 audio tracks
+    if (ttsAudioCache.size > 100) {
+      const firstKey = ttsAudioCache.keys().next().value
+      if (firstKey) ttsAudioCache.delete(firstKey)
+    }
+    ttsAudioCache.set(cacheKey, base64Audio)
+
+    res.json({
+      success: true,
+      audioBase64: base64Audio,
+      mimeType: 'audio/wav',
+      voice: selectedVoice,
+      speakers: distinctSpeakers
+    })
+  } catch (error: any) {
+    console.error('[AI TTS] Error generating natural speech:', error)
+    res.status(500).json({
+      error: error.message || 'TTS Generation Failed',
+      isFallback: true
+    })
   }
 })
 

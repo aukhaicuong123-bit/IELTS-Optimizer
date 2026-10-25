@@ -45,7 +45,8 @@ import {
   BarChart3,
   Flame,
   PenTool,
-  Mic
+  Mic,
+  Headphones
 } from 'lucide-react'
 import ExamLibraryView from './ExamLibraryView'
 import { ActivityHeatmapHub } from './components/ActivityHeatmapHub'
@@ -179,6 +180,10 @@ export default function App() {
     document.addEventListener('visibilitychange', pauseWhenHidden)
     return () => document.removeEventListener('visibilitychange', pauseWhenHidden)
   }, [store])
+
+  useEffect(() => {
+    window.speechSynthesis?.cancel()
+  }, [page])
 
   const addToast = useCallback((message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
     const id = `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
@@ -422,14 +427,14 @@ export default function App() {
         )}
 
         {['vocabulary', 'grammar'].includes(page) && (
-          <div className="skill-quick-bar" role="tablist" aria-label="Ná»n táº£ng tÆ¡ Ä‘á»ng">
+          <div className="skill-quick-bar" role="tablist" aria-label="Nền tảng từ vựng và ngữ pháp">
             <button
               role="tab"
               aria-selected={page === 'vocabulary'}
               className={`skill-quick-btn ${page === 'vocabulary' ? 'active' : ''}`}
               onClick={() => go('vocabulary')}
             >
-              <Layers size={15} /> <span>Tá»« vá»±ng theo chá»§ Ä‘á» (Flashcards)</span>
+              <Layers size={15} /> <span>Từ vựng theo chủ đề (Flashcards)</span>
             </button>
             <button
               role="tab"
@@ -437,7 +442,7 @@ export default function App() {
               className={`skill-quick-btn ${page === 'grammar' ? 'active' : ''}`}
               onClick={() => go('grammar')}
             >
-              <ListChecks size={15} /> <span>Ngá»¯ phÃ¡p á»©ng dá»¥ng</span>
+              <ListChecks size={15} /> <span>Ngữ pháp ứng dụng</span>
             </button>
           </div>
         )}
@@ -486,11 +491,11 @@ export default function App() {
         {page === 'errors' && <Errors s={store} setS={setStore} openRetest={openRetest} note={note} go={setPage} />}
         {page === 'record' && <Record s={store} />}
 
-        {page === 'listening' && <SkillPractice s={store} setS={setStore} note={note} skill="Listening" />}
+        {page === 'listening' && <SkillPractice s={store} setS={setStore} note={note} skill="Listening" go={go} />}
 
-        {page === 'writing' && <SkillPractice s={store} setS={setStore} note={note} skill="Writing" />}
+        {page === 'writing' && <SkillPractice s={store} setS={setStore} note={note} skill="Writing" go={go} />}
 
-        {page === 'speaking' && <SkillPractice s={store} setS={setStore} note={note} skill="Speaking" />}
+        {page === 'speaking' && <SkillPractice s={store} setS={setStore} note={note} skill="Speaking" go={go} />}
         {page === 'vocabulary' && (
           <ForumVocabularyHub
             s={store}
@@ -800,7 +805,8 @@ function DailyListeningDrill({ note }: { note: (msg: string) => void }) {
   const speak = () => {
     if (!('speechSynthesis' in window)) return note('Trình duyệt không hỗ trợ phát âm.')
     window.speechSynthesis.cancel()
-    const u = new SpeechSynthesisUtterance(drill.audioText)
+    const cleanText = drill.audioText.replace(/^[A-Za-z0-9\.\s'-]{1,30}:\s*/gm, '')
+    const u = new SpeechSynthesisUtterance(cleanText)
     u.lang = 'en-US'
     u.rate = 0.92
     window.speechSynthesis.speak(u)
@@ -1023,7 +1029,7 @@ function Dashboard({
       <section className="dashboard-journey-wrap" aria-label="Hành trình học IELTS">
         <ForumStudyTree
           variant="dashboard"
-          activeTrack="vocabulary"
+          activeTrack={null}
           onSelectTrack={track => go(track === 'grammar' ? 'grammar' : 'vocabulary')}
           knownVocabCount={journey.knownVocabCount}
           totalVocabCount={TOTAL_FORUM_VOCAB_COUNT}
@@ -2378,8 +2384,9 @@ function IELTSSimulation({ s, setS, note }: { s: Store; setS: (store: Store) => 
   const playAudio = () => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel()
-      const audioText = SIMULATION_QUESTIONS.Listening[0]?.audioText ?? TOPICS[0].listening.audioText
-      const u = new SpeechSynthesisUtterance(audioText)
+      const rawText = SIMULATION_QUESTIONS.Listening[0]?.audioText ?? TOPICS[0].listening.audioText
+      const cleanText = rawText.replace(/^[A-Za-z0-9\.\s'-]{1,30}:\s*/gm, '')
+      const u = new SpeechSynthesisUtterance(cleanText)
       u.lang = 'en-US'
       window.speechSynthesis.speak(u)
     }
@@ -2440,12 +2447,14 @@ function SkillPractice({
   s,
   setS,
   note,
-  skill
+  skill,
+  go
 }: {
   s: Store
   setS: (store: Store) => void
   note: (message: string) => void
   skill: 'Listening' | 'Writing' | 'Speaking'
+  go?: (page: Page) => void
 }) {
   const [selectedTopicId, setSelectedTopicId] = useState<TopicId>('education')
   const currentTopic = TOPICS.find(t => t.id === selectedTopicId) || TOPICS[0]
@@ -2473,7 +2482,20 @@ function SkillPractice({
   const [recordingError, setRecordingError] = useState('')
   const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({})
   const [showQuizResult, setShowQuizResult] = useState(false)
-  const [transcriptFallbackEnabled, setTranscriptFallbackEnabled] = useState(false)
+
+  // Studio AI Audio & Enhanced Player state
+  const [voicePersona, setVoicePersona] = useState<'Kore' | 'Puck' | 'Fenrir' | 'Charon'>('Kore')
+  const [activeSpeaker, setActiveSpeaker] = useState<string>('')
+  const [currentSpeakers, setCurrentSpeakers] = useState<string[]>([])
+  const [isGeneratingTts, setIsGeneratingTts] = useState(false)
+  const [audioDuration, setAudioDuration] = useState(0)
+  const [audioCurrentTime, setAudioCurrentTime] = useState(0)
+  const [audioSourceType, setAudioSourceType] = useState<'studio' | 'browser' | 'upload'>('studio')
+  const [ttsAudioMap, setTtsAudioMap] = useState<Record<string, string>>({})
+  const htmlAudioRef = useRef<HTMLAudioElement | null>(null)
+  const speechQueueRef = useRef<{ speaker: string; text: string }[] | null>(null)
+  const speechIndexRef = useRef<number>(0)
+  const isSpeechActiveRef = useRef<boolean>(false)
 
   const recorder = useRef<MediaRecorder | null>(null)
   const previousActivityId = useRef(activityId)
@@ -2485,11 +2507,20 @@ function SkillPractice({
     setProgress(0)
     setQuizAnswers({})
     setShowQuizResult(false)
-    setTranscriptFallbackEnabled(false)
     setPrepActive(false)
     setPrepSeconds(60)
     setSpeakingActive(false)
     setSpeakingSeconds(120)
+    setIsPlaying(false)
+    setActiveSpeaker('')
+    speechIndexRef.current = 0
+    isSpeechActiveRef.current = false
+    setAudioCurrentTime(0)
+    if (htmlAudioRef.current) {
+      htmlAudioRef.current.pause()
+      htmlAudioRef.current.currentTime = 0
+    }
+    window.speechSynthesis?.cancel()
   }, [activityId, draft])
 
   useEffect(() => {
@@ -2546,50 +2577,272 @@ function SkillPractice({
     })
   }
 
-  // Audio player methods for Listening
-  const playGeneratedAudio = () => {
-    setTranscriptFallbackEnabled(true)
+  // Audio format & player methods for Listening
+  const formatSecs = (sec: number) => {
+    if (!sec || isNaN(sec)) return '0:00'
+    const m = Math.floor(sec / 60)
+    const s = Math.floor(sec % 60)
+    return `${m}:${s.toString().padStart(2, '0')}`
+  }
+
+  // Helper to parse transcript lines into structured speaker turns
+  const parseDialogueSegments = (rawText: string): { speaker: string; text: string }[] => {
+    const lines = rawText.split('\n')
+    const segments: { speaker: string; text: string }[] = []
+    let currentSpeaker = 'Narrator'
+    let currentBuffer = ''
+
+    for (const rawLine of lines) {
+      const line = rawLine.trim()
+      if (!line) continue
+
+      const match = line.match(/^([A-Za-z0-9\.\s'-]{1,30}):\s*(.*)$/)
+      if (match) {
+        if (currentBuffer.trim()) {
+          segments.push({ speaker: currentSpeaker, text: currentBuffer.trim() })
+          currentBuffer = ''
+        }
+        currentSpeaker = match[1].trim()
+        currentBuffer = match[2].trim()
+      } else {
+        if (currentBuffer) {
+          currentBuffer += ' ' + line
+        } else {
+          currentBuffer = line
+        }
+      }
+    }
+
+    if (currentBuffer.trim()) {
+      segments.push({ speaker: currentSpeaker, text: currentBuffer.trim() })
+    }
+
+    return segments
+  }
+
+  const playEnhancedBrowserAudio = (startIndex = 0) => {
     if (!('speechSynthesis' in window)) {
-      return note('Speech audio is not supported in this browser. Use the transcript fallback.')
+      return note('Trình duyệt không hỗ trợ Web Speech API. Bạn có thể sử dụng transcript bên dưới.')
     }
     window.speechSynthesis.cancel()
-    const utterance = new SpeechSynthesisUtterance(currentTopic.listening.audioText)
-    utterance.lang = 'en-US'
-    utterance.rate = Math.min(1.05, playbackSpeed * 0.94)
-    utterance.pitch = 0.98
-    const preferredVoice = window.speechSynthesis.getVoices().find(voice =>
-      /^en(-|_)/i.test(voice.lang) && /Google|Microsoft|Samantha|Alex|Daniel|Karen/i.test(voice.name)
-    ) || window.speechSynthesis.getVoices().find(voice => /^en(-|_)/i.test(voice.lang))
-    if (preferredVoice) utterance.voice = preferredVoice
-    utterance.onstart = () => {
-      setIsPlaying(true)
-      setProgress(0)
+
+    const segments = parseDialogueSegments(currentTopic.listening.audioText)
+    if (!segments.length) return
+
+    speechQueueRef.current = segments
+    speechIndexRef.current = startIndex
+    isSpeechActiveRef.current = true
+
+    const voices = window.speechSynthesis.getVoices()
+    const enVoices = voices.filter(v => /^en/i.test(v.lang))
+
+    const femaleVoices = enVoices.filter(v =>
+      /female|serena|stephanie|samantha|karen|fiona|victoria|zira|susan|moira|catherine|jenny/i.test(v.name)
+    )
+    const maleVoices = enVoices.filter(v =>
+      /male|daniel|oliver|george|arthur|david|richard|tom|alex|guy|james|ryan/i.test(v.name)
+    )
+
+    // Distinct character speakers in this audio passage
+    const distinctSpeakers = Array.from(new Set(segments.map(s => s.speaker))).filter(s => s !== 'Narrator')
+    setCurrentSpeakers(distinctSpeakers)
+
+    // Persona acoustic profiles:
+    // Kore = Emma (Female Academic, pitch 1.12, rate 0.96)
+    // Puck = Oliver (Male Conversational, pitch 1.02, rate 1.02)
+    // Fenrir = GS. Harris (Deep Academic Baritone, pitch 0.74, rate 0.88)
+    // Charon = Julian (Clear Radio Broadcaster, pitch 0.94, rate 1.05)
+    const personaParams = {
+      Kore: { basePitch: 1.12, baseRate: 0.96, gender: 'female' },
+      Puck: { basePitch: 1.02, baseRate: 1.02, gender: 'male' },
+      Fenrir: { basePitch: 0.74, baseRate: 0.88, gender: 'male' },
+      Charon: { basePitch: 0.94, baseRate: 1.05, gender: 'male' }
+    }[voicePersona] || { basePitch: 1.0, baseRate: 1.0, gender: 'female' }
+
+    const speakTurn = (index: number) => {
+      if (!isSpeechActiveRef.current || index >= segments.length) {
+        setIsPlaying(false)
+        setProgress(100)
+        setActiveSpeaker('')
+        speechIndexRef.current = 0
+        return
+      }
+
+      speechIndexRef.current = index
+      const seg = segments[index]
+      setActiveSpeaker(seg.speaker !== 'Narrator' ? seg.speaker : '')
+
+      // Strip speaker prefix so character names are NEVER pronounced!
+      const cleanText = seg.text.replace(/^[A-Za-z0-9\.\s'-]{1,30}:\s*/, '').trim()
+      const utterance = new SpeechSynthesisUtterance(cleanText)
+
+      const speakerIdx = distinctSpeakers.indexOf(seg.speaker)
+      let selectedVoice = enVoices[0] || null
+      let chosenPitch = personaParams.basePitch
+      let chosenRate = personaParams.baseRate * playbackSpeed
+
+      // If multi-speaker dialogue: assign contrasting voice and pitch per character
+      if (distinctSpeakers.length >= 2 && speakerIdx === 1) {
+        // Character 2 (e.g. Student or Guest)
+        if (personaParams.gender === 'female') {
+          // Primary speaker is Female -> Secondary speaker is Male/Lower pitch
+          selectedVoice = maleVoices[0] || enVoices.find(v => v !== femaleVoices[0]) || enVoices[0]
+          chosenPitch = 0.88
+          chosenRate = 1.02 * playbackSpeed
+        } else {
+          // Primary speaker is Male -> Secondary speaker is Female/Higher pitch
+          selectedVoice = femaleVoices[0] || enVoices.find(v => v !== maleVoices[0]) || enVoices[0]
+          chosenPitch = 1.20
+          chosenRate = 0.98 * playbackSpeed
+        }
+      } else {
+        // Character 1 (e.g. Advisor, Lecturer, Host)
+        if (personaParams.gender === 'female') {
+          selectedVoice = femaleVoices[0] || enVoices[0]
+        } else {
+          selectedVoice = maleVoices[0] || enVoices[0]
+        }
+      }
+
+      if (selectedVoice) utterance.voice = selectedVoice
+      utterance.pitch = Math.max(0.6, Math.min(1.6, chosenPitch))
+      utterance.rate = Math.max(0.7, Math.min(1.4, chosenRate))
+
+      utterance.onstart = () => {
+        setIsPlaying(true)
+        const pct = Math.round((index / segments.length) * 100)
+        setProgress(pct)
+      }
+
+      utterance.onend = () => {
+        const nextIndex = index + 1
+        setProgress(Math.round((nextIndex / segments.length) * 100))
+        speakTurn(nextIndex)
+      }
+
+      utterance.onerror = (e) => {
+        console.warn('SpeechSynthesis turn error:', e)
+        setIsPlaying(false)
+        setActiveSpeaker('')
+      }
+
+      window.speechSynthesis.speak(utterance)
     }
-    utterance.onboundary = event => {
-      setProgress(Math.min(100, Math.round((event.charIndex / currentTopic.listening.audioText.length) * 100)))
-    }
-    utterance.onend = () => {
-      setIsPlaying(false)
-      setProgress(100)
-    }
-    utterance.onerror = () => {
-      setIsPlaying(false)
-      note('Audio playback error. Transcript fallback remains available.')
-    }
-    window.speechSynthesis.speak(utterance)
+
+    speakTurn(startIndex)
   }
 
-  const pauseGeneratedAudio = () => {
-    if (window.speechSynthesis.speaking) {
-      window.speechSynthesis.pause()
-      setIsPlaying(false)
+  const handlePlayAudio = async () => {
+    if (uploadedAudioUrl && htmlAudioRef.current) {
+      setAudioSourceType('upload')
+      htmlAudioRef.current.src = uploadedAudioUrl
+      htmlAudioRef.current.playbackRate = playbackSpeed
+      htmlAudioRef.current.play()
+      setIsPlaying(true)
+      return
+    }
+
+    const cacheKey = `${selectedTopicId}::${voicePersona}`
+    if (ttsAudioMap[cacheKey] && htmlAudioRef.current) {
+      setAudioSourceType('studio')
+      htmlAudioRef.current.src = ttsAudioMap[cacheKey]
+      htmlAudioRef.current.playbackRate = playbackSpeed
+      htmlAudioRef.current.play()
+      setIsPlaying(true)
+      return
+    }
+
+    setIsGeneratingTts(true)
+    try {
+      const res = await fetch('/api/ai/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: currentTopic.listening.audioText,
+          voiceName: voicePersona,
+          style: 'Clear, engaging, natural British IELTS speaker with authentic pacing, subtle breathing pauses, and expressive intonation'
+        })
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        if (data.audioBase64) {
+          const audioSrc = `data:${data.mimeType || 'audio/wav'};base64,${data.audioBase64}`
+          setTtsAudioMap(prev => ({ ...prev, [cacheKey]: audioSrc }))
+          setAudioSourceType('studio')
+          if (data.speakers && Array.isArray(data.speakers)) {
+            setCurrentSpeakers(data.speakers)
+          }
+          if (htmlAudioRef.current) {
+            htmlAudioRef.current.src = audioSrc
+            htmlAudioRef.current.playbackRate = playbackSpeed
+            await htmlAudioRef.current.play()
+            setIsPlaying(true)
+            setIsGeneratingTts(false)
+            if (data.speakers && data.speakers.length >= 2) {
+              note(`Đang phát hội thoại đa nhân vật (${data.speakers.join(' & ')}).`)
+            } else {
+              note('Đang phát giọng đọc AI Studio tự nhiên.')
+            }
+            return
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Studio TTS call failed, using enhanced browser speech:', err)
+    } finally {
+      setIsGeneratingTts(false)
+    }
+
+    setAudioSourceType('browser')
+    playEnhancedBrowserAudio(0)
+    note('Đang phát giọng đọc phân vai tối ưu.')
+  }
+
+  const handlePauseAudio = () => {
+    if (audioSourceType === 'studio' || audioSourceType === 'upload') {
+      if (htmlAudioRef.current) {
+        htmlAudioRef.current.pause()
+        setIsPlaying(false)
+      }
+    } else {
+      isSpeechActiveRef.current = false
+      if (window.speechSynthesis?.speaking) {
+        window.speechSynthesis.cancel()
+        setIsPlaying(false)
+      }
     }
   }
 
-  const resumeGeneratedAudio = () => {
-    if (window.speechSynthesis.paused) {
-      window.speechSynthesis.resume()
-      setIsPlaying(true)
+  const handleResumeAudio = () => {
+    if (audioSourceType === 'studio' || audioSourceType === 'upload') {
+      if (htmlAudioRef.current) {
+        htmlAudioRef.current.play()
+        setIsPlaying(true)
+      }
+    } else {
+      playEnhancedBrowserAudio(speechIndexRef.current)
+    }
+  }
+
+  const handleReplayAudio = () => {
+    if (audioSourceType === 'studio' || audioSourceType === 'upload') {
+      if (htmlAudioRef.current) {
+        htmlAudioRef.current.currentTime = 0
+        htmlAudioRef.current.play()
+        setIsPlaying(true)
+      }
+    } else {
+      speechIndexRef.current = 0
+      playEnhancedBrowserAudio(0)
+    }
+  }
+
+  const handleSkipTime = (offsetSec: number) => {
+    if (htmlAudioRef.current && (audioSourceType === 'studio' || audioSourceType === 'upload')) {
+      const dur = htmlAudioRef.current.duration || 0
+      const nextTime = Math.max(0, Math.min(dur, htmlAudioRef.current.currentTime + offsetSec))
+      htmlAudioRef.current.currentTime = nextTime
     }
   }
 
@@ -2626,11 +2879,6 @@ function SkillPractice({
   const writingWordTarget = writingTaskType === 'task1' ? 150 : 250
   const paragraphCount = response.split(/\n\s*\n/).filter(Boolean).length
   const sentenceCount = response.split(/[.!?]+/).filter(sentence => sentence.trim()).length
-  const listeningQuestions = skill === 'Listening' ? currentTopic.listening.questions : []
-  const answeredListeningCount = listeningQuestions.filter(question => quizAnswers[question.id]).length
-  const listeningCorrectCount = listeningQuestions.filter(question => quizAnswers[question.id] === question.answer).length
-  const listeningQuizComplete = listeningQuestions.length > 0 && answeredListeningCount === listeningQuestions.length
-
   const feedback =
     skill === 'Writing'
       ? [
@@ -2656,8 +2904,12 @@ function SkillPractice({
       : []
 
   const submit = () => {
-    const savedResponse = response.trim() || (audioUrl ? '[Browser recording saved for playback; no transcript supplied.]' : '')
-    if (!savedResponse) return note('Add a response or recording before saving.')
+    let savedResponse = response.trim() || (audioUrl ? '[Browser recording saved for playback; no transcript supplied.]' : '')
+    if (!savedResponse && skill === 'Listening' && Object.keys(quizAnswers).length > 0) {
+      const correct = currentTopic.listening.questions.filter(q => quizAnswers[q.id] === q.answer).length
+      savedResponse = `Bài kiểm tra nghe (${currentTopic.listening.title}): ${correct}/${currentTopic.listening.questions.length} câu đúng.`
+    }
+    if (!savedResponse) return note('Thêm ghi chú, câu trả lời hoặc bản ghi âm trước khi lưu.')
     const submission = {
       id: uid('submission'),
       skill,
@@ -2707,118 +2959,444 @@ function SkillPractice({
       {/* LISTENING SPECIFIC VIEW */}
       {skill === 'Listening' && (
         <section className="panel">
-          <div className="panel-title">
+          <div className="panel-title" style={{ alignItems: 'flex-start' }}>
             <div>
-              <span className="badge">{currentTopic.listening.level}</span>
-              <h3>{currentTopic.listening.title}</h3>
-            </div>
-            <span className="date-pill">{currentTopic.listening.durationMinutes} min audio exercise</span>
-          </div>
-
-          <div className="audio-controls">
-            <button type="button" className="secondary" onClick={playGeneratedAudio}>
-              <Play size={14} /> Nghe giọng dự phòng
-            </button>
-            <a className="secondary audio-source-link" href="https://takeielts.britishcouncil.org/prepare/ielts-free-practice-mock-tests/academic/listening" target="_blank" rel="noreferrer">Mở official natural recording ↗</a>
-            <button type="button" className="secondary" onClick={pauseGeneratedAudio}>
-              <Pause size={14} /> Tạm dừng
-            </button>
-            <button type="button" className="secondary" onClick={resumeGeneratedAudio}>
-              Tiếp tục
-            </button>
-            <progress max="100" value={progress} aria-label="Audio progress" />
-            <select
-              value={playbackSpeed}
-              onChange={e => setPlaybackSpeed(parseFloat(e.target.value))}
-              aria-label="Speed"
-              className="audio-speed-select"
-            >
-              <option value="0.9">0.9x Speed</option>
-              <option value="1.0">1.0x Normal</option>
-              <option value="1.15">1.15x Fast</option>
-            </select>
-            {isPlaying && <span className="muted" role="status">Đang phát audio…</span>}
-          </div>
-          <div className="audio-upload-box">
-            <label htmlFor="listening-audio-upload"><b>Audio tự nhiên</b><span> Ưu tiên recording người thật từ nguồn official hoặc file luyện tập của bạn.</span></label>
-            <input id="listening-audio-upload" type="file" accept="audio/*" onChange={event => {
-              const file = event.target.files?.[0]
-              if (file) {
-                setUploadedAudioUrl(URL.createObjectURL(file))
-                setTranscriptFallbackEnabled(true)
-              }
-            }} />
-            {uploadedAudioUrl && <audio controls src={uploadedAudioUrl} aria-label="Uploaded natural listening audio" />}
-          </div>
-
-          {transcriptFallbackEnabled ? (
-            <details style={{ margin: '14px 0' }}>
-              <summary className="transcript-summary-toggle">
-                Hiện phụ đề bài nghe (Transcript dự phòng)
-              </summary>
-              <p className="callout" style={{ marginTop: '8px' }}>
-                {currentTopic.listening.audioText}
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                <span className="badge">{currentTopic.listening.level}</span>
+                {currentTopic.listening.ieltsPart && (
+                  <span className="badge" style={{ background: '#e0f2fe', color: '#0369a1', borderColor: '#bae6fd' }}>
+                    {currentTopic.listening.ieltsPart}
+                  </span>
+                )}
+                {currentTopic.listening.speakerAccent && (
+                  <span className="badge" style={{ background: '#fef3c7', color: '#92400e', borderColor: '#fde68a' }}>
+                    🇬🇧 Giọng {currentTopic.listening.speakerAccent} Accent
+                  </span>
+                )}
+                <span className="badge" style={{ background: '#dcfce7', color: '#15803d', borderColor: '#bbf7d0' }}>
+                  {currentTopic.listening.questions.length} câu hỏi sát đề
+                </span>
+              </div>
+              <h3 style={{ margin: '4px 0 6px' }}>{currentTopic.listening.title}</h3>
+              <p className="muted" style={{ margin: 0, fontSize: '13px' }}>
+                Bài nghe chuẩn kỳ thi IELTS, thiết kế câu hỏi bẫy distractors, trích xuất số liệu và điền từ chính xác.
               </p>
-            </details>
-          ) : (
-            <p className="audio-transcript-hint" role="status">
-              Phụ đề dự phòng sẽ mở sau khi bạn bắt đầu audio hoặc thêm file nghe của mình.
-            </p>
-          )}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
+              <span className="date-pill">{currentTopic.listening.durationMinutes} min audio exercise</span>
+              {go && (
+                <button
+                  type="button"
+                  className="exam-simulator-quick-link"
+                  onClick={() => go('question-bank')}
+                  title="Mở bộ đề thi thử 4 Sections - 40 câu hỏi đầy đủ"
+                >
+                  <Headphones size={13} />
+                  <span>Đề thi full 40 câu ↗</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Human-like Studio Audio Player */}
+          <div className="studio-audio-box">
+            <div className="studio-player-header">
+              <div className="studio-voice-selector-wrap">
+                <Volume2 size={16} />
+                <span>Giọng đọc:</span>
+                <select
+                  className="studio-voice-select"
+                  value={voicePersona}
+                  onChange={e => {
+                    const nextPersona = e.target.value as any
+                    setVoicePersona(nextPersona)
+                    handlePauseAudio()
+                    setActiveSpeaker('')
+                    setProgress(0)
+                    setAudioCurrentTime(0)
+                  }}
+                  aria-label="Chọn nhân vật giọng đọc"
+                >
+                  <option value="Kore">👩‍🏫 Emma (Học thuật Anh - Chuẩn Cambridge / Kore)</option>
+                  <option value="Puck">👨‍🎓 Oliver (Giao tiếp Anh - Tự nhiên sinh động / Puck)</option>
+                  <option value="Fenrir">🎓 GS. Harris (Bài giảng Đại học - Trầm ấm / Fenrir)</option>
+                  <option value="Charon">🎙️ Julian (Thuyết trình & Tin tức - Rõ ràng / Charon)</option>
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                {activeSpeaker && isPlaying && (
+                  <span className="badge" style={{ background: '#fef3c7', color: '#92400e', borderColor: '#fde68a', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    🗣️ Đang đọc: {activeSpeaker}
+                  </span>
+                )}
+                {currentSpeakers.length >= 2 && (
+                  <span className="badge" style={{ background: '#e0f2fe', color: '#0369a1', borderColor: '#bae6fd' }}>
+                    👥 Hội thoại 2 nhân vật ({currentSpeakers.join(' & ')})
+                  </span>
+                )}
+                <span className="audio-source-badge">
+                  <Sparkles size={12} />
+                  {audioSourceType === 'studio' ? 'Studio Neural Voice' : audioSourceType === 'upload' ? 'File cá nhân' : 'Giọng trình duyệt tối ưu'}
+                </span>
+                <a
+                  className="secondary audio-source-link"
+                  style={{ fontSize: '11px', padding: '4px 8px' }}
+                  href="https://takeielts.britishcouncil.org/prepare/ielts-free-practice-mock-tests/academic/listening"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Official British Council ↗
+                </a>
+              </div>
+            </div>
+
+            {/* Main Player Row */}
+            <div className="studio-player-main">
+              {!isPlaying ? (
+                <button
+                  type="button"
+                  className="btn-play-hero"
+                  onClick={handlePlayAudio}
+                  disabled={isGeneratingTts}
+                >
+                  <Play size={16} />
+                  <span>{isGeneratingTts ? 'Đang tạo giọng AI…' : 'Phát bài nghe'}</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="btn-play-hero"
+                  style={{ background: '#7a221b' }}
+                  onClick={handlePauseAudio}
+                >
+                  <Pause size={16} />
+                  <span>Tạm dừng</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                className="btn-player-sub"
+                onClick={handleReplayAudio}
+                title="Phát lại từ đầu"
+              >
+                <RotateCcw size={14} />
+                <span>Phát lại</span>
+              </button>
+
+              <button
+                type="button"
+                className="btn-player-sub"
+                onClick={() => handleSkipTime(-5)}
+                title="Lùi lại 5 giây"
+              >
+                -5s
+              </button>
+              <button
+                type="button"
+                className="btn-player-sub"
+                onClick={() => handleSkipTime(5)}
+                title="Tua tới 5 giây"
+              >
+                +5s
+              </button>
+
+              {/* Speed selector */}
+              <select
+                value={playbackSpeed}
+                onChange={e => {
+                  const newSpeed = parseFloat(e.target.value)
+                  setPlaybackSpeed(newSpeed)
+                  if (htmlAudioRef.current) {
+                    htmlAudioRef.current.playbackRate = newSpeed
+                  }
+                }}
+                aria-label="Tốc độ đọc"
+                className="audio-speed-select"
+                style={{ padding: '6px 10px', fontSize: '12px' }}
+              >
+                <option value="0.8">0.8x Luyện chậm</option>
+                <option value="0.9">0.9x Dễ nghe</option>
+                <option value="1.0">1.0x Chuẩn thi</option>
+                <option value="1.15">1.15x Thử thách</option>
+                <option value="1.25">1.25x Nhanh</option>
+              </select>
+
+              <div className="audio-time-label">
+                {audioSourceType === 'studio' || audioSourceType === 'upload' ? (
+                  `${formatSecs(audioCurrentTime)} / ${formatSecs(audioDuration || (currentTopic.listening.durationMinutes * 60))}`
+                ) : (
+                  `${progress}%`
+                )}
+              </div>
+            </div>
+
+            {/* Scrubber progress */}
+            <div className="audio-scrubber-track">
+              <input
+                type="range"
+                min="0"
+                max={audioDuration || 100}
+                value={audioSourceType === 'studio' || audioSourceType === 'upload' ? audioCurrentTime : progress}
+                onChange={e => {
+                  const val = parseFloat(e.target.value)
+                  if ((audioSourceType === 'studio' || audioSourceType === 'upload') && htmlAudioRef.current) {
+                    htmlAudioRef.current.currentTime = val
+                    setAudioCurrentTime(val)
+                  }
+                }}
+                className="audio-progress-bar"
+                aria-label="Tiến độ bài nghe"
+              />
+            </div>
+
+            {/* Hidden HTML Audio element for studio / uploaded playback */}
+            <audio
+              ref={htmlAudioRef}
+              onTimeUpdate={() => {
+                if (htmlAudioRef.current) {
+                  setAudioCurrentTime(htmlAudioRef.current.currentTime)
+                  setAudioDuration(htmlAudioRef.current.duration || 0)
+                }
+              }}
+              onLoadedMetadata={() => {
+                if (htmlAudioRef.current) {
+                  setAudioDuration(htmlAudioRef.current.duration || 0)
+                }
+              }}
+              onEnded={() => {
+                setIsPlaying(false)
+                setAudioCurrentTime(0)
+              }}
+              onError={() => {
+                setIsPlaying(false)
+              }}
+            />
+          </div>
+
+          <div className="audio-upload-box">
+            <label htmlFor="listening-audio-upload">
+              <b>Audio tùy chọn</b>
+              <span> Bạn cũng có thể tải file ghi âm thực tế từ máy tính lên để luyện tập.</span>
+            </label>
+            <input
+              id="listening-audio-upload"
+              type="file"
+              accept="audio/*"
+              onChange={event => {
+                const file = event.target.files?.[0]
+                if (file) setUploadedAudioUrl(URL.createObjectURL(file))
+              }}
+            />
+            {uploadedAudioUrl && <audio controls src={uploadedAudioUrl} aria-label="Uploaded natural listening audio" style={{ width: '100%', marginTop: '8px' }} />}
+          </div>
+
+          <details style={{ margin: '14px 0' }}>
+            <summary className="transcript-summary-toggle">
+              Xem toàn bộ phụ đề bài nghe (IELTS Transcript & Phân vai nhân vật)
+            </summary>
+            <div className="callout" style={{ marginTop: '8px', lineHeight: '1.8' }}>
+              {parseDialogueSegments(currentTopic.listening.audioText).map((seg, idx) => (
+                <div key={idx} style={{ marginBottom: '12px' }}>
+                  {seg.speaker !== 'Narrator' && (
+                    <span
+                      className="badge"
+                      style={{
+                        marginRight: '8px',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        background: seg.speaker === activeSpeaker && isPlaying ? '#fed7aa' : '#f1f5f9',
+                        color: seg.speaker === activeSpeaker && isPlaying ? '#9a3412' : '#334155',
+                        borderColor: seg.speaker === activeSpeaker && isPlaying ? '#fdba74' : '#cbd5e1'
+                      }}
+                    >
+                      {seg.speaker}
+                    </span>
+                  )}
+                  <span>{seg.text}</span>
+                </div>
+              ))}
+            </div>
+          </details>
 
           {/* Listening Comprehension Check */}
           <div className="listening-quiz-section">
-            <h4>Kiểm tra mức độ nghe hiểu ({listeningQuestions.length} câu)</h4>
-            {listeningQuestions.map((q, qIndex) => (
-              <div key={q.id} className="listening-quiz-card">
-                <p className="listening-quiz-prompt">
-                  {qIndex + 1}. {q.prompt}
-                </p>
-                <div className="listening-quiz-options">
-                  {q.options.map(opt => (
-                    <label key={opt} className={`quiz-option-label ${quizAnswers[q.id] === opt ? 'chosen' : ''}`}>
-                      <input
-                        type="radio"
-                        name={q.id}
-                        checked={quizAnswers[q.id] === opt}
-                        onChange={() => setQuizAnswers({ ...quizAnswers, [q.id]: opt })}
-                        disabled={showQuizResult}
-                      />
-                      <span>{opt}</span>
-                    </label>
-                  ))}
-                </div>
-                {showQuizResult && (
-                  <div className={`feedback ${quizAnswers[q.id] === q.answer ? 'correct' : 'incorrect'}`} style={{ marginTop: '10px' }}>
-                    <b>{quizAnswers[q.id] === q.answer ? '✓ Đúng' : '✗ Chưa đúng'}</b>
-                    <span>Đáp án: {q.answer}</span>
-                    <small>{q.explanation}</small>
-                  </div>
-                )}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '14px' }}>
+              <div>
+                <h4 style={{ margin: 0 }}>Kiểm tra mức độ nghe hiểu ({currentTopic.listening.questions.length} câu)</h4>
+                <small className="muted">
+                  Đã trả lời: {Object.keys(quizAnswers).length} / {currentTopic.listening.questions.length} câu
+                </small>
               </div>
-            ))}
-            {showQuizResult ? (
-              <div className="listening-quiz-summary" role="status">
-                <b>Kết quả: {listeningCorrectCount}/{listeningQuestions.length} câu đúng</b>
-                <button type="button" className="secondary" onClick={() => {
-                  setQuizAnswers({})
-                  setShowQuizResult(false)
-                }}>
-                  Làm lại quiz
+              {showQuizResult && (
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() => {
+                    setShowQuizResult(false)
+                    setQuizAnswers({})
+                  }}
+                  style={{ fontSize: '12px' }}
+                >
+                  <RotateCcw size={12} /> Làm lại bài nghe
                 </button>
-              </div>
-            ) : (
+              )}
+            </div>
+
+            {/* Overall Score Banner if checked */}
+            {showQuizResult && (() => {
+              const correct = currentTopic.listening.questions.filter(q => quizAnswers[q.id] === q.answer).length
+              const total = currentTopic.listening.questions.length
+              const pct = Math.round((correct / total) * 100)
+              let estBand = 'Band 8.5 - 9.0'
+              if (pct < 50) estBand = 'Band 5.0 - 5.5'
+              else if (pct < 70) estBand = 'Band 6.0 - 6.5'
+              else if (pct < 85) estBand = 'Band 7.0 - 7.5'
+              else if (pct < 100) estBand = 'Band 8.0'
+
+              return (
+                <div className="listening-score-banner">
+                  <div>
+                    <div style={{ fontSize: '13px', opacity: 0.9 }}>KẾT QUẢ BÀI NGHE THEO CHỦ ĐỀ</div>
+                    <div style={{ fontSize: '20px', fontWeight: 800, marginTop: '2px' }}>
+                      {correct} / {total} câu đúng ({pct}%)
+                    </div>
+                    <div style={{ fontSize: '12px', opacity: 0.85, marginTop: '4px' }}>
+                      {pct >= 80 ? 'Rất tốt! Bạn nhận diện bẫy và trích xuất chi tiết rất chính xác.' : 'Hãy xem kỹ các trích dẫn bằng chứng và phân tích bẫy distractors dưới từng câu bên dưới.'}
+                    </div>
+                  </div>
+                  <div className="listening-score-badge">
+                    <Award size={18} />
+                    <span>{estBand}</span>
+                  </div>
+                </div>
+              )
+            })()}
+
+            {/* Question Cards */}
+            {currentTopic.listening.questions.map((q, qIndex) => {
+              const isSelected = quizAnswers[q.id] !== undefined
+              const isCorrect = quizAnswers[q.id] === q.answer
+
+              return (
+                <div key={q.id} className="listening-quiz-card">
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                    <span className="ielts-question-tag">
+                      {q.type === 'note-completion' ? 'Điền từ / Note' : q.type === 'sentence-completion' ? 'Hoàn thành câu' : 'Trắc nghiệm'}
+                    </span>
+                    {q.band && (
+                      <span className="ielts-question-tag" style={{ background: '#fef3c7', color: '#92400e', borderColor: '#fde68a' }}>
+                        {q.band}
+                      </span>
+                    )}
+                  </div>
+
+                  <p className="listening-quiz-prompt">
+                    {qIndex + 1}. {q.prompt}
+                  </p>
+
+                  <div className="listening-quiz-options">
+                    {q.options.map(opt => (
+                      <label key={opt} className={`quiz-option-label ${quizAnswers[q.id] === opt ? 'chosen' : ''}`}>
+                        <input
+                          type="radio"
+                          name={q.id}
+                          checked={quizAnswers[q.id] === opt}
+                          onChange={() => setQuizAnswers({ ...quizAnswers, [q.id]: opt })}
+                        />
+                        <span>{opt}</span>
+                      </label>
+                    ))}
+                  </div>
+
+                  {showQuizResult && (
+                    <div className={`feedback ${isCorrect ? 'correct' : 'incorrect'}`} style={{ marginTop: '12px' }}>
+                      <b>{isCorrect ? '✓ Đúng' : '✗ Chưa đúng'}</b>
+                      <span>Đáp án chuẩn: <strong>{q.answer}</strong></span>
+                      <p style={{ margin: '4px 0 0', fontSize: '13px' }}>{q.explanation}</p>
+
+                      {q.evidenceQuote && (
+                        <div className="audio-evidence-highlight">
+                          <Quote size={14} style={{ flexShrink: 0, marginTop: '2px' }} />
+                          <div>
+                            <strong>Bằng chứng câu nói trong audio:</strong>
+                            <div style={{ fontStyle: 'italic', marginTop: '2px' }}>"{q.evidenceQuote}"</div>
+                          </div>
+                        </div>
+                      )}
+
+                      {q.distractorExplanation && (
+                        <div className="audio-distractor-explanation">
+                          <AlertTriangle size={14} style={{ flexShrink: 0, marginTop: '2px' }} />
+                          <div>
+                            <strong>Bẫy đề thi cần lưu ý:</strong>
+                            <div style={{ marginTop: '2px' }}>{q.distractorExplanation}</div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+
+            {!showQuizResult ? (
               <button
                 type="button"
                 className="primary"
-                disabled={!listeningQuizComplete}
-                onClick={() => setShowQuizResult(true)}
+                onClick={() => {
+                  setShowQuizResult(true)
+                  const correct = currentTopic.listening.questions.filter(q => quizAnswers[q.id] === q.answer).length
+                  const total = currentTopic.listening.questions.length
+                  const timestamp = new Date().toISOString()
+
+                  const listeningQuestions: Question[] = currentTopic.listening.questions.map(q => ({
+                    id: q.id,
+                    type: 'multiple-choice',
+                    prompt: q.prompt,
+                    options: q.options,
+                    answer: q.answer,
+                    explanation: q.distractorExplanation ? `${q.explanation} — ${q.distractorExplanation}` : q.explanation,
+                    objective: q.ieltsSkill || 'Listening Comprehension'
+                  }))
+
+                  const attempt: Attempt = {
+                    id: uid('attempt'),
+                    passageId: currentTopic.listening.id,
+                    skill: 'Listening',
+                    answers: quizAnswers,
+                    score: correct,
+                    total,
+                    kind: 'practice',
+                    createdAt: timestamp,
+                    objectiveIds: listeningQuestions.map(q => q.objective)
+                  }
+
+                  const submission = {
+                    id: uid('submission'),
+                    skill: 'Listening' as const,
+                    activityId: `listening-${currentTopic.id}`,
+                    response: `Bài kiểm tra nghe (${currentTopic.listening.title}): ${correct}/${total} câu đúng.`,
+                    createdAt: timestamp,
+                    feedbackMode: 'transcript-fallback' as const,
+                    completed: true
+                  }
+
+                  const nextErrors = mergeAttemptErrors(s.errors, attempt, listeningQuestions)
+                  setS({
+                    ...s,
+                    attempts: [...s.attempts, attempt],
+                    submissions: [...(s.submissions || []), submission],
+                    errors: nextErrors
+                  })
+
+                  note(`Đã nộp bài nghe: ${correct}/${total} câu đúng. Kết quả đã lưu vào Learning Record.`)
+                }}
               >
-                {listeningQuizComplete
-                  ? 'Kiểm tra đáp án nghe hiểu'
-                  : `Trả lời đủ ${answeredListeningCount}/${listeningQuestions.length} câu`}
+                Kiểm tra đáp án & Xem phân tích bẫy đề thi
               </button>
-            )}
+            ) : null}
           </div>
 
           <div style={{ marginTop: '20px' }}>
@@ -2868,7 +3446,7 @@ function SkillPractice({
               ) : (
                 <>
                   <span className="badge">Writing Task 1</span>
-                  <h3>{currentTopic.writing.task1Prompt}</h3>
+                  <h3>Đề bài Báo cáo số liệu (Writing Task 1)</h3>
                   <p className="callout">{currentTopic.writing.task1Prompt}</p>
                 </>
               )}
@@ -2890,7 +3468,7 @@ function SkillPractice({
               ) : (
                 <>
                   <span className="badge">Writing Task 2</span>
-                  <h3>{currentTopic.writing.task2Prompt}</h3>
+                  <h3>Đề bài Bài luận quan điểm (Writing Task 2)</h3>
                   <p className="callout">{currentTopic.writing.task2Prompt}</p>
                 </>
               )}

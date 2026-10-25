@@ -61,12 +61,19 @@ export type ListeningTopicUnit = {
   level: string
   durationMinutes: number
   audioText: string
+  speakerAccent?: 'British' | 'Australian' | 'North American' | 'Mixed International'
+  ieltsPart?: 'Part 1 · Social & Transactional' | 'Part 2 · Public & General Information' | 'Part 3 · Academic & Tutorial Discussion' | 'Part 4 · University Lecture'
   questions: {
     id: string
     prompt: string
     options: string[]
     answer: string
     explanation: string
+    type?: 'multiple-choice' | 'sentence-completion' | 'note-completion' | 'matching'
+    evidenceQuote?: string
+    distractorExplanation?: string
+    ieltsSkill?: string
+    band?: string
   }[]
 }
 
@@ -223,31 +230,95 @@ const CORE_8_TOPICS: TopicDefinition[] = [
     ],
     listening: {
       id: 'lis-edu-1',
-      title: 'University Academic Advising Seminar',
-      level: 'B2 / Band 6.5',
-      durationMinutes: 4,
-      audioText: `Good morning, new undergraduates, and welcome to the Academic Support Center. Today I want to clarify how credit accumulation works across our three academic terms. Each student is required to complete sixty credits per year, divided between core modules and elective research projects. Elective registration opens this Friday at nine in the morning on the student portal. If you plan to apply for an international exchange programme in your second year, you must register for at least one foreign language module this semester. Lastly, peer tutoring sessions take place every Tuesday and Thursday afternoon in room four hundred and two.`,
+      title: 'University Academic Advising & Course Registration',
+      level: 'B2 / Band 7.0',
+      durationMinutes: 5,
+      speakerAccent: 'British',
+      ieltsPart: 'Part 1 · Social & Transactional',
+      audioText: `Advisor: Good morning and welcome to the Academic Advising Center at St. Jude's Campus. Please have a seat. You're here to register for your second-term modules, correct?
+Student: Yes, that's right. I'm taking the Bachelor of Arts in English Literature, but I want to make sure I meet all the graduation requirements.
+Advisor: Excellent. Let's review your credit allocation. Across the entire academic year, every full-time undergraduate must accumulate sixty credits. That is thirty credits per semester on the standard schedule. Thirty credits are dedicated to core compulsory literature modules, twenty to subject electives, and the remaining ten to independent research methodology.
+Student: I see. And when exactly does elective registration open?
+Advisor: Elective course registration opens this Friday, the twenty-fourth of October, strictly at nine in the morning on the student web portal. Last year we had severe server slowdowns because students attempted to log in at eight o'clock, but the system won't open until nine sharp. Registration closes at midnight on Tuesday, the twenty-eighth, but popular seminars—especially Advanced Discourse Analysis—tend to reach maximum capacity within the first ninety minutes.
+Student: I'll make sure to log on right at nine then! What about the international exchange programme for next year?
+Advisor: If you intend to spend your second year abroad, you must achieve a cumulative coursework average of at least sixty-five percent in your first year, and you are required to complete at least one foreign language module this semester. In addition, you must attend the pre-departure briefing held in late November.
+Student: That sounds manageable. Is there any writing assistance available on campus?
+Advisor: Yes, our peer writing drop-in clinic operates every Tuesday and Thursday afternoon between two and five p.m. Please note that our earlier handbook listed Room 402, but due to ventilation maintenance, all sessions have been permanently moved to Room 415 in the Fenwick Building. Finally, if you need study leave exemptions, please submit your form to Mrs. Eleanor MacAlister—spelled M-A-C-A-L-I-S-T-E-R—at desk three.`,
       questions: [
         {
           id: 'lis-q1',
-          prompt: 'How many credits must students complete each academic year?',
+          prompt: 'How many total credits must a full-time student complete each academic year?',
           options: ['30 credits', '60 credits', '90 credits', '120 credits'],
           answer: '60 credits',
-          explanation: 'The advisor states: "Each student is required to complete sixty credits per year."'
+          explanation: 'The advisor states: "every full-time undergraduate must accumulate sixty credits. That is thirty credits per semester on the standard schedule."',
+          type: 'multiple-choice',
+          band: 'Band 6.0',
+          evidenceQuote: 'every full-time undergraduate must accumulate sixty credits',
+          distractorExplanation: '30 credits is the per-semester allocation on the standard schedule, not the annual total.'
         },
         {
           id: 'lis-q2',
-          prompt: 'When does elective course registration open?',
-          options: ['Monday morning', 'Wednesday afternoon', 'Friday at 9:00 AM', 'Next week'],
+          prompt: 'When does the elective course registration web portal officially open?',
+          options: ['Friday at 8:00 AM', 'Friday at 9:00 AM', 'Tuesday at midnight', 'Next Monday morning'],
           answer: 'Friday at 9:00 AM',
-          explanation: 'The speaker explicitly notes: "Elective registration opens this Friday at nine in the morning."'
+          explanation: 'The advisor emphasizes: "registration opens this Friday... strictly at nine in the morning... the system won\'t open until nine sharp."',
+          type: 'multiple-choice',
+          band: 'Band 6.5',
+          evidenceQuote: 'registration opens this Friday, the twenty-fourth of October, strictly at nine in the morning',
+          distractorExplanation: '8:00 AM was mentioned as when students mistakenly attempted to log in last year; Tuesday at midnight is the closing deadline.'
         },
         {
           id: 'lis-q3',
-          prompt: 'What prerequisite is required for the second-year international exchange programme?',
-          options: ['Top 5% GPA', 'One foreign language module this semester', 'A faculty recommendation letter', '100 volunteer hours'],
-          answer: 'One foreign language module this semester',
-          explanation: 'The advisor says: "you must register for at least one foreign language module this semester."'
+          prompt: 'What coursework average is required to qualify for the second-year international exchange programme?',
+          options: ['At least 55%', 'At least 60%', 'At least 65%', 'At least 75%'],
+          answer: 'At least 65%',
+          explanation: 'The advisor explicitly notes: "you must achieve a cumulative coursework average of at least sixty-five percent in your first year."',
+          type: 'multiple-choice',
+          band: 'Band 7.0',
+          evidenceQuote: 'you must achieve a cumulative coursework average of at least sixty-five percent in your first year',
+          distractorExplanation: '60% is a standard university pass benchmark, but international exchange requires 65%.'
+        },
+        {
+          id: 'lis-q4',
+          prompt: 'How many credits are allocated to independent research methodology?',
+          options: ['10 credits', '20 credits', '30 credits', '40 credits'],
+          answer: '10 credits',
+          explanation: 'The advisor breaks down: "Thirty credits are dedicated to core compulsory literature modules, twenty to subject electives, and the remaining ten to independent research methodology."',
+          type: 'note-completion',
+          band: 'Band 6.5',
+          evidenceQuote: 'and the remaining ten to independent research methodology',
+          distractorExplanation: '20 credits are for subject electives, and 30 credits are for core modules.'
+        },
+        {
+          id: 'lis-q5',
+          prompt: 'Where has the peer writing drop-in clinic been permanently relocated?',
+          options: ['Room 402, Fenwick Building', 'Room 415, Fenwick Building', 'Room 302, Library Annex', 'Student Union Hall'],
+          answer: 'Room 415, Fenwick Building',
+          explanation: 'The advisor clarifies: "earlier handbook listed Room 402, but due to ventilation maintenance, all sessions have been permanently moved to Room 415 in the Fenwick Building."',
+          type: 'note-completion',
+          band: 'Band 7.0',
+          evidenceQuote: 'all sessions have been permanently moved to Room 415 in the Fenwick Building',
+          distractorExplanation: 'Room 402 is an authentic IELTS distractor from outdated materials.'
+        },
+        {
+          id: 'lis-q6',
+          prompt: 'Which seminar course is cited as typically filling up within ninety minutes?',
+          options: ['Contemporary Poetry', 'Advanced Discourse Analysis', 'Comparative Literature', 'Creative Writing Workshop'],
+          answer: 'Advanced Discourse Analysis',
+          explanation: 'The speaker warns: "popular seminars—especially Advanced Discourse Analysis—tend to reach maximum capacity within the first ninety minutes."',
+          type: 'multiple-choice',
+          band: 'Band 7.5',
+          evidenceQuote: 'popular seminars—especially Advanced Discourse Analysis—tend to reach maximum capacity within the first ninety minutes'
+        },
+        {
+          id: 'lis-q7',
+          prompt: 'What is the correct spelling of the advisor at reception desk three?',
+          options: ['M-C-A-L-I-S-T-E-R', 'M-A-C-A-L-I-S-T-E-R', 'M-A-C-A-L-L-I-S-T-E-R', 'M-C-A-L-L-I-S-T-E-R'],
+          answer: 'M-A-C-A-L-I-S-T-E-R',
+          explanation: 'The advisor spells out: "Mrs. Eleanor MacAlister—spelled M-A-C-A-L-I-S-T-E-R—at desk three."',
+          type: 'sentence-completion',
+          band: 'Band 6.5',
+          evidenceQuote: 'spelled M-A-C-A-L-I-S-T-E-R'
         }
       ]
     },
@@ -405,31 +476,87 @@ const CORE_8_TOPICS: TopicDefinition[] = [
     ],
     listening: {
       id: 'lis-env-1',
-      title: 'Urban Canopy and Microclimate Management',
-      level: 'B2 / Band 6.5',
-      durationMinutes: 4,
-      audioText: `Welcome to the Municipal Environmental Forum. Today’s briefing highlights our ten-year urban greening roadmap. Satellite thermography demonstrates that downtown concrete zones reach surface temperatures up to eight degrees higher than surrounding suburbs. To counter this urban heat island effect, city council has committed to planting thirty thousand drought-tolerant trees along transit corridors. Additionally, starting next fiscal year, commercial buildings exceeding five stories will receive property tax credits if green roofs or vertical gardens cover at least thirty percent of their rooftop area.`,
+      title: 'Urban Canopy, Microclimate Management & Rainwater Subsidy',
+      level: 'B2 / Band 7.0',
+      durationMinutes: 5,
+      speakerAccent: 'British',
+      ieltsPart: 'Part 2 · Public & General Information',
+      audioText: `Welcome everyone to the City Council Environmental Briefing on our ten-year urban greening roadmap. I am Dr. Julian Thorne, Lead Urban Climatologist for the Metropolitan District.
+Recent satellite thermography reveals a stark reality: during summer heatwaves, our downtown concrete core experiences surface temperatures up to eight degrees Celsius higher than surrounding suburban woodlands. This microclimate anomaly—known as the urban heat island effect—not only increases cooling energy consumption by twenty-four percent, but also doubles respiratory admissions during peak heat days.
+To tackle this, city council has committed to planting thirty thousand drought-tolerant deciduous and evergreen trees along high-density transit corridors by 2030. Priority is given to species such as silver birch and field maple, which demonstrate exceptional particulate absorption without excessive water demands.
+In addition, from next fiscal year, commercial properties exceeding five stories will receive a twelve percent property tax credit if living green roofs or vertical gardens cover at least thirty percent of their total roof area. We had originally debated a twenty percent coverage threshold, but revised it to thirty percent after scientific modeling showed that lower coverage produces negligible thermal cooling.
+For homeowners, council is launching a residential rainwater cistern subsidy. Homeowners who install a two-hundred-liter catchment barrel can claim a fifty-pound rebate directly via the municipal website. Finally, public consultation workshops will be held next Wednesday, November fifth, from seven to nine p.m. at the Town Hall Annex, with registration closing at noon on Tuesday.`,
       questions: [
         {
           id: 'lis-env-q1',
-          prompt: 'By how many degrees can downtown surface temperatures exceed surrounding suburbs?',
+          prompt: 'By how many degrees can downtown surface temperatures exceed surrounding suburbs during summer heatwaves?',
           options: ['2 degrees', '5 degrees', 'Up to 8 degrees', '12 degrees'],
           answer: 'Up to 8 degrees',
-          explanation: 'The speaker notes: "downtown concrete zones reach surface temperatures up to eight degrees higher."'
+          explanation: 'Dr. Thorne states: "our downtown concrete core experiences surface temperatures up to eight degrees Celsius higher than surrounding suburban woodlands."',
+          type: 'multiple-choice',
+          band: 'Band 6.0',
+          evidenceQuote: 'experiences surface temperatures up to eight degrees Celsius higher'
         },
         {
           id: 'lis-env-q2',
-          prompt: 'How many trees will be planted along transit corridors?',
-          options: ['3,000', '15,000', '30,000', '50,000'],
-          answer: '30,000',
-          explanation: 'The speaker states: "committed to planting thirty thousand drought-tolerant trees."'
+          prompt: 'How many trees has the city council committed to planting along transit corridors by 2030?',
+          options: ['3,000 trees', '15,000 trees', '30,000 trees', '50,000 trees'],
+          answer: '30,000 trees',
+          explanation: 'The speaker confirms: "city council has committed to planting thirty thousand drought-tolerant deciduous and evergreen trees."',
+          type: 'multiple-choice',
+          band: 'Band 6.5',
+          evidenceQuote: 'planting thirty thousand drought-tolerant deciduous and evergreen trees along high-density transit corridors'
         },
         {
           id: 'lis-env-q3',
-          prompt: 'What incentive is offered to commercial buildings with green roofs?',
-          options: ['Free solar panels', 'Property tax credits', 'Fast-track permits', 'Cash rebates'],
-          answer: 'Property tax credits',
-          explanation: 'The speaker clarifies that commercial buildings "will receive property tax credits if green roofs... cover at least thirty percent."'
+          prompt: 'What incentive is offered to commercial properties with green roofs covering at least 30% of roof area?',
+          options: ['Free solar panels', 'A 12% property tax credit', 'Fast-track building permits', 'A cash rebate of £5,000'],
+          answer: 'A 12% property tax credit',
+          explanation: 'The speaker states: "commercial properties exceeding five stories will receive a twelve percent property tax credit if living green roofs or vertical gardens cover at least thirty percent."',
+          type: 'multiple-choice',
+          band: 'Band 7.0',
+          evidenceQuote: 'will receive a twelve percent property tax credit'
+        },
+        {
+          id: 'lis-env-q4',
+          prompt: 'What percentage coverage of green roofs was originally debated before being revised to 30%?',
+          options: ['10 percent', '15 percent', '20 percent', '25 percent'],
+          answer: '20 percent',
+          explanation: 'The speaker notes: "We had originally debated a twenty percent coverage threshold, but revised it to thirty percent after scientific modeling showed that lower coverage produces negligible thermal cooling."',
+          type: 'note-completion',
+          band: 'Band 7.5',
+          evidenceQuote: 'We had originally debated a twenty percent coverage threshold, but revised it to thirty percent',
+          distractorExplanation: '20% was the discarded initial threshold, while 30% is the enacted requirement.'
+        },
+        {
+          id: 'lis-env-q5',
+          prompt: 'What size rainwater catchment barrel qualifies for the municipal rebate?',
+          options: ['100 liters', '150 liters', '200 liters', '300 liters'],
+          answer: '200 liters',
+          explanation: 'Dr. Thorne states: "Homeowners who install a two-hundred-liter catchment barrel can claim a fifty-pound rebate."',
+          type: 'note-completion',
+          band: 'Band 6.5',
+          evidenceQuote: 'Homeowners who install a two-hundred-liter catchment barrel'
+        },
+        {
+          id: 'lis-env-q6',
+          prompt: 'What rebate amount can homeowners claim for installing a certified rainwater cistern?',
+          options: ['Twenty pounds', 'Fifty pounds', 'One hundred pounds', 'Two hundred pounds'],
+          answer: 'Fifty pounds',
+          explanation: 'The speaker notes homeowners can claim "a fifty-pound rebate directly via the municipal website."',
+          type: 'sentence-completion',
+          band: 'Band 6.5',
+          evidenceQuote: 'claim a fifty-pound rebate directly via the municipal website'
+        },
+        {
+          id: 'lis-env-q7',
+          prompt: 'Which tree species are prioritized for their air particulate absorption capability?',
+          options: ['Oak and weeping willow', 'Silver birch and field maple', 'Scots pine and eucalyptus', 'Sycamore and horse chestnut'],
+          answer: 'Silver birch and field maple',
+          explanation: 'The speaker states: "Priority is given to species such as silver birch and field maple, which demonstrate exceptional particulate absorption."',
+          type: 'multiple-choice',
+          band: 'Band 7.0',
+          evidenceQuote: 'Priority is given to species such as silver birch and field maple'
         }
       ]
     },
@@ -587,31 +714,87 @@ const CORE_8_TOPICS: TopicDefinition[] = [
     ],
     listening: {
       id: 'lis-tech-1',
-      title: 'Workplace Cybersecurity Protocols Briefing',
-      level: 'B2 / Band 6.5',
-      durationMinutes: 4,
-      audioText: `Attention all project leads, this is an update regarding our multi-factor authentication protocol rollout. Commencing next Monday, single-password access to the cloud repository will be disabled. All personnel must install the corporate authenticator app onto their registered devices. Phishing simulation tests will also run quarterly without prior notification. Any employee who inadvertently clicks a simulated suspicious link will be assigned a mandatory forty-five-minute refresher module on social engineering defense.`,
+      title: 'Workplace Cybersecurity Protocols & Cloud Security Briefing',
+      level: 'B2 / Band 7.0',
+      durationMinutes: 5,
+      speakerAccent: 'British',
+      ieltsPart: 'Part 2 · Public & General Information',
+      audioText: `Attention all department heads and project leads, this is Marcus Davies from the Enterprise Information Security Directorate with an operational briefing.
+Commencing next Monday at six a.m., single-password access to our centralized cloud repository and customer databases will be permanently discontinued. All staff members must install our authorized corporate authenticator application onto their registered company smartphones or obtain an encrypted hardware security token from IT support in Room 204.
+Please be advised that phishing simulation exercises will take place quarterly throughout the year without prior announcement. Last month, our simulated credential test caught eighteen percent of staff off guard. Moving forward, any employee who inadvertently clicks a simulated malicious link will be automatically enrolled in a mandatory forty-five-minute refresher module on social engineering defense. If an employee fails two consecutive simulations, their remote VPN credentials will be suspended pending an interview with their unit director.
+Regarding hardware handling: USB thumb drives without hardware encryption are strictly banned across all network terminals. If you require external data transfer, submit a transfer request ticket via the IT portal with at least twenty-four hours notice. Finally, password expiration cycles are being extended from thirty days to ninety days, provided your passphrase contains at least sixteen characters and incorporates multiple character classes.`,
       questions: [
         {
           id: 'lis-tech-q1',
-          prompt: 'When will single-password access to the cloud repository be terminated?',
-          options: ['Immediately today', 'Next Monday', 'At the end of the quarter', 'In 45 days'],
-          answer: 'Next Monday',
-          explanation: 'The speaker states: "Commencing next Monday, single-password access... will be disabled."'
+          prompt: 'When will single-password access to the cloud repository be permanently terminated?',
+          options: ['Immediately today', 'Next Monday at 6:00 AM', 'At the end of the quarter', 'In 45 days'],
+          answer: 'Next Monday at 6:00 AM',
+          explanation: 'Marcus Davies states: "Commencing next Monday at six a.m., single-password access... will be permanently discontinued."',
+          type: 'multiple-choice',
+          band: 'Band 6.0',
+          evidenceQuote: 'Commencing next Monday at six a.m., single-password access to our centralized cloud repository... will be permanently discontinued'
         },
         {
           id: 'lis-tech-q2',
-          prompt: 'How often will phishing simulation tests be conducted?',
+          prompt: 'How often will unannounced phishing simulation tests be conducted across the organization?',
           options: ['Monthly', 'Quarterly', 'Twice a year', 'Annually'],
           answer: 'Quarterly',
-          explanation: 'The manager confirms: "Phishing simulation tests will also run quarterly without prior notification."'
+          explanation: 'The security director confirms: "phishing simulation exercises will take place quarterly throughout the year without prior announcement."',
+          type: 'multiple-choice',
+          band: 'Band 6.5',
+          evidenceQuote: 'phishing simulation exercises will take place quarterly throughout the year'
         },
         {
           id: 'lis-tech-q3',
-          prompt: 'What happens if an employee fails a simulated phishing check?',
-          options: ['Loss of security clearance', 'A written reprimand', 'A mandatory 45-minute refresher module', 'A pay deduction'],
+          prompt: 'What penalty is assigned to an employee who clicks a simulated phishing link for the first time?',
+          options: ['Loss of security clearance', 'A written reprimand', 'A mandatory 45-minute refresher module', 'Immediate suspension of remote VPN'],
           answer: 'A mandatory 45-minute refresher module',
-          explanation: 'The speaker clarifies that they "will be assigned a mandatory forty-five-minute refresher module."'
+          explanation: 'The speaker explains: "will be automatically enrolled in a mandatory forty-five-minute refresher module on social engineering defense."',
+          type: 'multiple-choice',
+          band: 'Band 7.0',
+          evidenceQuote: 'automatically enrolled in a mandatory forty-five-minute refresher module',
+          distractorExplanation: 'VPN credentials suspension only applies if an employee fails two consecutive simulations.'
+        },
+        {
+          id: 'lis-tech-q4',
+          prompt: 'Where can employees obtain a hardware security token if they do not use a smartphone?',
+          options: ['HR Office, Room 102', 'IT Support, Room 204', 'Security Desk, Ground Floor', 'Reception Counter'],
+          answer: 'IT Support, Room 204',
+          explanation: 'The director mentions: "obtain an encrypted hardware security token from IT support in Room 204."',
+          type: 'note-completion',
+          band: 'Band 6.5',
+          evidenceQuote: 'obtain an encrypted hardware security token from IT support in Room 204'
+        },
+        {
+          id: 'lis-tech-q5',
+          prompt: 'How much notice is required when requesting external data transfer via the IT portal?',
+          options: ['Twelve hours', 'Twenty-four hours', 'Forty-eight hours', 'One week'],
+          answer: 'Twenty-four hours',
+          explanation: 'The speaker states: "submit a transfer request ticket via the IT portal with at least twenty-four hours notice."',
+          type: 'sentence-completion',
+          band: 'Band 6.5',
+          evidenceQuote: 'submit a transfer request ticket via the IT portal with at least twenty-four hours notice'
+        },
+        {
+          id: 'lis-tech-q6',
+          prompt: 'To what duration is the password expiration cycle being lengthened?',
+          options: ['Forty-five days', 'Sixty days', 'Ninety days', 'One hundred and eighty days'],
+          answer: 'Ninety days',
+          explanation: 'Marcus notes: "password expiration cycles are being extended from thirty days to ninety days, provided your passphrase contains at least sixteen characters."',
+          type: 'multiple-choice',
+          band: 'Band 7.0',
+          evidenceQuote: 'extended from thirty days to ninety days',
+          distractorExplanation: 'Thirty days was the previous policy; sixteen is the required character count.'
+        },
+        {
+          id: 'lis-tech-q7',
+          prompt: 'What consequence occurs if an employee fails two consecutive phishing simulations?',
+          options: ['Termination of employment', 'A formal pay deduction', 'Suspension of remote VPN credentials', 'Re-assignment to another department'],
+          answer: 'Suspension of remote VPN credentials',
+          explanation: 'The speaker states: "If an employee fails two consecutive simulations, their remote VPN credentials will be suspended."',
+          type: 'multiple-choice',
+          band: 'Band 7.5',
+          evidenceQuote: 'their remote VPN credentials will be suspended pending an interview'
         }
       ]
     },
@@ -769,31 +952,87 @@ const CORE_8_TOPICS: TopicDefinition[] = [
     ],
     listening: {
       id: 'lis-hlth-1',
-      title: 'Community Nutrition & Active Living Workshop',
-      level: 'B2 / Band 6.5',
-      durationMinutes: 4,
-      audioText: `Good evening everyone. Welcome to the Community Health Outreach seminar. Today we are addressing the rising incidence of adult-onset diabetes in metropolitan districts. Our clinical trial tracking four hundred local residents found that thirty minutes of brisk walking five days per week lowered fasting blood glucose by eighteen percent. Furthermore, replacing sugary carbonated beverages with unflavored sparkling water resulted in an average weight reduction of three kilograms over three months. Registration for our free weekend walking club opens at the front desk after this presentation.`,
+      title: 'Community Nutrition, Metabolic Health & Exercise Intervention',
+      level: 'B2 / Band 7.0',
+      durationMinutes: 5,
+      speakerAccent: 'British',
+      ieltsPart: 'Part 4 · University Lecture',
+      audioText: `Good evening everyone and welcome to the Community Health and Metabolic Wellness Forum. My name is Dr. Claire Patterson, Senior Clinical Epidemiologist at St. Thomas's Health Research Institute.
+Today I want to share the compelling findings from our three-year metropolitan lifestyle intervention study, which tracked four hundred and fifty adults diagnosed with pre-diabetes.
+Our primary intervention evaluated moderate daily physical activity against sedentary control cohorts. Participants who completed thirty minutes of brisk walking five days per week achieved an eighteen percent reduction in fasting blood glucose within twelve weeks. Interestingly, increasing that walking regimen to sixty minutes produced only an additional two percent metabolic improvement, illustrating that consistency and brisk pacing matter far more than extreme endurance.
+Dietary adjustments showed equally striking outcomes. When participants substituted sugar-sweetened beverages with plain or naturally flavored sparkling water, they experienced an average weight loss of three kilograms over three months, accompanied by a twelve percent drop in systemic inflammation markers.
+For shift workers and night owls, sleep timing proved critical. Individuals who consumed heavy carbohydrate meals after eight-thirty p.m. exhibited a forty percent higher glucose spike the following morning compared to those eating before seven p.m., due to natural nocturnal declines in insulin sensitivity.
+Finally, registration for our free supervised weekend walking groups opens tonight at the reception foyer, with weekly sessions kicking off this Saturday at eight a.m. in Riverfront Park.`,
       questions: [
         {
           id: 'lis-hlth-q1',
-          prompt: 'What physical activity routine was recommended in the clinical trial?',
+          prompt: 'What physical activity routine was recommended in the clinical trial to achieve significant glucose reduction?',
           options: ['60 minutes of running daily', '30 minutes of brisk walking 5 days a week', 'Weightlifting twice weekly', 'Yoga on weekends'],
           answer: '30 minutes of brisk walking 5 days a week',
-          explanation: 'The presenter notes: "thirty minutes of brisk walking five days per week lowered fasting blood glucose."'
+          explanation: 'Dr. Patterson confirms: "Participants who completed thirty minutes of brisk walking five days per week achieved an eighteen percent reduction in fasting blood glucose."',
+          type: 'multiple-choice',
+          band: 'Band 6.0',
+          evidenceQuote: 'Participants who completed thirty minutes of brisk walking five days per week'
         },
         {
           id: 'lis-hlth-q2',
-          prompt: 'By what percentage did fasting blood glucose decline?',
+          prompt: 'By what percentage did fasting blood glucose decline among participants completing the walking regimen?',
           options: ['8 percent', '12 percent', '18 percent', '25 percent'],
           answer: '18 percent',
-          explanation: 'The speaker explicitly states it "lowered fasting blood glucose by eighteen percent."'
+          explanation: 'The speaker states: "achieved an eighteen percent reduction in fasting blood glucose within twelve weeks."',
+          type: 'multiple-choice',
+          band: 'Band 6.5',
+          evidenceQuote: 'achieved an eighteen percent reduction in fasting blood glucose'
         },
         {
           id: 'lis-hlth-q3',
-          prompt: 'What average weight loss was observed from replacing sugary drinks with water?',
+          prompt: 'What average weight reduction was observed when participants replaced sugary drinks with water?',
           options: ['1 kilogram', '3 kilograms', '5 kilograms', '7 kilograms'],
           answer: '3 kilograms',
-          explanation: 'The speaker quotes: "an average weight reduction of three kilograms over three months."'
+          explanation: 'Dr. Patterson reports: "an average weight loss of three kilograms over three months."',
+          type: 'multiple-choice',
+          band: 'Band 6.5',
+          evidenceQuote: 'average weight loss of three kilograms over three months'
+        },
+        {
+          id: 'lis-hlth-q4',
+          prompt: 'How many pre-diabetic adult participants were tracked in the three-year study?',
+          options: ['250 adults', '350 adults', '450 adults', '600 adults'],
+          answer: '450 adults',
+          explanation: 'The speaker explicitly states: "which tracked four hundred and fifty adults diagnosed with pre-diabetes."',
+          type: 'note-completion',
+          band: 'Band 6.5',
+          evidenceQuote: 'tracked four hundred and fifty adults diagnosed with pre-diabetes'
+        },
+        {
+          id: 'lis-hlth-q5',
+          prompt: 'By how much did glucose spikes increase in individuals consuming carbohydrate meals after 8:30 PM?',
+          options: ['20 percent', '30 percent', '40 percent', '50 percent'],
+          answer: '40 percent',
+          explanation: 'The epidemiologist reports: "exhibited a forty percent higher glucose spike the following morning compared to those eating before seven p.m."',
+          type: 'sentence-completion',
+          band: 'Band 7.0',
+          evidenceQuote: 'exhibited a forty percent higher glucose spike the following morning'
+        },
+        {
+          id: 'lis-hlth-q6',
+          prompt: 'Where and when do the free supervised weekend walking sessions take place?',
+          options: ['Sunday at 9:00 AM at City Botanical Garden', 'Saturday at 8:00 AM at Riverfront Park', 'Saturday at 10:00 AM at Memorial Plaza', 'Sunday at 7:30 AM at Central Lake'],
+          answer: 'Saturday at 8:00 AM at Riverfront Park',
+          explanation: 'The speaker concludes: "weekly sessions kicking off this Saturday at eight a.m. in Riverfront Park."',
+          type: 'multiple-choice',
+          band: 'Band 6.5',
+          evidenceQuote: 'weekly sessions kicking off this Saturday at eight a.m. in Riverfront Park'
+        },
+        {
+          id: 'lis-hlth-q7',
+          prompt: 'What additional metabolic improvement was observed when doubling walking duration to 60 minutes?',
+          options: ['Only an additional 2 percent', 'An additional 10 percent', 'An additional 18 percent', 'Over 25 percent'],
+          answer: 'Only an additional 2 percent',
+          explanation: 'The speaker notes: "increasing that walking regimen to sixty minutes produced only an additional two percent metabolic improvement."',
+          type: 'multiple-choice',
+          band: 'Band 7.5',
+          evidenceQuote: 'produced only an additional two percent metabolic improvement'
         }
       ]
     },
@@ -951,31 +1190,86 @@ const CORE_8_TOPICS: TopicDefinition[] = [
     ],
     listening: {
       id: 'lis-work-1',
-      title: 'Human Resources Hybrid Work Policy Announcement',
-      level: 'B2 / Band 6.5',
-      durationMinutes: 4,
-      audioText: `Good morning team members. I am pleased to present the framework for our permanent hybrid working model. Effective November first, full-time staff may work remotely up to two days per week, with Wednesday designated as a mandatory anchor day when all departments gather in person for collaborative brainstorming. To equip home offices ergonomically, each employee will be eligible for a one-time setup stipend of five hundred dollars, claimable through the expense portal before the end of the current quarter.`,
+      title: 'Human Resources Hybrid Work Framework & Ergo Stipend',
+      level: 'B2 / Band 7.0',
+      durationMinutes: 5,
+      speakerAccent: 'British',
+      ieltsPart: 'Part 3 · Academic & Tutorial Discussion',
+      audioText: `Good morning colleagues, and thank you for joining this town hall. I am Fiona Gallagher, Global Head of People and Culture, and I am delighted to announce our permanent hybrid working framework.
+Effective November first, full-time staff across all non-client-facing departments will be permitted to work remotely up to two days per week. We have selected Wednesday as our mandatory in-person anchor day, during which all team leads, senior analysts, and project managers gather on campus for cross-functional workshops, sprint planning, and collaborative design sessions.
+To ensure our team members' home workspaces meet rigorous ergonomic and health standards, each eligible employee may claim a one-time home office setup stipend of five hundred dollars. This stipend covers certified ergonomic desk chairs, adjustable monitor arms, and noise-cancelling headsets, and must be submitted through our employee expenses portal prior to December fifteenth.
+In addition, we are implementing a 'Right to Disconnect' policy: internal messages sent after six p.m. or on weekends will not require a response until eight-thirty the following business morning. Finally, our annual global employee satisfaction survey launches next Monday; completion takes less than ten minutes and grants entry into a draw for five additional days of paid annual leave.`,
       questions: [
         {
           id: 'lis-work-q1',
-          prompt: 'How many days per week are employees permitted to work remotely?',
-          options: ['One day', 'Up to two days', 'Up to four days', 'Full-time permanently'],
+          prompt: 'How many days per week are full-time staff permitted to work remotely under the new policy?',
+          options: ['One day', 'Up to two days', 'Up to three days', 'Full-time permanently'],
           answer: 'Up to two days',
-          explanation: 'The HR manager states: "full-time staff may work remotely up to two days per week."'
+          explanation: 'Fiona Gallagher announces: "full-time staff across all non-client-facing departments will be permitted to work remotely up to two days per week."',
+          type: 'multiple-choice',
+          band: 'Band 6.0',
+          evidenceQuote: 'permitted to work remotely up to two days per week'
         },
         {
           id: 'lis-work-q2',
-          prompt: 'Which day is designated as the mandatory in-person anchor day?',
-          options: ['Monday', 'Wednesday', 'Friday', 'Thursday'],
+          prompt: 'Which weekday has been designated as the mandatory in-person anchor day?',
+          options: ['Monday', 'Tuesday', 'Wednesday', 'Thursday'],
           answer: 'Wednesday',
-          explanation: 'The announcement specifies: "with Wednesday designated as a mandatory anchor day."'
+          explanation: 'The HR head explicitly states: "We have selected Wednesday as our mandatory in-person anchor day."',
+          type: 'multiple-choice',
+          band: 'Band 6.0',
+          evidenceQuote: 'selected Wednesday as our mandatory in-person anchor day'
         },
         {
           id: 'lis-work-q3',
-          prompt: 'What is the amount of the one-time home office equipment stipend?',
+          prompt: 'What is the amount of the one-time home office ergonomic setup stipend?',
           options: ['$250', '$500', '$750', '$1,000'],
           answer: '$500',
-          explanation: 'The speaker quotes: "a one-time setup stipend of five hundred dollars."'
+          explanation: 'The speaker quotes: "each eligible employee may claim a one-time home office setup stipend of five hundred dollars."',
+          type: 'multiple-choice',
+          band: 'Band 6.5',
+          evidenceQuote: 'one-time home office setup stipend of five hundred dollars'
+        },
+        {
+          id: 'lis-work-q4',
+          prompt: 'By what deadline date must home office stipend expense claims be submitted?',
+          options: ['November 1st', 'December 1st', 'December 15th', 'January 1st'],
+          answer: 'December 15th',
+          explanation: 'The announcement stipulates: "must be submitted through our employee expenses portal prior to December fifteenth."',
+          type: 'note-completion',
+          band: 'Band 6.5',
+          evidenceQuote: 'prior to December fifteenth',
+          distractorExplanation: 'November 1st is when the policy becomes effective, not the expense submission deadline.'
+        },
+        {
+          id: 'lis-work-q5',
+          prompt: 'Under the Right to Disconnect policy, until what time the following morning are off-hours messages held?',
+          options: ['7:00 AM', '8:00 AM', '8:30 AM', '9:00 AM'],
+          answer: '8:30 AM',
+          explanation: 'The policy states messages "will not require a response until eight-thirty the following business morning."',
+          type: 'sentence-completion',
+          band: 'Band 7.0',
+          evidenceQuote: 'until eight-thirty the following business morning'
+        },
+        {
+          id: 'lis-work-q6',
+          prompt: 'What incentive prize is offered to employees who complete the global satisfaction survey?',
+          options: ['A $100 cash voucher', 'A new company laptop', 'Five additional days of paid annual leave', 'Free catered lunches for a month'],
+          answer: 'Five additional days of paid annual leave',
+          explanation: 'Fiona Gallagher concludes: "grants entry into a draw for five additional days of paid annual leave."',
+          type: 'multiple-choice',
+          band: 'Band 7.0',
+          evidenceQuote: 'entry into a draw for five additional days of paid annual leave'
+        },
+        {
+          id: 'lis-work-q7',
+          prompt: 'What types of activities are specifically scheduled for the Wednesday in-person anchor day?',
+          options: ['Individual performance evaluations', 'Cross-functional workshops and collaborative planning', 'Mandatory client presentations', 'Routine administrative filing'],
+          answer: 'Cross-functional workshops and collaborative planning',
+          explanation: 'The speaker specifies: "gather on campus for cross-functional workshops, sprint planning, and collaborative design sessions."',
+          type: 'multiple-choice',
+          band: 'Band 7.5',
+          evidenceQuote: 'cross-functional workshops, sprint planning, and collaborative design sessions'
         }
       ]
     },
@@ -1133,31 +1427,86 @@ const CORE_8_TOPICS: TopicDefinition[] = [
     ],
     listening: {
       id: 'lis-city-1',
-      title: 'City Planning Council: Light Rail Extension Project',
-      level: 'B2 / Band 6.5',
-      durationMinutes: 4,
-      audioText: `Good afternoon residents. This hearing details Phase Three of our light rail transit expansion into the northern suburbs. Construction is slated to begin in March, with an anticipated twelve-month timeline. The new six-kilometer route will feature five stations, each outfitted with secure bicycle lockers and electric vehicle charging bays. Fares will be fully integrated with existing bus ticketing, meaning riders will pay no surcharge when transferring between modes within a ninety-minute transit window.`,
+      title: 'City Planning Council: Light Rail Extension & Congestion Pricing',
+      level: 'B2 / Band 7.0',
+      durationMinutes: 5,
+      speakerAccent: 'British',
+      ieltsPart: 'Part 2 · Public & General Information',
+      audioText: `Good afternoon residents and municipal delegates. I am Councillor Marcus Vance, Vice-Chair of the Transportation Infrastructure Committee, presenting the Phase Three Light Rail extension and Clean Air Zone proposal.
+Construction on the northern light rail corridor is officially scheduled to break ground on March fourteenth, with an expected twelve-month delivery timeframe. The newly engineered six-kilometer twin-track route will feature five modern passenger stations, connecting our northern residential suburbs directly to the central university hospital and technology campus. Each station will include climate-controlled passenger waiting rooms, secure lockers for eighty bicycles, and four rapid charging bays for electric vehicles.
+Public transit fares will be completely integrated with our current municipal bus and ferry networks. Riders who transfer between rail and bus lines within a ninety-minute transit window will pay zero additional transfer fee, representing an estimated annual commuter saving of three hundred and twenty pounds.
+Regarding our Central Congestion Pricing Zone: starting October first, private motor vehicles entering the downtown cordon between seven a.m. and six p.m. Monday through Friday will pay an eleven-pound daily fee. Fully electric vehicles and registered disabled drivers are granted complete exemption. All net revenues—projected at thirty-eight million pounds per annum—will be legally quarantined to subsidize half-price transit passes for students and senior citizens.`,
       questions: [
         {
           id: 'lis-city-q1',
-          prompt: 'What is the projected duration of the construction phase?',
+          prompt: 'What is the projected duration of the light rail construction phase?',
           options: ['6 months', '12 months', '18 months', '24 months'],
           answer: '12 months',
-          explanation: 'The city representative specifies: "with an anticipated twelve-month timeline."'
+          explanation: 'Councillor Vance confirms: "with an expected twelve-month delivery timeframe."',
+          type: 'multiple-choice',
+          band: 'Band 6.0',
+          evidenceQuote: 'expected twelve-month delivery timeframe'
         },
         {
           id: 'lis-city-q2',
-          prompt: 'How many new stations will be built along the six-kilometer route?',
-          options: ['Three', 'Four', 'Five', 'Six'],
-          answer: 'Five',
-          explanation: 'The speaker explicitly announces: "The new six-kilometer route will feature five stations."'
+          prompt: 'How many new passenger stations will be built along the six-kilometer route?',
+          options: ['Three stations', 'Four stations', 'Five stations', 'Six stations'],
+          answer: 'Five stations',
+          explanation: 'The councillor announces: "The newly engineered six-kilometer twin-track route will feature five modern passenger stations."',
+          type: 'multiple-choice',
+          band: 'Band 6.5',
+          evidenceQuote: 'feature five modern passenger stations'
         },
         {
           id: 'lis-city-q3',
-          prompt: 'Within what transfer window are riders exempt from additional transfer fees?',
+          prompt: 'Within what transfer window are riders exempt from paying additional transfer fees?',
           options: ['45 minutes', '60 minutes', '90 minutes', 'Two hours'],
           answer: '90 minutes',
-          explanation: 'The official states: "when transferring between modes within a ninety-minute transit window."'
+          explanation: 'The official explains: "Riders who transfer between rail and bus lines within a ninety-minute transit window will pay zero additional transfer fee."',
+          type: 'multiple-choice',
+          band: 'Band 6.5',
+          evidenceQuote: 'within a ninety-minute transit window will pay zero additional transfer fee'
+        },
+        {
+          id: 'lis-city-q4',
+          prompt: 'On what date is ground scheduled to be broken for the light rail corridor?',
+          options: ['January 1st', 'March 14th', 'April 1st', 'October 1st'],
+          answer: 'March 14th',
+          explanation: 'The speaker notes construction is "scheduled to break ground on March fourteenth."',
+          type: 'note-completion',
+          band: 'Band 6.5',
+          evidenceQuote: 'scheduled to break ground on March fourteenth',
+          distractorExplanation: 'October 1st is the commencement date for the congestion charge zone, not rail construction.'
+        },
+        {
+          id: 'lis-city-q5',
+          prompt: 'How many bicycles can be accommodated in the secure lockers at each new station?',
+          options: ['40 bicycles', '60 bicycles', '80 bicycles', '100 bicycles'],
+          answer: '80 bicycles',
+          explanation: 'Marcus Vance states: "secure lockers for eighty bicycles, and four rapid charging bays."',
+          type: 'sentence-completion',
+          band: 'Band 7.0',
+          evidenceQuote: 'secure lockers for eighty bicycles'
+        },
+        {
+          id: 'lis-city-q6',
+          prompt: 'What daily congestion charge fee will private non-electric vehicles pay during cordon hours?',
+          options: ['Eight pounds', 'Eleven pounds', 'Fifteen pounds', 'Twenty pounds'],
+          answer: 'Eleven pounds',
+          explanation: 'The councillor reports drivers will "pay an eleven-pound daily fee."',
+          type: 'multiple-choice',
+          band: 'Band 7.0',
+          evidenceQuote: 'pay an eleven-pound daily fee'
+        },
+        {
+          id: 'lis-city-q7',
+          prompt: 'How will the thirty-eight million pounds in annual congestion charge revenues be allocated?',
+          options: ['Building suburban highway interchanges', 'Subsidizing half-price transit passes for students and seniors', 'Refurbishing municipal parking structures', 'Funding downtown retail advertising campaigns'],
+          answer: 'Subsidizing half-price transit passes for students and seniors',
+          explanation: 'The speaker confirms revenues "will be legally quarantined to subsidize half-price transit passes for students and senior citizens."',
+          type: 'multiple-choice',
+          band: 'Band 7.5',
+          evidenceQuote: 'subsidize half-price transit passes for students and senior citizens'
         }
       ]
     },
@@ -1315,31 +1664,86 @@ const CORE_8_TOPICS: TopicDefinition[] = [
     ],
     listening: {
       id: 'lis-crm-1',
-      title: 'Restorative Justice Pilot Program Review',
-      level: 'B2 / Band 6.5',
-      durationMinutes: 4,
-      audioText: `Good morning colleagues. Today we evaluate the two-year findings from the restorative justice pilot implemented across four regional courts. Under this initiative, non-violent property crime perpetrators met with consenting victims in guided mediation conferences. Over the evaluation window, eighty-two percent of participating victims reported feeling genuine resolution. More crucially, the two-year recidivism rate for offenders in the mediation group stood at twelve percent, compared to twenty-nine percent among individuals sentenced through standard punitive trial tracks.`,
+      title: 'Restorative Justice Pilot Program & Recidivism Findings',
+      level: 'B2 / Band 7.0',
+      durationMinutes: 5,
+      speakerAccent: 'British',
+      ieltsPart: 'Part 3 · Academic & Tutorial Discussion',
+      audioText: `Good morning colleagues, and welcome to this evaluation seminar at the Ministry of Justice. Today we examine the final report on our two-year restorative justice pilot across four regional magistrates' courts.
+The pilot targeted first-time and youthful perpetrators convicted of non-violent property offenses—specifically shop theft, commercial vandalism, and minor residential burglary. In place of conventional short prison sentences or purely punitive financial fines, offenders participated in structured victim-offender reconciliation conferences overseen by certified independent mediators.
+The qualitative metrics among affected victims exceeded our initial projections: eighty-two percent of participating victims expressed feelings of genuine psychological resolution, emphasizing that receiving a direct explanation, an uncoerced apology, and a personalized restitution plan helped alleviate ongoing distress and anxiety.
+Even more critical were the two-year behavioral recidivism benchmarks. Reoffending among offenders in the restorative mediation pathway was just twelve percent, compared to twenty-nine percent among a matched control group processed through standard punitive courtroom trials.
+Key to this success was our sixteen-week post-conference reintegration protocol: each offender was assigned a trained community mentor who assisted with vocational training, CV drafting, and weekly accountability check-ins. Program operating costs averaged seven hundred and forty pounds per participant, yielding a calculated net savings of four thousand pounds per avoided court trial.`,
       questions: [
         {
           id: 'lis-crm-q1',
-          prompt: 'What category of crime was included in the pilot initiative?',
-          options: ['Violent assault', 'Non-violent property crime', 'Corporate tax fraud', 'Traffic violations'],
+          prompt: 'What category of criminal offenses was included in the restorative justice pilot program?',
+          options: ['Violent assault and battery', 'Non-violent property crime', 'Organized cyber fraud', 'White-collar corporate embezzlement'],
           answer: 'Non-violent property crime',
-          explanation: 'The speaker states: "Under this initiative, non-violent property crime perpetrators met with consenting victims."'
+          explanation: 'The evaluator notes: "The pilot targeted first-time and youthful perpetrators convicted of non-violent property offenses—specifically shop theft, commercial vandalism, and minor residential burglary."',
+          type: 'multiple-choice',
+          band: 'Band 6.0',
+          evidenceQuote: 'convicted of non-violent property offenses'
         },
         {
           id: 'lis-crm-q2',
-          prompt: 'What proportion of participating victims reported a feeling of resolution?',
+          prompt: 'What percentage of participating victims reported feeling genuine psychological resolution?',
           options: ['50 percent', '68 percent', '82 percent', '95 percent'],
           answer: '82 percent',
-          explanation: 'The evaluator notes: "eighty-two percent of participating victims reported feeling genuine resolution."'
+          explanation: 'The speaker states: "eighty-two percent of participating victims expressed feelings of genuine psychological resolution."',
+          type: 'multiple-choice',
+          band: 'Band 6.5',
+          evidenceQuote: 'eighty-two percent of participating victims expressed feelings of genuine psychological resolution'
         },
         {
           id: 'lis-crm-q3',
-          prompt: 'What was the two-year recidivism rate for the mediation cohort versus standard trials?',
-          options: ['5% vs 15%', '12% vs 29%', '20% vs 40%', '10% vs 50%'],
+          prompt: 'What was the two-year recidivism rate for offenders in the restorative pathway compared to standard trials?',
+          options: ['5% vs 15%', '12% vs 29%', '18% vs 35%', '22% vs 45%'],
           answer: '12% vs 29%',
-          explanation: 'The speaker explicitly reports: "twelve percent, compared to twenty-nine percent among individuals sentenced through standard punitive trial tracks."'
+          explanation: 'The researcher reports: "Reoffending among offenders in the restorative mediation pathway was just twelve percent, compared to twenty-nine percent among a matched control group."',
+          type: 'multiple-choice',
+          band: 'Band 7.0',
+          evidenceQuote: 'twelve percent, compared to twenty-nine percent among a matched control group'
+        },
+        {
+          id: 'lis-crm-q4',
+          prompt: 'How many regional magistrates\' courts participated in the two-year pilot program?',
+          options: ['Two courts', 'Four courts', 'Six courts', 'Eight courts'],
+          answer: 'Four courts',
+          explanation: 'The evaluator states: "across four regional magistrates\' courts."',
+          type: 'note-completion',
+          band: 'Band 6.5',
+          evidenceQuote: 'across four regional magistrates\' courts'
+        },
+        {
+          id: 'lis-crm-q5',
+          prompt: 'For how many weeks post-conference was each young offender paired with a community mentor?',
+          options: ['Eight weeks', 'Twelve weeks', 'Sixteen weeks', 'Twenty-four weeks'],
+          answer: 'Sixteen weeks',
+          explanation: 'The speaker highlights: "our sixteen-week post-conference reintegration protocol: each offender was assigned a trained community mentor."',
+          type: 'sentence-completion',
+          band: 'Band 7.0',
+          evidenceQuote: 'sixteen-week post-conference reintegration protocol'
+        },
+        {
+          id: 'lis-crm-q6',
+          prompt: 'What was the average operating cost per participant in the restorative program?',
+          options: ['£350 per participant', '£500 per participant', '£740 per participant', '£1,200 per participant'],
+          answer: '£740 per participant',
+          explanation: 'The speaker states: "Program operating costs averaged seven hundred and forty pounds per participant."',
+          type: 'note-completion',
+          band: 'Band 7.0',
+          evidenceQuote: 'averaged seven hundred and forty pounds per participant'
+        },
+        {
+          id: 'lis-crm-q7',
+          prompt: 'What calculated net cost savings per avoided trial did the restorative pathway produce for the justice system?',
+          options: ['One thousand pounds', 'Two thousand five hundred pounds', 'Four thousand pounds', 'Ten thousand pounds'],
+          answer: 'Four thousand pounds',
+          explanation: 'The speaker concludes: "yielding a calculated net savings of four thousand pounds per avoided court trial."',
+          type: 'multiple-choice',
+          band: 'Band 7.5',
+          evidenceQuote: 'calculated net savings of four thousand pounds per avoided court trial'
         }
       ]
     },
@@ -1497,31 +1901,85 @@ const CORE_8_TOPICS: TopicDefinition[] = [
     ],
     listening: {
       id: 'lis-cul-1',
-      title: 'Museum Exhibition Tour: Indigenous Art & Textiles',
-      level: 'B2 / Band 6.5',
-      durationMinutes: 4,
-      audioText: `Welcome patrons to the National Gallery of Cultural Heritage. This afternoon’s guided tour explores our newly restored Highland Textile Pavilion. On display are hand-woven tapestries dating from the fourteenth to eighteenth centuries, rendered entirely with natural indigo and turmeric vegetable dyes. Visitors are kindly requested not to use flash photography, as intense illumination degrades historical fiber pigments. Guided audio headsets are available in six languages at the gallery reception, and our curators will host a live weaving demonstration at three-thirty in the courtyard.`,
+      title: 'Museum Exhibition: Highland Textile Heritage & Plant Dyes',
+      level: 'B2 / Band 7.0',
+      durationMinutes: 5,
+      speakerAccent: 'British',
+      ieltsPart: 'Part 2 · Public & General Information',
+      audioText: `Welcome patrons and cultural history enthusiasts to the National Gallery of Historic Heritage. My name is Hannah Campbell, Head Textile Conservator, and I am thrilled to guide you through our newly opened Highland Textile Pavilion.
+On display in this wing are twenty-eight masterworks of hand-woven clan tapestries and ceremonial shawls dating from the fourteenth to the eighteenth centuries. What distinguishes these historical artifacts is their exclusive reliance on organic, hand-foraged vegetable and botanical dyes. Our spectrometry testing confirms that rich indanthrone blues were produced using fermented native woad leaves, while vivid canary yellows were derived from mountain turmeric and weld roots.
+Because these organic vegetable pigments are intensely susceptible to photochemical degradation, we maintain the exhibition gallery under a controlled lighting threshold of precisely fifty lux. Consequently, flash photography and tripod illuminators are strictly prohibited anywhere inside this wing.
+Visitors wishing to gain deeper context may borrow guided audio handsets at the gallery information desk. Handsets are available in six international languages for a fully refundable deposit of five pounds. In addition, our master heritage weavers host live thirty-minute loom weaving demonstrations every afternoon at three-thirty in the central atrium. Finally, if you wish to purchase our illustrated conservation catalog, copies are on sale in the museum bookshop for eighteen pounds fifty.`,
       questions: [
         {
           id: 'lis-cul-q1',
-          prompt: 'What natural dyes were utilized in the textile collection?',
-          options: ['Synthetic minerals', 'Indigo and turmeric vegetable dyes', 'Crushed beetle carmine', 'Imported chemical dyes'],
-          answer: 'Indigo and turmeric vegetable dyes',
-          explanation: 'The guide explains: "rendered entirely with natural indigo and turmeric vegetable dyes."'
+          prompt: 'What botanical dyes were used to create the vibrant yellow and blue pigments in the tapestries?',
+          options: ['Synthetic coal-tar dyes', 'Fermented woad, mountain turmeric and weld roots', 'Imported crushed cochineal beetles', 'Industrial chemical minerals'],
+          answer: 'Fermented woad, mountain turmeric and weld roots',
+          explanation: 'Hannah Campbell explains: "blues were produced using fermented native woad leaves, while vivid canary yellows were derived from mountain turmeric and weld roots."',
+          type: 'multiple-choice',
+          band: 'Band 6.0',
+          evidenceQuote: 'fermented native woad leaves, while vivid canary yellows were derived from mountain turmeric and weld roots'
         },
         {
           id: 'lis-cul-q2',
-          prompt: 'Why is flash photography prohibited in the gallery?',
-          options: ['It distracts other visitors', 'It damages historical fiber pigments', 'It is copyrighted material', 'Security cameras glitch'],
+          prompt: 'Why is flash photography strictly prohibited throughout the textile gallery?',
+          options: ['It disturbs the audio guide recording', 'It damages historical fiber pigments', 'The tapestries are commercially copyrighted', 'Security sensors are triggered by flash'],
           answer: 'It damages historical fiber pigments',
-          explanation: 'The guide clarifies: "as intense illumination degrades historical fiber pigments."'
+          explanation: 'The curator states: "organic vegetable pigments are intensely susceptible to photochemical degradation... flash photography... are strictly prohibited."',
+          type: 'multiple-choice',
+          band: 'Band 6.0',
+          evidenceQuote: 'susceptible to photochemical degradation, we maintain the exhibition gallery under a controlled lighting threshold'
         },
         {
           id: 'lis-cul-q3',
-          prompt: 'At what time does the live weaving demonstration take place?',
-          options: ['1:00 PM', '2:15 PM', '3:30 PM', '4:45 PM'],
+          prompt: 'At what time does the live thirty-minute loom weaving demonstration take place?',
+          options: ['1:30 PM', '2:45 PM', '3:30 PM', '4:15 PM'],
           answer: '3:30 PM',
-          explanation: 'The speaker concludes: "curators will host a live weaving demonstration at three-thirty in the courtyard."'
+          explanation: 'The conservator announces: "host live thirty-minute loom weaving demonstrations every afternoon at three-thirty in the central atrium."',
+          type: 'multiple-choice',
+          band: 'Band 6.5',
+          evidenceQuote: 'every afternoon at three-thirty in the central atrium'
+        },
+        {
+          id: 'lis-cul-q4',
+          prompt: 'How many hand-woven tapestries and ceremonial shawls are on display in the exhibition?',
+          options: ['14 items', '20 items', '28 items', '36 items'],
+          answer: '28 items',
+          explanation: 'The speaker specifies: "twenty-eight masterworks of hand-woven clan tapestries and ceremonial shawls."',
+          type: 'note-completion',
+          band: 'Band 6.5',
+          evidenceQuote: 'twenty-eight masterworks of hand-woven clan tapestries and ceremonial shawls'
+        },
+        {
+          id: 'lis-cul-q5',
+          prompt: 'What ambient light level is strictly maintained in the gallery to protect fiber pigments?',
+          options: ['Twenty-five lux', 'Fifty lux', 'One hundred lux', 'Two hundred lux'],
+          answer: 'Fifty lux',
+          explanation: 'Hannah notes: "under a controlled lighting threshold of precisely fifty lux."',
+          type: 'sentence-completion',
+          band: 'Band 7.0',
+          evidenceQuote: 'controlled lighting threshold of precisely fifty lux'
+        },
+        {
+          id: 'lis-cul-q6',
+          prompt: 'What refundable deposit is required to borrow a multi-language audio handset?',
+          options: ['Three pounds', 'Five pounds', 'Ten pounds', 'Fifteen pounds'],
+          answer: 'Five pounds',
+          explanation: 'The guide confirms: "available in six international languages for a fully refundable deposit of five pounds."',
+          type: 'note-completion',
+          band: 'Band 6.5',
+          evidenceQuote: 'fully refundable deposit of five pounds'
+        },
+        {
+          id: 'lis-cul-q7',
+          prompt: 'What is the price of the illustrated conservation catalog at the museum bookshop?',
+          options: ['£12.00', '£15.50', '£18.50', '£24.00'],
+          answer: '£18.50',
+          explanation: 'The speaker concludes: "copies are on sale in the museum bookshop for eighteen pounds fifty."',
+          type: 'multiple-choice',
+          band: 'Band 7.0',
+          evidenceQuote: 'for eighteen pounds fifty'
         }
       ]
     },

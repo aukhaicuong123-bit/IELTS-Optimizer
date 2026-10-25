@@ -4,7 +4,7 @@ import { calculateCourseCompletion, calculateJourneyXp } from '../gamification'
 import { uiBackgroundAsset, uiJourneyAsset } from '../uiAssets'
 
 export interface StudyTreeProps {
-  activeTrack: 'vocabulary' | 'grammar'
+  activeTrack?: 'vocabulary' | 'grammar' | null
   onSelectTrack: (track: 'vocabulary' | 'grammar') => void
   knownVocabCount: number
   totalVocabCount: number
@@ -107,20 +107,20 @@ export const ForumStudyTree: React.FC<StudyTreeProps> = ({
           <div className="forum-track-switchers">
             <button
               type="button"
-              className={`forum-track-btn ${activeTrack === 'grammar' ? 'active' : ''}`}
-              onClick={() => onSelectTrack('grammar')}
-            >
-              <BookOpen size={16} />
-              <span>Học ngữ pháp</span>
-              <ArrowRight size={14} className="arrow-icon" />
-            </button>
-            <button
-              type="button"
-              className={`forum-track-btn ${activeTrack === 'vocabulary' ? 'active' : ''}`}
+              className={`forum-track-btn ${activeTrack === 'vocabulary' && variant !== 'dashboard' ? 'active' : ''}`}
               onClick={() => onSelectTrack('vocabulary')}
             >
               <Layers size={16} />
               <span>Học từ vựng</span>
+              <ArrowRight size={14} className="arrow-icon" />
+            </button>
+            <button
+              type="button"
+              className={`forum-track-btn ${activeTrack === 'grammar' && variant !== 'dashboard' ? 'active' : ''}`}
+              onClick={() => onSelectTrack('grammar')}
+            >
+              <BookOpen size={16} />
+              <span>Học ngữ pháp</span>
               <ArrowRight size={14} className="arrow-icon" />
             </button>
           </div>
