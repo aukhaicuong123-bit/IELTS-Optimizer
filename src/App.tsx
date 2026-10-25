@@ -2506,6 +2506,7 @@ function SkillPractice({
   })
   const htmlAudioRef = useRef<HTMLAudioElement | null>(null)
   const ttsRequestRef = useRef<Record<string, Promise<string | null> | undefined>>({})
+  const activeTtsLoadingKeyRef = useRef('')
   const speechQueueRef = useRef<{ speaker: string; text: string }[] | null>(null)
   const speechIndexRef = useRef<number>(0)
   const isSpeechActiveRef = useRef<boolean>(false)
@@ -2765,9 +2766,10 @@ function SkillPractice({
       return
     }
 
+    const requestKey = `${cacheKey}::${currentTopic.listening.audioText}`
+    activeTtsLoadingKeyRef.current = requestKey
     setIsGeneratingTts(true)
     try {
-      const requestKey = `${cacheKey}::${currentTopic.listening.audioText}`
       const existingRequest = ttsRequestRef.current[requestKey]
       const request = existingRequest || (async () => {
       const ttsBaseUrl = (import.meta.env.VITE_TTS_API_URL || '').replace(/\/$/, '')
@@ -2818,7 +2820,7 @@ function SkillPractice({
     } catch (err) {
       console.warn('Studio TTS call failed, using enhanced browser speech:', err)
     } finally {
-      setIsGeneratingTts(false)
+      if (activeTtsLoadingKeyRef.current === requestKey) setIsGeneratingTts(false)
     }
 
     setAudioSourceType('browser')
@@ -2835,6 +2837,7 @@ function SkillPractice({
     const timer = window.setTimeout(() => {
       const requestKey = `${cacheKey}::${currentTopic.listening.audioText}`
       if (ttsRequestRef.current[requestKey]) return
+      activeTtsLoadingKeyRef.current = requestKey
       setIsGeneratingTts(true)
       const request = (async () => {
         try {
@@ -2863,7 +2866,7 @@ function SkillPractice({
           console.warn('Studio TTS prefetch failed:', err)
           return null
         } finally {
-          setIsGeneratingTts(false)
+          if (activeTtsLoadingKeyRef.current === requestKey) setIsGeneratingTts(false)
         }
       })()
       ttsRequestRef.current[requestKey] = request
@@ -3133,6 +3136,7 @@ function SkillPractice({
                   onClick={handlePlayAudio}
                   disabled={isGeneratingTts}
                   aria-live="polite"
+                  aria-busy={isGeneratingTts}
                 >
                   {isGeneratingTts ? (
                     <span className="audio-loading-state" role="status">
