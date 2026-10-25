@@ -1080,6 +1080,11 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
   box-shadow:0 4px 16px rgba(37,91,62,.05);
 }
 .dashboard-main .dashboard-gamified-shell .img2-cal-month-title,.dashboard-main .dashboard-gamified-shell .img2-cal-weekdays,.dashboard-main .dashboard-gamified-shell .img2-cal-legend,.dashboard-main .dashboard-gamified-shell .img2-subtitle,.dashboard-main .dashboard-gamified-shell .img2-detail-empty,.dashboard-main .dashboard-gamified-shell .img2-legend-text{color:#718578}
+.dashboard-main .dashboard-gamified-shell .img2-detail-badge{color:#4b6b5d!important;font-weight:800!important;letter-spacing:.04em}
+.dashboard-main .dashboard-gamified-shell .img2-detail-date{color:#173f36!important;font-size:15px!important;font-weight:800!important;line-height:1.35}
+.dashboard-main .dashboard-gamified-shell .img2-detail-empty{color:#4b6659!important}
+.dashboard-main .dashboard-gamified-shell .img2-detail-empty p{color:#4b6659!important;margin:0}
+.dashboard-main .dashboard-gamified-shell .img2-detail-mins-pill{background:#0b4050!important;color:#fff!important;border-color:#0b6577!important;font-weight:800!important}
 .dashboard-main .dashboard-gamified-shell .img2-stat-label,.workspace-theme .img2-stat-label{color:#3b5a4e!important;font-weight:500}
 .dashboard-main .dashboard-gamified-shell .img2-stat-value,.workspace-theme .img2-stat-value{color:#0d2822!important;font-weight:700!important;font-size:13.5px!important}
 .dashboard-main .dashboard-gamified-shell .img2-cal-cell{color:#365b4e}
