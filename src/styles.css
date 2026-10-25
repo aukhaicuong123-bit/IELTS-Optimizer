@@ -577,12 +577,12 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 .img2-day-detail-card{background:#131b26;border:1px solid #222d3d;border-radius:14px;padding:18px 22px;display:flex;flex-direction:column;gap:12px;box-shadow:0 4px 18px rgba(0,0,0,.25)}
 .img2-detail-header{display:flex;justify-content:space-between;align-items:center}
 .img2-detail-title-wrap{display:flex;flex-direction:column;gap:2px}
-.img2-detail-badge{font-size:11px;font-weight:600;color:#8b949e;text-transform:uppercase;letter-spacing:.05em}
-.img2-detail-date{margin:0;font-size:14px;font-weight:700;color:#f0f6fc}
+.img2-detail-badge{font-size:11px;font-weight:800;color:#4b6b5d;text-transform:uppercase;letter-spacing:.04em}
+.img2-detail-date{margin:0;font-size:15px;font-weight:800;color:#173f36;line-height:1.35}
 .img2-detail-mins-pill{background:#162438;color:#38bdf8;border:1px solid #23354f;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700}
 
 .img2-detail-content{min-height:64px;display:flex;align-items:center}
-.img2-detail-empty{display:flex;align-items:center;gap:10px;color:#8b949e;font-size:12px;line-height:1.5}
+.img2-detail-empty{display:flex;align-items:center;gap:10px;color:#4b6659;font-size:12px;line-height:1.5}
 .img2-sparkle-icon{color:#eab308;flex-shrink:0}
 .img2-detail-activities{display:flex;flex-direction:column;gap:8px;width:100%}
 .img2-detail-item{display:flex;align-items:center;gap:10px;background:#172233;border:1px solid #233247;border-radius:8px;padding:8px 12px;font-size:12px}
