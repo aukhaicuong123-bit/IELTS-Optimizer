@@ -2491,8 +2491,15 @@ function SkillPractice({
   const [audioDuration, setAudioDuration] = useState(0)
   const [audioCurrentTime, setAudioCurrentTime] = useState(0)
   const [audioSourceType, setAudioSourceType] = useState<'studio' | 'browser' | 'upload'>('studio')
-  const [ttsAudioMap, setTtsAudioMap] = useState<Record<string, string>>({})
+  const [ttsAudioMap, setTtsAudioMap] = useState<Record<string, string>>(() => {
+    try {
+      return JSON.parse(sessionStorage.getItem('ielts-tts-audio-cache') || '{}')
+    } catch {
+      return {}
+    }
+  })
   const htmlAudioRef = useRef<HTMLAudioElement | null>(null)
+  const ttsRequestRef = useRef<Record<string, Promise<string | null> | undefined>>({})
   const speechQueueRef = useRef<{ speaker: string; text: string }[] | null>(null)
   const speechIndexRef = useRef<number>(0)
   const isSpeechActiveRef = useRef<boolean>(false)
@@ -2754,6 +2761,9 @@ function SkillPractice({
 
     setIsGeneratingTts(true)
     try {
+      const requestKey = `${cacheKey}::${currentTopic.listening.audioText}`
+      const existingRequest = ttsRequestRef.current[requestKey]
+      const request = existingRequest || (async () => {
       const ttsBaseUrl = (import.meta.env.VITE_TTS_API_URL || '').replace(/\/$/, '')
       const res = await fetch(`${ttsBaseUrl}/api/ai/tts`, {
         method: 'POST',
@@ -2769,25 +2779,31 @@ function SkillPractice({
         const data = await res.json()
         if (data.audioBase64) {
           const audioSrc = `data:${data.mimeType || 'audio/wav'};base64,${data.audioBase64}`
-          setTtsAudioMap(prev => ({ ...prev, [cacheKey]: audioSrc }))
+          setTtsAudioMap(prev => {
+            const next = { ...prev, [cacheKey]: audioSrc }
+            try { sessionStorage.setItem('ielts-tts-audio-cache', JSON.stringify(next)) } catch {}
+            return next
+          })
           setAudioSourceType('studio')
           if (data.speakers && Array.isArray(data.speakers)) {
             setCurrentSpeakers(data.speakers)
           }
-          if (htmlAudioRef.current) {
-            htmlAudioRef.current.src = audioSrc
-            htmlAudioRef.current.playbackRate = playbackSpeed
-            await htmlAudioRef.current.play()
-            setIsPlaying(true)
-            setIsGeneratingTts(false)
-            if (data.speakers && data.speakers.length >= 2) {
-              note(`Đang phát hội thoại đa nhân vật (${data.speakers.join(' & ')}).`)
-            } else {
-              note('Đang phát giọng đọc AI Studio tự nhiên.')
-            }
-            return
-          }
+          return audioSrc
         }
+      }
+      return null
+      })()
+      ttsRequestRef.current[requestKey] = request
+      const audioResult = await request
+      delete ttsRequestRef.current[requestKey]
+      if (audioResult && htmlAudioRef.current) {
+        setAudioSourceType('studio')
+        htmlAudioRef.current.src = audioResult
+        htmlAudioRef.current.playbackRate = playbackSpeed
+        await htmlAudioRef.current.play()
+        setIsPlaying(true)
+        note('Đang phát giọng đọc AI Studio tự nhiên.')
+        return
       }
     } catch (err) {
       console.warn('Studio TTS call failed, using enhanced browser speech:', err)
@@ -2799,6 +2815,52 @@ function SkillPractice({
     playEnhancedBrowserAudio(0)
     note('Đang phát giọng đọc phân vai tối ưu.')
   }
+
+  // Wake the free Render instance and prepare the first track while the learner
+  // reads the Listening instructions. The first click then usually plays immediately.
+  useEffect(() => {
+    if (skill !== 'Listening') return
+    const cacheKey = `${selectedTopicId}::${voicePersona}`
+    if (ttsAudioMap[cacheKey]) return
+    const timer = window.setTimeout(() => {
+      const requestKey = `${cacheKey}::${currentTopic.listening.audioText}`
+      if (ttsRequestRef.current[requestKey]) return
+      setIsGeneratingTts(true)
+      const request = (async () => {
+        try {
+          const ttsBaseUrl = (import.meta.env.VITE_TTS_API_URL || '').replace(/\/$/, '')
+          const res = await fetch(`${ttsBaseUrl}/api/ai/tts`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              text: currentTopic.listening.audioText,
+              voiceName: voicePersona,
+              style: 'Natural British IELTS listening voice with clear pacing and authentic intonation'
+            })
+          })
+          if (!res.ok) return null
+          const data = await res.json()
+          if (!data.audioBase64) return null
+          const audioSrc = `data:${data.mimeType || 'audio/wav'};base64,${data.audioBase64}`
+          setTtsAudioMap(prev => {
+            const next = { ...prev, [cacheKey]: audioSrc }
+            try { sessionStorage.setItem('ielts-tts-audio-cache', JSON.stringify(next)) } catch {}
+            return next
+          })
+          if (data.speakers && Array.isArray(data.speakers)) setCurrentSpeakers(data.speakers)
+          return audioSrc
+        } catch (err) {
+          console.warn('Studio TTS prefetch failed:', err)
+          return null
+        } finally {
+          setIsGeneratingTts(false)
+        }
+      })()
+      ttsRequestRef.current[requestKey] = request
+      void request.finally(() => { delete ttsRequestRef.current[requestKey] })
+    }, 900)
+    return () => window.clearTimeout(timer)
+  }, [skill, selectedTopicId, voicePersona])
 
   const handlePauseAudio = () => {
     if (audioSourceType === 'studio' || audioSourceType === 'upload') {
