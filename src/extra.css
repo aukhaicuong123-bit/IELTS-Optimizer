@@ -1890,6 +1890,26 @@ button, input, select, textarea, a {
   transform: translateY(-1px);
 }
 
+.btn-play-hero:disabled {
+  opacity: .88;
+  cursor: wait;
+  transform: none;
+}
+
+.audio-loading-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.audio-loading-spinner {
+  animation: audioSpinner .85s linear infinite;
+}
+
+@keyframes audioSpinner {
+  to { transform: rotate(360deg); }
+}
+
 .btn-player-sub {
   display: inline-flex;
   align-items: center;

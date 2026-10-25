@@ -133,6 +133,12 @@ const navGroups: { label: string; items: NavItem[] }[] = [
 const nav = navGroups.flatMap(group => group.items)
 
 const uid = (prefix: string) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+
+const ttsCacheKey = (topicId: TopicId, voice: string, text: string) => {
+  let hash = 0
+  for (let i = 0; i < text.length; i += 1) hash = (hash * 31 + text.charCodeAt(i)) | 0
+  return `${topicId}::${voice}::${text.length}-${Math.abs(hash)}`
+}
 const stableOccurrenceId = (errorId: string, occurrenceId: string) => `reading:occurrence:${errorId}:${occurrenceId}`
 
 // Topic Icons mapping
@@ -2749,7 +2755,7 @@ function SkillPractice({
       return
     }
 
-    const cacheKey = `${selectedTopicId}::${voicePersona}`
+    const cacheKey = ttsCacheKey(selectedTopicId, voicePersona, currentTopic.listening.audioText)
     if (ttsAudioMap[cacheKey] && htmlAudioRef.current) {
       setAudioSourceType('studio')
       htmlAudioRef.current.src = ttsAudioMap[cacheKey]
@@ -2794,8 +2800,12 @@ function SkillPractice({
       return null
       })()
       ttsRequestRef.current[requestKey] = request
-      const audioResult = await request
-      delete ttsRequestRef.current[requestKey]
+      let audioResult: string | null = null
+      try {
+        audioResult = await request
+      } finally {
+        if (ttsRequestRef.current[requestKey] === request) delete ttsRequestRef.current[requestKey]
+      }
       if (audioResult && htmlAudioRef.current) {
         setAudioSourceType('studio')
         htmlAudioRef.current.src = audioResult
@@ -2820,7 +2830,7 @@ function SkillPractice({
   // reads the Listening instructions. The first click then usually plays immediately.
   useEffect(() => {
     if (skill !== 'Listening') return
-    const cacheKey = `${selectedTopicId}::${voicePersona}`
+    const cacheKey = ttsCacheKey(selectedTopicId, voicePersona, currentTopic.listening.audioText)
     if (ttsAudioMap[cacheKey]) return
     const timer = window.setTimeout(() => {
       const requestKey = `${cacheKey}::${currentTopic.listening.audioText}`
@@ -3122,9 +3132,19 @@ function SkillPractice({
                   className="btn-play-hero"
                   onClick={handlePlayAudio}
                   disabled={isGeneratingTts}
+                  aria-live="polite"
                 >
-                  <Play size={16} />
-                  <span>{isGeneratingTts ? 'Đang tạo giọng AI…' : 'Phát bài nghe'}</span>
+                  {isGeneratingTts ? (
+                    <span className="audio-loading-state" role="status">
+                      <RefreshCw size={16} className="audio-loading-spinner" aria-hidden="true" />
+                      <span>Đang tải</span>
+                    </span>
+                  ) : (
+                    <>
+                      <Play size={16} />
+                      <span>Phát bài nghe</span>
+                    </>
+                  )}
                 </button>
               ) : (
                 <button
