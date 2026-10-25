@@ -2754,7 +2754,8 @@ function SkillPractice({
 
     setIsGeneratingTts(true)
     try {
-      const res = await fetch('/api/ai/tts', {
+      const ttsBaseUrl = (import.meta.env.VITE_TTS_API_URL || '').replace(/\/$/, '')
+      const res = await fetch(`${ttsBaseUrl}/api/ai/tts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
