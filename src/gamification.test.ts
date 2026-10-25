@@ -4,6 +4,7 @@ import {
   calculateJourneyXp,
   countCompletedGrammar,
   GRAMMAR_XP_PER_ITEM,
+  setKnownVocabularyItem,
   VOCABULARY_XP_PER_ITEM
 } from './gamification'
 import type { SkillSubmission } from './types'
@@ -22,6 +23,14 @@ describe('journey progression selectors', () => {
       { id: 'r1', skill: 'Reading', activityId: 'reading-1', response: 'x', createdAt: '2026-01-05', feedbackMode: 'self-review', completed: true }
     ]
     expect(countCompletedGrammar(submissions)).toBe(1)
+  })
+
+  it('only keeps genuinely known vocabulary in the persisted progress map', () => {
+    const known = setKnownVocabularyItem({ retained: true, stale: false }, 'new-word', true)
+    expect(known).toEqual({ retained: true, 'new-word': true })
+
+    expect(setKnownVocabularyItem(known, 'new-word', false)).toEqual({ retained: true })
+    expect(setKnownVocabularyItem(known, '   ', true)).toEqual(known)
   })
 
   it('keeps dashboard, vocabulary and grammar on the same journey snapshot', () => {

@@ -8,3 +8,11 @@ export function uiSectionAsset(name: string): string {
   return `${UI_ASSET_BASE}/sections/${name}.svg`
 }
 
+export function uiJourneyAsset(name: string): string {
+  return `${UI_ASSET_BASE}/journey/${name}.png`
+}
+
+export function uiBackgroundAsset(name: string): string {
+  return `${UI_ASSET_BASE}/backgrounds/${name}.png`
+}
+

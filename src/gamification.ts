@@ -4,6 +4,13 @@ export const VOCABULARY_XP_PER_ITEM = 15
 export const GRAMMAR_XP_PER_ITEM = 25
 export const VOCABULARY_PROGRESS_KEY = 'ielts-optimizer-vocab-known'
 
+export interface JourneySnapshot {
+  knownVocabCount: number
+  completedGrammarCount: number
+  xp: number
+  courseCompletion: number
+}
+
 export function readKnownVocabularyMap(): Record<string, boolean> {
   try {
     const raw = globalThis.localStorage?.getItem(VOCABULARY_PROGRESS_KEY)
@@ -15,6 +22,30 @@ export function readKnownVocabularyMap(): Record<string, boolean> {
   } catch {
     return {}
   }
+}
+
+/**
+ * Keeps the persisted vocabulary map intentionally small: only genuinely known
+ * items are stored. That makes the XP selector and the learner-facing state
+ * identical, including when a learner moves a word back into review.
+ */
+export function setKnownVocabularyItem(
+  knownVocabulary: Record<string, boolean>,
+  wordId: string,
+  isKnown: boolean
+): Record<string, boolean> {
+  const next = Object.fromEntries(
+    Object.entries(knownVocabulary).filter(([id, value]) => id.trim().length > 0 && value === true)
+  ) as Record<string, boolean>
+  const normalizedId = wordId.trim()
+  if (!normalizedId) return next
+
+  if (isKnown) {
+    next[normalizedId] = true
+  } else {
+    delete next[normalizedId]
+  }
+  return next
 }
 
 export function countKnownVocabulary(): number {
@@ -50,5 +81,29 @@ export function calculateCourseCompletion(
   const totalItems = Math.max(1, totalVocabCount + totalGrammarCount)
   const completedItems = Math.max(0, knownVocabCount) + Math.max(0, completedGrammarCount)
   return Math.min(100, Math.round((completedItems / totalItems) * 100))
+}
+
+/**
+ * One read-only snapshot for the dashboard and both foundation hubs.
+ * Keeping the calculation here prevents route-specific XP/rank drift.
+ */
+export function getJourneySnapshot(
+  submissions: SkillSubmission[] | undefined,
+  totalVocabCount: number,
+  totalGrammarCount: number
+): JourneySnapshot {
+  const knownVocabCount = countKnownVocabulary()
+  const completedGrammarCount = countCompletedGrammar(submissions)
+  return {
+    knownVocabCount,
+    completedGrammarCount,
+    xp: calculateJourneyXp(knownVocabCount, completedGrammarCount),
+    courseCompletion: calculateCourseCompletion(
+      knownVocabCount,
+      totalVocabCount,
+      completedGrammarCount,
+      totalGrammarCount
+    )
+  }
 }
 

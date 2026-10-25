@@ -154,7 +154,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 .profile-skills-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%}
 .profile-skill-chip{background:#fffefa;border:1px solid #d6ded0;border-radius:12px;padding:10px 8px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px;box-shadow:0 1px 3px rgba(0,0,0,.02);transition:all .15s}
 .profile-skill-chip.priority{border-color:#0c5a50;background:#e5f2e0;box-shadow:0 0 0 1.5px #0c5a50}
-.skill-chip-icon{font-size:15px;line-height:1}
+.skill-chip-icon{width:30px;height:30px;display:grid;place-items:center;border-radius:10px;background:#edf5e5;color:#075d52;line-height:1}
 .skill-chip-name{font-size:12px;color:#576a80;font-weight:600}
 .skill-chip-band{font-size:15px;font-family:'Space Grotesk',sans-serif;font-weight:800;color:#101a2d}
 
@@ -945,6 +945,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
   gap:18px;
   align-items:stretch;
 }
+.dashboard-main .dashboard-gamified-shell > *{min-width:0}
 .dashboard-main .dashboard-journey-wrap{grid-column:1 / -1;grid-row:1;min-width:0}
 .dashboard-main .dashboard-journey-wrap .forum-tree-card-dashboard{
   margin:0;
@@ -1482,4 +1483,78 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 @media(max-width:390px){
   .workspace-theme .exam-simulator .exam-result-summary-grid{grid-template-columns:1fr}
   .workspace-theme .exam-simulator .exam-result-metric{width:100%}
+}
+
+/* Guided-practice finishing pass: make fallback states, saved work, and controls
+   as clear on small screens as they are on desktop. */
+.workspace-theme .skill-practice-page .audio-transcript-hint{
+  margin:14px 0;
+  padding:11px 13px;
+  border:1px dashed #b9d7bc;
+  border-radius:11px;
+  background:#f5faef;
+  color:#587267!important;
+  font-size:12px;
+  line-height:1.55;
+}
+.workspace-theme .skill-practice-page .listening-quiz-summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:14px;
+  padding:11px 13px;
+  border:1px solid #c8dfba;
+  border-radius:11px;
+  background:#eef8e9;
+}
+.workspace-theme .skill-practice-page .listening-quiz-summary b{color:#39704e!important;font-size:12px}
+.workspace-theme .skill-practice-page .primary:disabled{
+  cursor:not-allowed;
+  opacity:.58;
+  transform:none;
+  box-shadow:none;
+}
+.workspace-theme main .skill-practice-page .topic-lexicon-helper button.lexicon-chip:not(.primary):not(.secondary):not(.danger):not(.danger-outline){
+  appearance:none;
+  padding:5px 10px;
+  background:#edf5eb!important;
+  border:1px solid #c2dec0!important;
+  color:#244d3b!important;
+  font:600 11px 'DM Sans',sans-serif;
+  text-align:left;
+}
+.workspace-theme main .skill-practice-page .topic-lexicon-helper button.lexicon-chip:not(.primary):not(.secondary):not(.danger):not(.danger-outline):hover{
+  background:#e0f0dd!important;
+  border-color:#8bb984!important;
+  color:#075d52!important;
+}
+.workspace-theme main .skill-practice-page .topic-lexicon-helper button.lexicon-chip:focus-visible{
+  outline:3px solid #bde3a8;
+  outline-offset:2px;
+}
+.workspace-theme .skill-practice-page .speaking-cue-card{
+  margin:10px 0 14px;
+  padding:16px;
+  border:1px solid #c8dfba;
+  border-radius:14px;
+  background:linear-gradient(145deg,#f3faef,#fffefa);
+}
+.workspace-theme .skill-practice-page .speaking-cue-prompt{
+  margin:0 0 12px;
+  color:#075d52!important;
+  font-style:italic;
+  font-weight:750;
+  line-height:1.65;
+}
+.workspace-theme .skill-practice-page .speaking-cue-card ul{margin:8px 0;padding-left:20px}
+.workspace-theme .skill-practice-page .speaking-recorder-panel{
+  margin:18px 0;
+  padding-top:16px;
+  border-top:1px solid #dfe9d8;
+}
+.workspace-theme .skill-practice-page .speaking-recorder-panel audio{max-width:100%}
+@media(max-width:520px){
+  .workspace-theme .skill-practice-page .listening-quiz-summary{align-items:stretch;flex-direction:column}
+  .workspace-theme .skill-practice-page .listening-quiz-summary button{width:100%;justify-content:center}
 }

@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import { Sparkles, ArrowRight, BookOpen, Layers } from 'lucide-react'
 import { calculateCourseCompletion, calculateJourneyXp } from '../gamification'
+import { uiBackgroundAsset, uiJourneyAsset } from '../uiAssets'
 
 export interface StudyTreeProps {
   activeTrack: 'vocabulary' | 'grammar'
@@ -30,15 +31,13 @@ export const TREE_STAGES: TreeStage[] = [
   { step: '06', name: 'Bậc thầy IELTS', icon: '♛', minXp: 1500, maxXp: 2500, description: 'Sẵn sàng chinh phục mục tiêu IELTS Band 8.0+' }
 ]
 
-const JOURNEY_ASSET_BASE = `${import.meta.env.BASE_URL}assets/ielts-journey`
-
 const MILESTONE_ASSETS = [
-  `${JOURNEY_ASSET_BASE}/milestone-backpack.png`,
-  `${JOURNEY_ASSET_BASE}/milestone-lantern.png`,
-  `${JOURNEY_ASSET_BASE}/milestone-signpost.png`,
-  `${JOURNEY_ASSET_BASE}/milestone-treasure-map.png`,
-  `${JOURNEY_ASSET_BASE}/milestone-flag-mountain.png`,
-  `${JOURNEY_ASSET_BASE}/milestone-crowned-summit.png`
+  uiJourneyAsset('milestone-backpack'),
+  uiJourneyAsset('milestone-lantern'),
+  uiJourneyAsset('milestone-signpost'),
+  uiJourneyAsset('milestone-treasure-map'),
+  uiJourneyAsset('milestone-flag-mountain'),
+  uiJourneyAsset('milestone-crowned-summit')
 ]
 
 export const ForumStudyTree: React.FC<StudyTreeProps> = ({
@@ -89,7 +88,9 @@ export const ForumStudyTree: React.FC<StudyTreeProps> = ({
       {/* Shared IELTS journey banner for the vocabulary and grammar tracks */}
       <img
         className="journey-mountain-path"
-        src={`${JOURNEY_ASSET_BASE}/${variant === 'dashboard' ? 'journey-mountain-with-birds.png' : 'journey-mountain-backdrop-v2.png'}`}
+        src={variant === 'dashboard'
+          ? uiBackgroundAsset('hero-mountain-with-birds')
+          : uiJourneyAsset('journey-mountain-path')}
         alt=""
         aria-hidden="true"
       />
@@ -129,7 +130,7 @@ export const ForumStudyTree: React.FC<StudyTreeProps> = ({
         <div className="forum-tree-status-box">
           <div className="tree-stage-visual">
             <div className={`tree-stage-avatar stage-art-${currentStageIndex}`}>
-              <img src={`${JOURNEY_ASSET_BASE}/stage-badge-mountain.png`} alt="" aria-hidden="true" />
+              <img src={uiJourneyAsset('stage-badge-mountain')} alt="" aria-hidden="true" />
             </div>
             <div className="tree-stage-meta">
               <div className="tree-stage-kicker">GIAI ĐOẠN {currentStage.step}</div>
@@ -143,7 +144,15 @@ export const ForumStudyTree: React.FC<StudyTreeProps> = ({
               <span>{nextStage ? `Còn ${xpNeeded} XP để đạt ${nextStage.name}` : 'Đã đạt cấp độ tối đa'}</span>
               <b>{stageProgressPercent}%</b>
             </div>
-            <div className="tree-xp-track">
+            <div
+              className="tree-xp-track"
+              role="progressbar"
+              aria-label={`Tiến độ từ ${currentStage.name} tới ${nextStage?.name || 'cấp độ tối đa'}`}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={stageProgressPercent}
+              aria-valuetext={`${stageProgressPercent}%`}
+            >
               <div
                 className="tree-xp-fill"
                 style={{ width: `${stageProgressPercent}%` }}
@@ -173,6 +182,7 @@ export const ForumStudyTree: React.FC<StudyTreeProps> = ({
             <div
               key={st.step}
               className={`tree-step-item ${isCurrent ? 'current' : isDone ? 'done' : 'future'}`}
+              aria-current={isCurrent ? 'step' : undefined}
             >
               <img className="step-illustration" src={MILESTONE_ASSETS[i]} alt="" aria-hidden="true" />
               <div className="step-badge">

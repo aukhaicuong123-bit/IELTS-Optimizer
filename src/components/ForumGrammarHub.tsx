@@ -18,7 +18,7 @@ import { TOTAL_FORUM_VOCAB_COUNT } from '../data/forumVocab25Topics'
 import { TOPICS, type TopicId } from '../topicData'
 import { ForumStudyTree } from './ForumStudyTree'
 import type { Store } from '../types'
-import { countCompletedGrammar, countKnownVocabulary } from '../gamification'
+import { getJourneySnapshot } from '../gamification'
 import { uiSectionAsset } from '../uiAssets'
 
 const uid = (prefix: string) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
@@ -70,14 +70,14 @@ export const ForumGrammarHub: React.FC<ForumGrammarHubProps> = ({
     return TOPICS.find(t => t.id === selectedTopicId) || TOPICS[0]
   }, [selectedTopicId])
 
-  // Handle quiz submission with XP rewards and mistake tracking
+  // Quiz feedback checks understanding; only a saved written drill earns course progress.
   const handleQuizSubmit = (rule: CefrGrammarRule, chosen: string) => {
     setQuizAnswers(prev => ({ ...prev, [rule.id]: chosen }))
     setQuizSubmitted(prev => ({ ...prev, [rule.id]: true }))
 
     const isCorrect = chosen === rule.quiz.answer
     if (isCorrect) {
-      note(`+25 XP · Chính xác! Bạn đã hoàn thành phần kiểm tra "${rule.title}"`)
+      note(`Chính xác. Viết một câu luyện tập rồi lưu để ghi nhận tiến độ cho "${rule.title}".`)
       // If was in error vault, remove or decrement
       if (grammarErrors[rule.id]) {
         const nextErr = { ...grammarErrors }
@@ -138,7 +138,12 @@ export const ForumGrammarHub: React.FC<ForumGrammarHubProps> = ({
   }
 
   // Stats
-  const completedGrammarCount = countCompletedGrammar(s.submissions)
+  const journey = getJourneySnapshot(
+    s.submissions,
+    TOTAL_FORUM_VOCAB_COUNT,
+    CEFR_GRAMMAR_RULES.length
+  )
+  const completedGrammarCount = journey.completedGrammarCount
 
   return (
     <section className="stack">
@@ -150,7 +155,7 @@ export const ForumGrammarHub: React.FC<ForumGrammarHubProps> = ({
             onSwitchToVocab()
           }
         }}
-        knownVocabCount={countKnownVocabulary()}
+        knownVocabCount={journey.knownVocabCount}
         totalVocabCount={TOTAL_FORUM_VOCAB_COUNT}
         completedGrammarCount={completedGrammarCount}
         totalGrammarCount={CEFR_GRAMMAR_RULES.length}
@@ -256,7 +261,7 @@ export const ForumGrammarHub: React.FC<ForumGrammarHubProps> = ({
       {/* TRACK 1: CEFR GRAMMAR CURRICULUM CARDS */}
       {viewTrack === 'cefr' && (
         <div className="forum-grammar-list">
-          {displayedCefrRules.map((rule, idx) => {
+          {displayedCefrRules.map(rule => {
             const isExpanded = expandedRuleId === rule.id
             const isQuizDone = quizSubmitted[rule.id]
             const isQuizCorrect = isQuizDone && quizAnswers[rule.id] === rule.quiz.answer
@@ -270,8 +275,16 @@ export const ForumGrammarHub: React.FC<ForumGrammarHubProps> = ({
                 <div
                   className="fg-card-head"
                   onClick={() => setExpandedRuleId(isExpanded ? null : rule.id)}
+                  onKeyDown={event => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault()
+                      setExpandedRuleId(isExpanded ? null : rule.id)
+                    }
+                  }}
                   role="button"
                   tabIndex={0}
+                  aria-expanded={isExpanded}
+                  aria-controls={`grammar-rule-${rule.id}`}
                 >
                   <div className="fg-head-left">
                     <span className={`fg-cefr-badge lvl-${rule.cefrLevel.toLowerCase()}`}>
@@ -282,7 +295,7 @@ export const ForumGrammarHub: React.FC<ForumGrammarHubProps> = ({
                         <span className="fg-category-pill">{rule.category}</span>
                         {isQuizCorrect && (
                           <span className="fg-done-chip">
-                            <Check size={12} /> Đã hoàn thành (+25 XP)
+                            <Check size={12} /> Đã trả lời đúng quiz
                           </span>
                         )}
                       </div>
@@ -300,7 +313,7 @@ export const ForumGrammarHub: React.FC<ForumGrammarHubProps> = ({
 
                 {/* Expanded Detailed Content */}
                 {isExpanded && (
-                  <div className="fg-card-body">
+                  <div className="fg-card-body" id={`grammar-rule-${rule.id}`}>
                     {/* Visual sentence breakdown designed for IELTS Optimizer */}
                     <div className="fg-breakdown-box">
                       <div className="fg-breakdown-title">
@@ -384,7 +397,7 @@ export const ForumGrammarHub: React.FC<ForumGrammarHubProps> = ({
                         <span className="fg-step-num">02</span>
                         <div>
                           <b>TIẾP THEO · Kiểm tra tương tác (Interactive Quiz)</b>
-                          <small>Trả lời câu hỏi để kiểm tra độ hiểu và tích lũy +25 XP</small>
+                          <small>Trả lời câu hỏi để kiểm tra độ hiểu trước khi tự viết một câu áp dụng.</small>
                         </div>
                       </div>
 
@@ -418,8 +431,9 @@ export const ForumGrammarHub: React.FC<ForumGrammarHubProps> = ({
 
                         {isQuizDone && (
                           <div className={`fg-quiz-feedback ${isQuizCorrect ? 'passed' : 'failed'}`}>
-                            <b>{isQuizCorrect ? '✓ Hoàn thành xuất sắc (+25 XP)' : '✗ Chưa đúng'}</b>
+                            <b>{isQuizCorrect ? '✓ Chính xác' : '✗ Chưa đúng'}</b>
                             <p>{rule.quiz.explanation}</p>
+                            {isQuizCorrect && <small>Hoàn tất bước viết câu bên dưới để lưu minh chứng và nhận tiến độ.</small>}
                             {!isQuizCorrect && (
                               <button
                                 type="button"
@@ -470,7 +484,7 @@ export const ForumGrammarHub: React.FC<ForumGrammarHubProps> = ({
                           style={{ fontSize: 12 }}
                           onClick={() => saveGrammarReflection(rule.title, rule.id)}
                         >
-                          Lưu bài tập (+25 XP)
+                          Lưu minh chứng ngữ pháp
                         </button>
                       </div>
 

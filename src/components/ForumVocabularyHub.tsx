@@ -19,7 +19,12 @@ import { CEFR_GRAMMAR_RULES } from '../data/cefrGrammarData'
 import type { VocabItem } from '../topicData'
 import { ForumStudyTree } from './ForumStudyTree'
 import type { Store } from '../types'
-import { countCompletedGrammar, countKnownVocabulary } from '../gamification'
+import {
+  getJourneySnapshot,
+  readKnownVocabularyMap,
+  setKnownVocabularyItem,
+  VOCABULARY_PROGRESS_KEY
+} from '../gamification'
 import { uiSectionAsset } from '../uiAssets'
 
 export interface ForumVocabularyHubProps {
@@ -46,15 +51,8 @@ export const ForumVocabularyHub: React.FC<ForumVocabularyHubProps> = ({
   const [flipped, setFlipped] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
 
-  // Persistent known words from localStorage
-  const [knownWords, setKnownWords] = useState<Record<string, boolean>>(() => {
-    try {
-      const raw = localStorage.getItem('ielts-optimizer-vocab-known')
-      return raw ? JSON.parse(raw) : {}
-    } catch {
-      return {}
-    }
-  })
+  // Persistent known words are normalized so only real progress counts toward XP.
+  const [knownWords, setKnownWords] = useState<Record<string, boolean>>(() => readKnownVocabularyMap())
 
   // Quiz states
   const [quizIndex, setQuizIndex] = useState(0)
@@ -77,15 +75,6 @@ export const ForumVocabularyHub: React.FC<ForumVocabularyHubProps> = ({
   // Current topic and vocab
   const currentTopic = useMemo(() => {
     return FORUM_25_TOPICS.find(t => t.id === selectedTopicId) || FORUM_25_TOPICS[0]
-  }, [selectedTopicId])
-
-  useEffect(() => {
-    setCardIndex(0)
-    setFlipped(false)
-    setQuizIndex(0)
-    setQuizScore(0)
-    setSelectedOption(null)
-    setQuizFinished(false)
   }, [selectedTopicId])
 
   const vocabList: VocabItem[] = currentTopic.vocab
@@ -144,17 +133,29 @@ export const ForumVocabularyHub: React.FC<ForumVocabularyHubProps> = ({
     }
   }, [note])
 
-  // Mark word known/unknown with XP rewarding
+  const updateKnownStatus = useCallback((wordId: string, isKnown: boolean) => {
+    const wasKnown = knownWords[wordId] === true
+    const nextKnown = setKnownVocabularyItem(knownWords, wordId, isKnown)
+    setKnownWords(nextKnown)
+    localStorage.setItem(VOCABULARY_PROGRESS_KEY, JSON.stringify(nextKnown))
+    return wasKnown
+  }, [knownWords])
+
+  // A word earns XP only on the transition from review to known.
   const markKnown = useCallback((wordId: string, isKnown: boolean) => {
     if (!currentWord) return
-    const nextKnown = { ...knownWords, [wordId]: isKnown }
-    setKnownWords(nextKnown)
-    localStorage.setItem('ielts-optimizer-vocab-known', JSON.stringify(nextKnown))
+    const wasKnown = updateKnownStatus(wordId, isKnown)
 
     if (isKnown) {
-      note(`+15 XP · Đã ghi nhớ: "${currentWord.term}"`)
+      note(wasKnown
+        ? `"${currentWord.term}" đã được ghi nhận là đã thuộc.`
+        : `+15 XP · Đã ghi nhớ: "${currentWord.term}"`
+      )
     } else {
-      note(`Đã đánh dấu cần ôn lại: "${currentWord.term}"`)
+      note(wasKnown
+        ? `Đã chuyển "${currentWord.term}" sang cần ôn lại; từ này không còn tính vào tiến độ.`
+        : `"${currentWord.term}" đang ở trạng thái cần ôn lại.`
+      )
     }
 
     // Auto advance
@@ -162,7 +163,7 @@ export const ForumVocabularyHub: React.FC<ForumVocabularyHubProps> = ({
       setCardIndex(prev => prev + 1)
       setFlipped(false)
     }
-  }, [currentWord, knownWords, cardIndex, vocabList.length, note])
+  }, [currentWord, updateKnownStatus, cardIndex, vocabList.length, note])
 
   // Keyboard navigation support
   useEffect(() => {
@@ -199,7 +200,7 @@ export const ForumVocabularyHub: React.FC<ForumVocabularyHubProps> = ({
 
   // Total known counts across all 25 topics
   const totalKnownAcrossAllTopics = useMemo(() => {
-    return countKnownVocabulary()
+    return Object.keys(knownWords).length
   }, [knownWords])
 
   const knownCountInCurrentTopic = useMemo(() => {
@@ -207,6 +208,12 @@ export const ForumVocabularyHub: React.FC<ForumVocabularyHubProps> = ({
   }, [vocabList, knownWords])
 
   const topicProgressPercent = Math.round((knownCountInCurrentTopic / vocabList.length) * 100)
+
+  const journey = getJourneySnapshot(
+    s.submissions,
+    TOTAL_FORUM_VOCAB_COUNT,
+    CEFR_GRAMMAR_RULES.length
+  )
 
   // Quiz generator
   const currentQuizWord = vocabList[quizIndex % vocabList.length]
@@ -225,7 +232,11 @@ export const ForumVocabularyHub: React.FC<ForumVocabularyHubProps> = ({
     setSelectedOption(opt)
     if (opt === currentQuizWord.meaningVi) {
       setQuizScore(prev => prev + 1)
-      note('+15 XP · Câu trả lời chính xác!')
+      const wasKnown = updateKnownStatus(currentQuizWord.id, true)
+      note(wasKnown
+        ? `Chính xác — "${currentQuizWord.term}" đã có trong tiến độ của bạn.`
+        : `+15 XP · Chính xác — đã đánh dấu "${currentQuizWord.term}" là đã thuộc.`
+      )
     }
   }
 
@@ -248,9 +259,9 @@ export const ForumVocabularyHub: React.FC<ForumVocabularyHubProps> = ({
             onSwitchToGrammar()
           }
         }}
-        knownVocabCount={totalKnownAcrossAllTopics}
+        knownVocabCount={journey.knownVocabCount}
         totalVocabCount={TOTAL_FORUM_VOCAB_COUNT}
-        completedGrammarCount={countCompletedGrammar(s.submissions)}
+        completedGrammarCount={journey.completedGrammarCount}
         totalGrammarCount={CEFR_GRAMMAR_RULES.length}
       />
 
@@ -424,10 +435,19 @@ export const ForumVocabularyHub: React.FC<ForumVocabularyHubProps> = ({
           <div
             className={`flashcard-box ${flipped ? 'flipped' : ''}`}
             onClick={() => setFlipped(!flipped)}
+            onKeyDown={event => {
+              if (event.target !== event.currentTarget) return
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault()
+                event.stopPropagation()
+                setFlipped(current => !current)
+              }
+            }}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
             role="button"
             tabIndex={0}
+            aria-pressed={flipped}
             aria-label="Lật thẻ từ vựng (chạm để lật hoặc vuốt sang trái/phải)"
           >
             <div className="card-top">
@@ -488,7 +508,7 @@ export const ForumVocabularyHub: React.FC<ForumVocabularyHubProps> = ({
             <div className="card-top card-bottom-info">
               <small className="muted">Thẻ {cardIndex + 1} / {vocabList.length}</small>
               <small style={{ color: knownWords[currentWord.id] ? '#075d52' : '#b45309', fontWeight: 700 }}>
-                {knownWords[currentWord.id] ? '✓ Đã thuộc (+15 XP)' : '○ Chưa thuộc'}
+                {knownWords[currentWord.id] ? '✓ Đã thuộc' : '○ Chưa thuộc'}
               </small>
             </div>
           </div>
@@ -520,7 +540,7 @@ export const ForumVocabularyHub: React.FC<ForumVocabularyHubProps> = ({
               onClick={() => markKnown(currentWord.id, true)}
               title="Đã học thuộc (Phím 2)"
             >
-              <Check size={16} /> Đã thuộc (+15 XP)
+              <Check size={16} /> Đã thuộc · +15 XP lần đầu
             </button>
             <button
               type="button"

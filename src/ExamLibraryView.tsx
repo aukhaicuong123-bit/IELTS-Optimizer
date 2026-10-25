@@ -52,6 +52,15 @@ function countExamQuestions(exam: FullIELTSExam): number {
     + exam.listening.sections.reduce((total, section) => total + section.questions.length, 0)
 }
 
+function examSpecSummary(exam: FullIELTSExam) {
+  return {
+    listening: `${exam.listening.sections.length} Sections · ${exam.listening.totalQuestions} Câu hỏi · ${exam.listening.timeAllowedMinutes} Phút`,
+    reading: `${exam.reading.passages.length} Passages · ${exam.reading.totalQuestions} Câu hỏi · ${exam.reading.timeAllowedMinutes} Phút`,
+    writing: `Task 1 & Task 2 · ${exam.writing.timeAllowedMinutes} Phút`,
+    speaking: 'Part 1 · Part 2 (Cue Card) · Part 3'
+  }
+}
+
 function Task1StimulusChart({ data }: { data?: WritingStimulusData }) {
   if (!data) return null
   const colors = ['#075d52', '#3b82f6', '#d97706', '#7c3aed', '#db2777', '#65a30d']
@@ -152,6 +161,9 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
     })
   }, [selectedModule, searchTerm])
 
+  const formatReferenceExam = IELTS_EXAM_COLLECTIONS[0]
+  const referenceSpec = formatReferenceExam ? examSpecSummary(formatReferenceExam) : null
+
   // Router for active exam modes
   if (activeExam && activeExamMode === 'reading') {
     return (
@@ -223,9 +235,10 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
           </span>
           <h1 style={{ fontSize: 26, margin: '8px 0 10px' }}>Thư viện đề luyện tập sát format thi thật</h1>
           <p style={{ margin: 0, fontSize: 13, color: 'var(--muted)', maxWidth: 740, lineHeight: 1.6 }}>
-            Mỗi bộ đề là <strong>nội dung tự biên soạn theo cấu trúc IELTS Academic</strong>:
-            Reading (3 Passages - 40 câu - 60 phút), Listening (4 Sections - 40 câu - 30 phút có audio),
-            Writing (Task 1 & Task 2) và Speaking (Part 1, 2, 3). Có đồng hồ đếm ngược, thanh điều hướng 40 câu,
+            Mỗi bộ đề là <strong>nội dung tự biên soạn theo cấu trúc IELTS</strong>:
+            Reading ({referenceSpec?.reading || 'cấu trúc theo bộ đề'}), Listening ({referenceSpec?.listening || 'cấu trúc theo bộ đề'}),
+            Writing ({referenceSpec?.writing || 'Task 1 & Task 2'}) và Speaking ({referenceSpec?.speaking || 'Part 1, 2, 3'}). Có đồng hồ đếm ngược,
+            thanh điều hướng theo câu hỏi,
             chấm điểm Reading/Listening theo thang Band tham khảo và trích dẫn bằng chứng từ bài.
             Đây không phải đề chính thức của IELTS.
           </p>
@@ -244,7 +257,7 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
             <strong style={{ fontSize: 30, fontFamily: 'Space Grotesk', color: 'var(--accent)' }}>
               {IELTS_EXAM_COLLECTIONS.reduce((total, exam) => total + countExamQuestions(exam), 0)}
             </strong>
-            <small style={{ display: 'block', color: 'var(--muted)' }}>Câu hỏi trong thư viện</small>
+            <small style={{ display: 'block', color: 'var(--muted)' }}>Câu Reading + Listening</small>
           </div>
         </div>
       </div>
@@ -313,8 +326,8 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
               <button type="button" className="exam-library-clear-search" onClick={() => setSearchTerm('')} aria-label="Xóa tìm kiếm">×</button>
             )}
           </div>
-          <span className="exam-library-format-note" style={{ fontSize: 12, color: 'var(--muted)' }}>
-            {filteredExams.length} bộ đề · Computer-Delivered IELTS
+          <span className="exam-library-format-note" style={{ fontSize: 12, color: 'var(--muted)' }} role="status" aria-live="polite">
+            {filteredExams.length} bộ đề · Mô phỏng thi trên máy tính
           </span>
         </div>
       </div>
@@ -330,7 +343,9 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
               Xóa bộ lọc
             </button>
           </div>
-        ) : filteredExams.map(exam => (
+        ) : filteredExams.map(exam => {
+          const specs = examSpecSummary(exam)
+          return (
           <div
             key={exam.id}
             className="panel exam-library-card"
@@ -376,25 +391,25 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Volume2 size={15} color="var(--accent)" />
                   <span>
-                    <strong>Listening:</strong> 4 Sections · 40 Câu hỏi · 30 Phút (Có Audio)
+                    <strong>Listening:</strong> {specs.listening} (Có Audio)
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <BookOpen size={15} color="var(--mint)" />
                   <span>
-                    <strong>Reading:</strong> 3 Passages · 40 Câu hỏi · 60 Phút
+                    <strong>Reading:</strong> {specs.reading}
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <PenTool size={15} color="#74c0fc" />
                   <span>
-                    <strong>Writing:</strong> Task 1 (150 từ) & Task 2 (250 từ) · 60 Phút
+                    <strong>Writing:</strong> {specs.writing}
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Mic size={15} color="#e599f7" />
                   <span>
-                    <strong>Speaking:</strong> Part 1, Part 2 (Cue Card), Part 3 Phỏng vấn
+                    <strong>Speaking:</strong> {specs.speaking} · Phỏng vấn
                   </span>
                 </div>
               </div>
@@ -439,7 +454,7 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
                     fontWeight: 700
                   }}
                 >
-                  <BookOpen size={14} /> Full Reading (40 câu)
+                  <BookOpen size={14} /> Full Reading ({exam.reading.totalQuestions} câu)
                 </button>
 
                 <button
@@ -461,7 +476,7 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
                     color: '#122019'
                   }}
                 >
-                  <Volume2 size={14} /> Full Listening (40 câu)
+                  <Volume2 size={14} /> Full Listening ({exam.listening.totalQuestions} câu)
                 </button>
               </div>
 
@@ -491,14 +506,15 @@ export default function ExamLibraryView({ store, setStore, onNavigate, addToast 
               </div>
             </div>
           </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )
 }
 
 // =========================================================================
-// 1. FULL READING EXAM SIMULATOR (40 Questions, 3 Passages, 60-Minute Countdown)
+// 1. FULL READING EXAM SIMULATOR (collection-defined passages/questions/time)
 // =========================================================================
 
 interface ReadingSimulatorProps {
@@ -513,7 +529,7 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
   const [activePassageIndex, setActivePassageIndex] = useState<0 | 1 | 2>(0)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [flaggedQuestions, setFlaggedQuestions] = useState<Set<number>>(new Set())
-  const [secondsLeft, setSecondsLeft] = useState<number>(60 * 60) // 60 minutes
+  const [secondsLeft, setSecondsLeft] = useState<number>(() => exam.reading.timeAllowedMinutes * 60)
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false)
   const [confirmExitOpen, setConfirmExitOpen] = useState(false)
   const [mobileSimulatorTab, setMobileSimulatorTab] = useState<'passage' | 'questions'>('passage')
@@ -619,7 +635,7 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
     }))
 
     setIsSubmitted(true)
-    addToast(`Bài thi Reading hoàn tất! Điểm thô: ${rawScore}/40 — Đạt Band ${bandScore.toFixed(1)}`, 'success')
+    addToast(`Bài thi Reading hoàn tất! Điểm thô: ${rawScore}/${allQuestions.length} — Đạt Band ${bandScore.toFixed(1)}`, 'success')
   }
 
   const answeredCount = Object.keys(answers).length
@@ -659,10 +675,10 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
             }}
           >
             <div>
-              <span className="eyebrow">BÁO CÁO KẾT QUẢ THI THỬ READING (40 CÂU HOÀN CHỈNH)</span>
+          <span className="eyebrow">BÁO CÁO KẾT QUẢ THI THỬ READING ({allQuestions.length} CÂU HOÀN CHỈNH)</span>
               <h2 style={{ fontSize: 24, margin: '6px 0 10px' }}>{exam.title}</h2>
               <p style={{ margin: 0, color: 'var(--muted)', fontSize: 13 }}>
-                Thời gian làm bài: {formatTimer(60 * 60 - secondsLeft)} · Hoàn thành: {answeredCount}/40 câu hỏi
+                Thời gian làm bài: {formatTimer(exam.reading.timeAllowedMinutes * 60 - secondsLeft)} · Hoàn thành: {answeredCount}/{allQuestions.length} câu hỏi
               </p>
             </div>
 
@@ -670,7 +686,7 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
               <div className="exam-result-metric exam-result-raw" style={{ padding: '10px 18px', background: '#182922', borderRadius: 10, border: '1px solid var(--line)' }}>
                 <span style={{ fontSize: 11, color: 'var(--muted)', display: 'block' }}>Điểm số thô (Raw)</span>
                 <strong style={{ fontSize: 26, fontFamily: 'Space Grotesk', color: '#f0f8f1' }}>
-                  {rawScore} <small style={{ fontSize: 14, color: 'var(--muted)' }}>/ 40</small>
+                  {rawScore} <small style={{ fontSize: 14, color: 'var(--muted)' }}>/ {allQuestions.length}</small>
                 </strong>
               </div>
 
@@ -684,9 +700,9 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
           </div>
         </div>
 
-        {/* Detailed 40-Question Breakdown */}
+        {/* Detailed question breakdown */}
         <div className="panel exam-result-review" style={{ padding: 24 }}>
-          <h3 style={{ fontSize: 17, marginBottom: 16 }}>Bảng phân tích đáp án & Bằng chứng chi tiết (40 Câu)</h3>
+          <h3 style={{ fontSize: 17, marginBottom: 16 }}>Bảng phân tích đáp án & Bằng chứng chi tiết ({allQuestions.length} Câu)</h3>
 
           <div className="stack" style={{ gap: 14 }}>
             {allQuestions.map(q => {
@@ -788,7 +804,7 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
           </button>
           <div>
             <strong style={{ fontSize: 14, color: '#f0f8f1', display: 'block' }}>{exam.title}</strong>
-            <small style={{ color: 'var(--muted)', fontSize: 11 }}>Academic Reading · 40 Câu hỏi (3 Passages)</small>
+            <small style={{ color: 'var(--muted)', fontSize: 11 }}>{exam.module} Reading · {allQuestions.length} Câu hỏi ({exam.reading.passages.length} Passages)</small>
           </div>
         </div>
 
@@ -846,7 +862,7 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
             onClick={handleSubmitTest}
             style={{ padding: '8px 18px', fontWeight: 700 }}
           >
-            Nộp bài thi ({answeredCount}/40)
+            Nộp bài thi ({answeredCount}/{allQuestions.length})
           </button>
         </div>
       </div>
@@ -871,7 +887,7 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
           onClick={() => setMobileSimulatorTab('questions')}
         >
           <ListChecks size={16} />
-          <span>Câu hỏi ({answeredCount}/40)</span>
+          <span>Câu hỏi ({answeredCount}/{allQuestions.length})</span>
         </button>
       </div>
 
@@ -1144,7 +1160,7 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, color: 'var(--muted)' }}>
           <div style={{ display: 'flex', gap: 14 }}>
-            <span>Đã làm: <strong style={{ color: 'var(--mint)' }}>{answeredCount}/40</strong></span>
+            <span>Đã làm: <strong style={{ color: 'var(--mint)' }}>{answeredCount}/{allQuestions.length}</strong></span>
             <span>Gắn cờ: <strong style={{ color: 'var(--accent)' }}>{flaggedQuestions.size}</strong></span>
           </div>
           <span>Bấm vào số câu để chuyển nhanh đến câu hỏi tương ứng</span>
@@ -1224,7 +1240,7 @@ function FullReadingExamSimulator({ exam, store, setStore, onExit, addToast }: R
 }
 
 // =========================================================================
-// 2. FULL LISTENING EXAM SIMULATOR (40 Questions, 4 Sections, 30-Minute Audio)
+// 2. FULL LISTENING EXAM SIMULATOR (collection-defined sections/questions/time)
 // =========================================================================
 
 interface ListeningSimulatorProps {
@@ -1239,7 +1255,7 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
   const [activeSectionIndex, setActiveSectionIndex] = useState<0 | 1 | 2 | 3>(0)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [flaggedQuestions, setFlaggedQuestions] = useState<Set<number>>(new Set())
-  const [secondsLeft, setSecondsLeft] = useState<number>(30 * 60) // 30 minutes
+  const [secondsLeft, setSecondsLeft] = useState<number>(() => exam.listening.timeAllowedMinutes * 60)
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false)
   const [confirmExitOpen, setConfirmExitOpen] = useState(false)
   const [isPlaying, setIsPlaying] = useState<boolean>(false)
@@ -1386,7 +1402,7 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
     }))
 
     setIsSubmitted(true)
-    addToast(`Bài thi Listening hoàn tất! Điểm thô: ${rawScore}/40 — Đạt Band ${bandScore.toFixed(1)}`, 'success')
+    addToast(`Bài thi Listening hoàn tất! Điểm thô: ${rawScore}/${allQuestions.length} — Đạt Band ${bandScore.toFixed(1)}`, 'success')
   }
 
   const answeredCount = Object.keys(answers).length
@@ -1425,10 +1441,10 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
             }}
           >
             <div>
-              <span className="eyebrow">BÁO CÁO KẾT QUẢ THI THỬ LISTENING (40 CÂU HOÀN CHỈNH)</span>
+          <span className="eyebrow">BÁO CÁO KẾT QUẢ THI THỬ LISTENING ({allQuestions.length} CÂU HOÀN CHỈNH)</span>
               <h2 style={{ fontSize: 24, margin: '6px 0 10px' }}>{exam.title} — Listening Paper</h2>
               <p style={{ margin: 0, color: 'var(--muted)', fontSize: 13 }}>
-                Thời gian làm bài: {formatTimer(30 * 60 - secondsLeft)} · Hoàn thành: {answeredCount}/40 câu hỏi
+                Thời gian làm bài: {formatTimer(exam.listening.timeAllowedMinutes * 60 - secondsLeft)} · Hoàn thành: {answeredCount}/{allQuestions.length} câu hỏi
               </p>
             </div>
 
@@ -1436,7 +1452,7 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
               <div className="exam-result-metric exam-result-raw" style={{ padding: '10px 18px', background: '#182922', borderRadius: 10, border: '1px solid var(--line)' }}>
                 <span style={{ fontSize: 11, color: 'var(--muted)', display: 'block' }}>Điểm số thô (Raw)</span>
                 <strong style={{ fontSize: 26, fontFamily: 'Space Grotesk', color: '#f0f8f1' }}>
-                  {rawScore} <small style={{ fontSize: 14, color: 'var(--muted)' }}>/ 40</small>
+                  {rawScore} <small style={{ fontSize: 14, color: 'var(--muted)' }}>/ {allQuestions.length}</small>
                 </strong>
               </div>
 
@@ -1450,9 +1466,9 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
           </div>
         </div>
 
-        {/* Detailed 40-Question Breakdown */}
+        {/* Detailed question breakdown */}
         <div className="panel exam-result-review" style={{ padding: 24 }}>
-          <h3 style={{ fontSize: 17, marginBottom: 16 }}>Bảng phân tích đáp án & Bằng chứng Audio Transcript (40 Câu)</h3>
+          <h3 style={{ fontSize: 17, marginBottom: 16 }}>Bảng phân tích đáp án & Bằng chứng Audio Transcript ({allQuestions.length} Câu)</h3>
 
           <div className="stack" style={{ gap: 14 }}>
             {allQuestions.map(q => {
@@ -1554,7 +1570,7 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
           </button>
           <div>
             <strong style={{ fontSize: 14, color: '#f0f8f1', display: 'block' }}>{exam.title}</strong>
-            <small style={{ color: 'var(--muted)', fontSize: 11 }}>Academic Listening · 40 Câu hỏi (4 Sections)</small>
+            <small style={{ color: 'var(--muted)', fontSize: 11 }}>{exam.module} Listening · {allQuestions.length} Câu hỏi ({listeningPaper.sections.length} Sections)</small>
           </div>
         </div>
 
@@ -1618,7 +1634,7 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
             onClick={handleSubmitTest}
             style={{ padding: '8px 18px', fontWeight: 700 }}
           >
-            Nộp bài thi ({answeredCount}/40)
+            Nộp bài thi ({answeredCount}/{allQuestions.length})
           </button>
         </div>
       </div>
@@ -1835,7 +1851,7 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, color: 'var(--muted)' }}>
           <div style={{ display: 'flex', gap: 14 }}>
-            <span>Đã làm: <strong style={{ color: 'var(--mint)' }}>{answeredCount}/40</strong></span>
+            <span>Đã làm: <strong style={{ color: 'var(--mint)' }}>{answeredCount}/{allQuestions.length}</strong></span>
             <span>Gắn cờ: <strong style={{ color: 'var(--accent)' }}>{flaggedQuestions.size}</strong></span>
           </div>
           <span>Bấm vào số câu để chuyển nhanh đến câu hỏi tương ứng</span>
@@ -1930,7 +1946,7 @@ function FullWritingExamSimulator({ exam, store, setStore, onExit, addToast }: W
   const [activeTask, setActiveTask] = useState<'task1' | 'task2'>('task1')
   const [task1Text, setTask1Text] = useState('')
   const [task2Text, setTask2Text] = useState('')
-  const [secondsLeft, setSecondsLeft] = useState<number>(60 * 60) // 60 minutes
+  const [secondsLeft, setSecondsLeft] = useState<number>(() => exam.writing.timeAllowedMinutes * 60)
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false)
   const [confirmExitOpen, setConfirmExitOpen] = useState(false)
   const handleSubmitRef = useRef<(() => void) | null>(null)

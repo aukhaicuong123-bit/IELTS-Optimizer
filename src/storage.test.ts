@@ -20,8 +20,10 @@ describe('storage migration and deletion', () => {
     expect(store.recoveryState?.raw).toBe('{broken')
     expect(data.get('ielts-optimizer-store-v1')).toBe('{broken')
   })
-  it('clears both current and legacy keys', () => {
+  it('clears the store plus auxiliary learner-progress keys', () => {
     data.set('ielts-optimizer-store-v1', '{}'); data.set('optistudy-store-v1', '{}')
+    data.set('ielts-optimizer-vocab-known', JSON.stringify({ word: true }))
+    data.set('ielts-optimizer-grammar-errors', JSON.stringify({ rule: { wrongCount: 1 } }))
     clearStore()
     expect(data.size).toBe(0)
   })

@@ -86,7 +86,7 @@ import { ForumGrammarHub } from './components/ForumGrammarHub'
 import { ForumStudyTree } from './components/ForumStudyTree'
 import { SKILL_MODEL_CONTENT } from './skillModelContent'
 import { uiSectionAsset } from './uiAssets'
-import { countCompletedGrammar, countKnownVocabulary } from './gamification'
+import { getJourneySnapshot } from './gamification'
 
 type NavItem = [Page, string, any]
 
@@ -981,10 +981,6 @@ function DailyVocabDrill() {
   )
 }
 
-function readKnownForumVocabularyCount() {
-  return countKnownVocabulary()
-}
-
 function pageForSkill(skill: Skill): Page {
   if (skill === 'Listening') return 'listening'
   if (skill === 'Writing') return 'writing'
@@ -1013,8 +1009,11 @@ function Dashboard({
 }) {
   const projection = deriveReadingStates(s.errors, s.attempts, passages)
   const rec = recommendations(s.profile, s.attempts, s.errors, s.plan, projection.statesByDifficulty)
-  const knownVocabCount = readKnownForumVocabularyCount()
-  const completedGrammarCount = countCompletedGrammar(s.submissions)
+  const journey = getJourneySnapshot(
+    s.submissions,
+    TOTAL_FORUM_VOCAB_COUNT,
+    CEFR_GRAMMAR_RULES.length
+  )
   const missionPage = pageForRecommendation(s, rec)
 
   const [heatmapExpanded, setHeatmapExpanded] = useState(false)
@@ -1026,9 +1025,9 @@ function Dashboard({
           variant="dashboard"
           activeTrack="vocabulary"
           onSelectTrack={track => go(track === 'grammar' ? 'grammar' : 'vocabulary')}
-          knownVocabCount={knownVocabCount}
+          knownVocabCount={journey.knownVocabCount}
           totalVocabCount={TOTAL_FORUM_VOCAB_COUNT}
-          completedGrammarCount={completedGrammarCount}
+          completedGrammarCount={journey.completedGrammarCount}
           totalGrammarCount={CEFR_GRAMMAR_RULES.length}
         />
       </section>
@@ -1162,11 +1161,11 @@ function LearnerProfileCard({ s, go }: { s: Store; go: (page: Page) => void }) {
   const todayMinutes = Math.round(minutesByDate(s.sessions)[localDate(new Date().toISOString())] || 0)
   const progressPercent = Math.min(100, Math.round((todayMinutes / dailyGoal) * 100))
 
-  const skillEvidence: { skill: Skill; label: string; icon: string; status: string; hasEvidence: boolean }[] = [
-    { skill: 'Listening', label: 'Nghe', icon: '🎧', ...skillEvidenceFor(s, 'Listening') },
-    { skill: 'Reading', label: 'Đọc', icon: '📖', ...skillEvidenceFor(s, 'Reading') },
-    { skill: 'Writing', label: 'Viết', icon: '✍️', ...skillEvidenceFor(s, 'Writing') },
-    { skill: 'Speaking', label: 'Nói', icon: '🗣️', ...skillEvidenceFor(s, 'Speaking') }
+  const skillEvidence: { skill: Skill; label: string; icon: ReactNode; status: string; hasEvidence: boolean }[] = [
+    { skill: 'Listening', label: 'Nghe', icon: <Volume2 size={17} aria-hidden="true" />, ...skillEvidenceFor(s, 'Listening') },
+    { skill: 'Reading', label: 'Đọc', icon: <BookOpen size={17} aria-hidden="true" />, ...skillEvidenceFor(s, 'Reading') },
+    { skill: 'Writing', label: 'Viết', icon: <PenTool size={17} aria-hidden="true" />, ...skillEvidenceFor(s, 'Writing') },
+    { skill: 'Speaking', label: 'Nói', icon: <Mic size={17} aria-hidden="true" />, ...skillEvidenceFor(s, 'Speaking') }
   ]
 
   return (
@@ -2474,14 +2473,19 @@ function SkillPractice({
   const [recordingError, setRecordingError] = useState('')
   const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({})
   const [showQuizResult, setShowQuizResult] = useState(false)
+  const [transcriptFallbackEnabled, setTranscriptFallbackEnabled] = useState(false)
 
   const recorder = useRef<MediaRecorder | null>(null)
+  const previousActivityId = useRef(activityId)
 
   useEffect(() => {
+    if (previousActivityId.current === activityId) return
+    previousActivityId.current = activityId
     setResponse(draft)
     setProgress(0)
     setQuizAnswers({})
     setShowQuizResult(false)
+    setTranscriptFallbackEnabled(false)
     setPrepActive(false)
     setPrepSeconds(60)
     setSpeakingActive(false)
@@ -2525,21 +2529,26 @@ function SkillPractice({
     }
   }, [audioUrl])
 
+  useEffect(() => {
+    return () => {
+      if (uploadedAudioUrl) URL.revokeObjectURL(uploadedAudioUrl)
+    }
+  }, [uploadedAudioUrl])
+
   const updateResponse = (value: string) => {
     setResponse(value)
-    if (skill === 'Writing' || skill === 'Speaking') {
-      setS({
-        ...s,
-        drafts: [
-          ...(s.drafts || []).filter(item => item.activityId !== activityId),
-          { id: `draft-${activityId}`, skill, activityId, content: value, updatedAt: new Date().toISOString() }
-        ]
-      })
-    }
+    setS({
+      ...s,
+      drafts: [
+        ...(s.drafts || []).filter(item => item.activityId !== activityId),
+        { id: `draft-${activityId}`, skill, activityId, content: value, updatedAt: new Date().toISOString() }
+      ]
+    })
   }
 
   // Audio player methods for Listening
   const playGeneratedAudio = () => {
+    setTranscriptFallbackEnabled(true)
     if (!('speechSynthesis' in window)) {
       return note('Speech audio is not supported in this browser. Use the transcript fallback.')
     }
@@ -2617,6 +2626,10 @@ function SkillPractice({
   const writingWordTarget = writingTaskType === 'task1' ? 150 : 250
   const paragraphCount = response.split(/\n\s*\n/).filter(Boolean).length
   const sentenceCount = response.split(/[.!?]+/).filter(sentence => sentence.trim()).length
+  const listeningQuestions = skill === 'Listening' ? currentTopic.listening.questions : []
+  const answeredListeningCount = listeningQuestions.filter(question => quizAnswers[question.id]).length
+  const listeningCorrectCount = listeningQuestions.filter(question => quizAnswers[question.id] === question.answer).length
+  const listeningQuizComplete = listeningQuestions.length > 0 && answeredListeningCount === listeningQuestions.length
 
   const feedback =
     skill === 'Writing'
@@ -2654,11 +2667,23 @@ function SkillPractice({
       feedbackMode: skill === 'Listening' ? ('transcript-fallback' as const) : ('self-review' as const),
       completed: true
     }
+    const existingIndex = (s.submissions || []).findIndex(item =>
+      item.skill === skill && item.activityId === activityId && item.completed === true
+    )
+    const nextSubmissions = [...(s.submissions || [])]
+    if (existingIndex >= 0) {
+      nextSubmissions[existingIndex] = { ...nextSubmissions[existingIndex], ...submission, id: nextSubmissions[existingIndex].id }
+    } else {
+      nextSubmissions.push(submission)
+    }
     setS({
       ...s,
-      submissions: [...(s.submissions || []), submission]
+      submissions: nextSubmissions
     })
-    note(`${skill} evidence saved to Learning Record.`)
+    note(existingIndex >= 0
+      ? `Đã cập nhật minh chứng ${skill} trong Learning Record.`
+      : `Đã lưu minh chứng ${skill} vào Learning Record.`
+    )
   }
 
   const history = (s.submissions || []).filter(item => item.skill === skill && item.activityId.includes(selectedTopicId)).slice().reverse()
@@ -2691,15 +2716,15 @@ function SkillPractice({
           </div>
 
           <div className="audio-controls">
-            <button className="secondary" onClick={playGeneratedAudio}>
-              <Play size={14} /> Play fallback voice
+            <button type="button" className="secondary" onClick={playGeneratedAudio}>
+              <Play size={14} /> Nghe giọng dự phòng
             </button>
             <a className="secondary audio-source-link" href="https://takeielts.britishcouncil.org/prepare/ielts-free-practice-mock-tests/academic/listening" target="_blank" rel="noreferrer">Mở official natural recording ↗</a>
-            <button className="secondary" onClick={pauseGeneratedAudio}>
-              <Pause size={14} /> Pause
+            <button type="button" className="secondary" onClick={pauseGeneratedAudio}>
+              <Pause size={14} /> Tạm dừng
             </button>
-            <button className="secondary" onClick={resumeGeneratedAudio}>
-              Resume
+            <button type="button" className="secondary" onClick={resumeGeneratedAudio}>
+              Tiếp tục
             </button>
             <progress max="100" value={progress} aria-label="Audio progress" />
             <select
@@ -2712,30 +2737,39 @@ function SkillPractice({
               <option value="1.0">1.0x Normal</option>
               <option value="1.15">1.15x Fast</option>
             </select>
-            {isPlaying && <span className="muted">Playing audio…</span>}
+            {isPlaying && <span className="muted" role="status">Đang phát audio…</span>}
           </div>
           <div className="audio-upload-box">
             <label htmlFor="listening-audio-upload"><b>Audio tự nhiên</b><span> Ưu tiên recording người thật từ nguồn official hoặc file luyện tập của bạn.</span></label>
             <input id="listening-audio-upload" type="file" accept="audio/*" onChange={event => {
               const file = event.target.files?.[0]
-              if (file) setUploadedAudioUrl(URL.createObjectURL(file))
+              if (file) {
+                setUploadedAudioUrl(URL.createObjectURL(file))
+                setTranscriptFallbackEnabled(true)
+              }
             }} />
             {uploadedAudioUrl && <audio controls src={uploadedAudioUrl} aria-label="Uploaded natural listening audio" />}
           </div>
 
-          <details style={{ margin: '14px 0' }}>
-            <summary className="transcript-summary-toggle">
-              Hiện phụ đề bài nghe (Transcript fallback)
-            </summary>
-            <p className="callout" style={{ marginTop: '8px' }}>
-              {currentTopic.listening.audioText}
+          {transcriptFallbackEnabled ? (
+            <details style={{ margin: '14px 0' }}>
+              <summary className="transcript-summary-toggle">
+                Hiện phụ đề bài nghe (Transcript dự phòng)
+              </summary>
+              <p className="callout" style={{ marginTop: '8px' }}>
+                {currentTopic.listening.audioText}
+              </p>
+            </details>
+          ) : (
+            <p className="audio-transcript-hint" role="status">
+              Phụ đề dự phòng sẽ mở sau khi bạn bắt đầu audio hoặc thêm file nghe của mình.
             </p>
-          </details>
+          )}
 
           {/* Listening Comprehension Check */}
           <div className="listening-quiz-section">
-            <h4>Kiểm tra mức độ nghe hiểu ({currentTopic.listening.questions.length} câu)</h4>
-            {currentTopic.listening.questions.map((q, qIndex) => (
+            <h4>Kiểm tra mức độ nghe hiểu ({listeningQuestions.length} câu)</h4>
+            {listeningQuestions.map((q, qIndex) => (
               <div key={q.id} className="listening-quiz-card">
                 <p className="listening-quiz-prompt">
                   {qIndex + 1}. {q.prompt}
@@ -2748,6 +2782,7 @@ function SkillPractice({
                         name={q.id}
                         checked={quizAnswers[q.id] === opt}
                         onChange={() => setQuizAnswers({ ...quizAnswers, [q.id]: opt })}
+                        disabled={showQuizResult}
                       />
                       <span>{opt}</span>
                     </label>
@@ -2762,9 +2797,28 @@ function SkillPractice({
                 )}
               </div>
             ))}
-            <button className="primary" onClick={() => setShowQuizResult(true)}>
-              Kiểm tra đáp án nghe hiểu
-            </button>
+            {showQuizResult ? (
+              <div className="listening-quiz-summary" role="status">
+                <b>Kết quả: {listeningCorrectCount}/{listeningQuestions.length} câu đúng</b>
+                <button type="button" className="secondary" onClick={() => {
+                  setQuizAnswers({})
+                  setShowQuizResult(false)
+                }}>
+                  Làm lại quiz
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="primary"
+                disabled={!listeningQuizComplete}
+                onClick={() => setShowQuizResult(true)}
+              >
+                {listeningQuizComplete
+                  ? 'Kiểm tra đáp án nghe hiểu'
+                  : `Trả lời đủ ${answeredListeningCount}/${listeningQuestions.length} câu`}
+              </button>
+            )}
           </div>
 
           <div style={{ marginTop: '20px' }}>
@@ -2851,14 +2905,15 @@ function SkillPractice({
             </div>
             <div className="lexicon-chip-cloud">
               {currentTopic.vocab.map(item => (
-                <span
+                <button
                   key={item.id}
+                  type="button"
                   className="lexicon-chip"
                   title={`${item.ipa} — ${item.meaningVi}`}
                   onClick={() => updateResponse(response ? `${response} ${item.term}` : item.term)}
                 >
                   + {item.term} ({item.meaningVi})
-                </span>
+                </button>
               ))}
             </div>
           </div>
@@ -2939,8 +2994,8 @@ function SkillPractice({
           {speakingPart === 'part2' && (
             <div>
               <h3>Part 2 Cue Card — {currentTopic.titleEn}</h3>
-              <div className="panel" style={{ background: '#121e18', border: '1px solid #365342' }}>
-                <p style={{ fontStyle: 'italic', color: '#075d52', fontWeight: 600 }}>
+              <div className="speaking-cue-card">
+                <p className="speaking-cue-prompt">
                   {currentTopic.speaking.part2.cueCard}
                 </p>
                 <p style={{ margin: '8px 0 4px', fontWeight: 600 }}>You should say:</p>
@@ -3007,14 +3062,14 @@ function SkillPractice({
           </div>
 
           {/* Browser Audio Recorder */}
-          <div style={{ margin: '18px 0', borderTop: '1px solid #2e3d37', paddingTop: '16px' }}>
+          <div className="speaking-recorder-panel">
             <div className="error-actions">
-              <button className={recording ? 'danger' : 'secondary'} onClick={recording ? stopRecording : startRecording}>
+              <button type="button" className={recording ? 'danger' : 'secondary'} onClick={recording ? stopRecording : startRecording}>
                 {recording ? 'Dừng ghi âm' : 'Bật ghi âm luyện nói (Mic)'}
               </button>
               {audioUrl && <audio controls src={audioUrl} aria-label="Recorded speaking response" />}
             </div>
-            {recordingError && <p className="status">{recordingError}</p>}
+            {recordingError && <p className="status" role="alert">{recordingError}</p>}
           </div>
 
           <textarea
@@ -4014,7 +4069,11 @@ function Profile({
   const resetAll = () => {
     openConfirm('Xóa toàn bộ dữ liệu học tập?', 'Hành động này sẽ xóa tất cả bài làm, lỗi, nhật ký và tiến độ. Không thể hoàn tác.', () => {
       const cleared = clearStore()
-      setS(loadStore())
+      const resetStore = loadStore()
+      setS(resetStore)
+      setLocalProfile(resetStore.profile)
+      setProfileStep(0)
+      setProfileError('')
       note(cleared ? 'Đã xóa toàn bộ dữ liệu học tập.' : 'Không thể xóa một số khóa dữ liệu.')
     })
   }
