@@ -485,7 +485,7 @@ app.post('/api/ai/tts', async (req: Request, res: Response) => {
 async function startServer() {
   if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.resolve(__dirname, 'dist')))
-    app.get('*', (_req, res) => {
+    app.use((_req: Request, res: Response) => {
       res.sendFile(path.resolve(__dirname, 'dist', 'index.html'))
     })
   } else {
