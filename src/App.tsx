@@ -64,7 +64,7 @@ import {
   snapshotActiveSession
 } from './domain'
 import { deriveReadingStates, readingDifficultyId, targetFor } from './readingEngine'
-import { clearStore, loadStore } from './storage'
+import { clearStore, loadStore, saveStore } from './storage'
 import { TOPICS, type TopicId, type TopicDefinition, type VocabItem, type GrammarRule, type WritingChartData } from './topicData'
 import { CEFR_GRAMMAR_RULES } from './data/cefrGrammarData'
 import { TOTAL_FORUM_VOCAB_COUNT } from './data/forumVocab25Topics'
@@ -163,7 +163,7 @@ export default function App() {
   const [headerNow, setHeaderNow] = useState(Date.now())
 
   useEffect(() => {
-    if (!store.recoveryState) localStorage.setItem('ielts-optimizer-store-v1', JSON.stringify(store))
+    if (!store.recoveryState) saveStore(store)
   }, [store])
 
   useEffect(() => {
@@ -175,17 +175,20 @@ export default function App() {
 
   useEffect(() => {
     const pauseWhenHidden = () => {
-      const active = store.activeSession
-      if (document.visibilityState !== 'hidden' || !active || active.paused) return
+      if (document.visibilityState !== 'hidden') return
       const pausedAt = new Date().toISOString()
-      setStore({
-        ...store,
-        activeSession: { ...snapshotActiveSession(active, pausedAt), paused: true }
+      setStore(previous => {
+        const active = previous.activeSession
+        if (!active || active.paused) return previous
+        return {
+          ...previous,
+          activeSession: { ...snapshotActiveSession(active, pausedAt), paused: true }
+        }
       })
     }
     document.addEventListener('visibilitychange', pauseWhenHidden)
     return () => document.removeEventListener('visibilitychange', pauseWhenHidden)
-  }, [store])
+  }, [])
 
   useEffect(() => {
     window.speechSynthesis?.cancel()
@@ -2506,6 +2509,7 @@ function SkillPractice({
   })
   const htmlAudioRef = useRef<HTMLAudioElement | null>(null)
   const ttsRequestRef = useRef<Record<string, Promise<string | null> | undefined>>({})
+  const ttsAbortRef = useRef<AbortController | null>(null)
   const activeTtsLoadingKeyRef = useRef('')
   const speechQueueRef = useRef<{ speaker: string; text: string }[] | null>(null)
   const speechIndexRef = useRef<number>(0)
@@ -2772,34 +2776,42 @@ function SkillPractice({
     try {
       const existingRequest = ttsRequestRef.current[requestKey]
       const request = existingRequest || (async () => {
-      const ttsBaseUrl = (import.meta.env.VITE_TTS_API_URL || '').replace(/\/$/, '')
-      const res = await fetch(`${ttsBaseUrl}/api/ai/tts`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: currentTopic.listening.audioText,
-          voiceName: voicePersona,
-          style: 'Clear, engaging, natural British IELTS speaker with authentic pacing, subtle breathing pauses, and expressive intonation'
-        })
-      })
-
-      if (res.ok) {
-        const data = await res.json()
-        if (data.audioBase64) {
-          const audioSrc = `data:${data.mimeType || 'audio/wav'};base64,${data.audioBase64}`
-          setTtsAudioMap(prev => {
-            const next = { ...prev, [cacheKey]: audioSrc }
-            try { sessionStorage.setItem('ielts-tts-audio-cache', JSON.stringify(next)) } catch {}
-            return next
+        const controller = new AbortController()
+        ttsAbortRef.current?.abort()
+        ttsAbortRef.current = controller
+        try {
+          const ttsBaseUrl = (import.meta.env.VITE_TTS_API_URL || '').replace(/\/$/, '')
+          const res = await fetch(`${ttsBaseUrl}/api/ai/tts`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
+            body: JSON.stringify({
+              text: currentTopic.listening.audioText,
+              voiceName: voicePersona,
+              style: 'Clear, engaging, natural British IELTS speaker with authentic pacing, subtle breathing pauses, and expressive intonation'
+            })
           })
-          setAudioSourceType('studio')
-          if (data.speakers && Array.isArray(data.speakers)) {
-            setCurrentSpeakers(data.speakers)
+
+          if (res.ok) {
+            const data = await res.json()
+            if (data.audioBase64) {
+              const audioSrc = `data:${data.mimeType || 'audio/wav'};base64,${data.audioBase64}`
+              setTtsAudioMap(prev => {
+                const next = { ...prev, [cacheKey]: audioSrc }
+                try { sessionStorage.setItem('ielts-tts-audio-cache', JSON.stringify(next)) } catch {}
+                return next
+              })
+              setAudioSourceType('studio')
+              if (data.speakers && Array.isArray(data.speakers)) {
+                setCurrentSpeakers(data.speakers)
+              }
+              return audioSrc
+            }
           }
-          return audioSrc
+          return null
+        } finally {
+          if (ttsAbortRef.current === controller) ttsAbortRef.current = null
         }
-      }
-      return null
       })()
       ttsRequestRef.current[requestKey] = request
       let audioResult: string | null = null
@@ -2834,6 +2846,9 @@ function SkillPractice({
     if (skill !== 'Listening') return
     const cacheKey = ttsCacheKey(selectedTopicId, voicePersona, currentTopic.listening.audioText)
     if (ttsAudioMap[cacheKey]) return
+    const controller = new AbortController()
+    ttsAbortRef.current?.abort()
+    ttsAbortRef.current = controller
     const timer = window.setTimeout(() => {
       const requestKey = `${cacheKey}::${currentTopic.listening.audioText}`
       if (ttsRequestRef.current[requestKey]) return
@@ -2845,6 +2860,7 @@ function SkillPractice({
           const res = await fetch(`${ttsBaseUrl}/api/ai/tts`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
             body: JSON.stringify({
               text: currentTopic.listening.audioText,
               voiceName: voicePersona,
@@ -2866,13 +2882,18 @@ function SkillPractice({
           console.warn('Studio TTS prefetch failed:', err)
           return null
         } finally {
+          if (ttsAbortRef.current === controller) ttsAbortRef.current = null
           if (activeTtsLoadingKeyRef.current === requestKey) setIsGeneratingTts(false)
         }
       })()
       ttsRequestRef.current[requestKey] = request
       void request.finally(() => { delete ttsRequestRef.current[requestKey] })
     }, 900)
-    return () => window.clearTimeout(timer)
+    return () => {
+      window.clearTimeout(timer)
+      controller.abort()
+      if (ttsAbortRef.current === controller) ttsAbortRef.current = null
+    }
   }, [skill, selectedTopicId, voicePersona])
 
   const handlePauseAudio = () => {
