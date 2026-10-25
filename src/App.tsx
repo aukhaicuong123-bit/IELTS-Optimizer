@@ -181,6 +181,10 @@ export default function App() {
     return () => document.removeEventListener('visibilitychange', pauseWhenHidden)
   }, [store])
 
+  useEffect(() => {
+    window.speechSynthesis?.cancel()
+  }, [page])
+
   const addToast = useCallback((message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
     const id = `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
     setToasts(prev => [...prev, { id, message, type }])
@@ -2899,8 +2903,12 @@ function SkillPractice({
       : []
 
   const submit = () => {
-    const savedResponse = response.trim() || (audioUrl ? '[Browser recording saved for playback; no transcript supplied.]' : '')
-    if (!savedResponse) return note('Add a response or recording before saving.')
+    let savedResponse = response.trim() || (audioUrl ? '[Browser recording saved for playback; no transcript supplied.]' : '')
+    if (!savedResponse && skill === 'Listening' && Object.keys(quizAnswers).length > 0) {
+      const correct = currentTopic.listening.questions.filter(q => quizAnswers[q.id] === q.answer).length
+      savedResponse = `Bài kiểm tra nghe (${currentTopic.listening.title}): ${correct}/${currentTopic.listening.questions.length} câu đúng.`
+    }
+    if (!savedResponse) return note('Thêm ghi chú, câu trả lời hoặc bản ghi âm trước khi lưu.')
     const submission = {
       id: uid('submission'),
       skill,
@@ -2914,7 +2922,7 @@ function SkillPractice({
       ...s,
       submissions: [...(s.submissions || []), submission]
     })
-    note(`${skill} evidence saved to Learning Record.`)
+    note(`Minh chứng ${skill} đã được lưu vào Learning Record.`)
   }
 
   const history = (s.submissions || []).filter(item => item.skill === skill && item.activityId.includes(selectedTopicId)).slice().reverse()
@@ -3084,7 +3092,13 @@ function SkillPractice({
               {/* Speed selector */}
               <select
                 value={playbackSpeed}
-                onChange={e => setPlaybackSpeed(parseFloat(e.target.value))}
+                onChange={e => {
+                  const newSpeed = parseFloat(e.target.value)
+                  setPlaybackSpeed(newSpeed)
+                  if (htmlAudioRef.current) {
+                    htmlAudioRef.current.playbackRate = newSpeed
+                  }
+                }}
                 aria-label="Tốc độ đọc"
                 className="audio-speed-select"
                 style={{ padding: '6px 10px', fontSize: '12px' }}
@@ -3321,7 +3335,50 @@ function SkillPractice({
                 onClick={() => {
                   setShowQuizResult(true)
                   const correct = currentTopic.listening.questions.filter(q => quizAnswers[q.id] === q.answer).length
-                  note(`Đã nộp bài nghe: ${correct}/${currentTopic.listening.questions.length} câu đúng.`)
+                  const total = currentTopic.listening.questions.length
+                  const timestamp = new Date().toISOString()
+
+                  const listeningQuestions: Question[] = currentTopic.listening.questions.map(q => ({
+                    id: q.id,
+                    type: 'multiple-choice',
+                    prompt: q.prompt,
+                    options: q.options,
+                    answer: q.answer,
+                    explanation: q.distractorExplanation ? `${q.explanation} — ${q.distractorExplanation}` : q.explanation,
+                    objective: q.ieltsSkill || 'Listening Comprehension'
+                  }))
+
+                  const attempt: Attempt = {
+                    id: uid('attempt'),
+                    passageId: currentTopic.listening.id,
+                    skill: 'Listening',
+                    answers: quizAnswers,
+                    score: correct,
+                    total,
+                    kind: 'practice',
+                    createdAt: timestamp,
+                    objectiveIds: listeningQuestions.map(q => q.objective)
+                  }
+
+                  const submission = {
+                    id: uid('submission'),
+                    skill: 'Listening' as const,
+                    activityId: `listening-${currentTopic.id}`,
+                    response: `Bài kiểm tra nghe (${currentTopic.listening.title}): ${correct}/${total} câu đúng.`,
+                    createdAt: timestamp,
+                    feedbackMode: 'transcript-fallback' as const,
+                    completed: true
+                  }
+
+                  const nextErrors = mergeAttemptErrors(s.errors, attempt, listeningQuestions)
+                  setS({
+                    ...s,
+                    attempts: [...s.attempts, attempt],
+                    submissions: [...(s.submissions || []), submission],
+                    errors: nextErrors
+                  })
+
+                  note(`Đã nộp bài nghe: ${correct}/${total} câu đúng. Kết quả đã lưu vào Learning Record.`)
                 }}
               >
                 Kiểm tra đáp án & Xem phân tích bẫy đề thi
@@ -3376,7 +3433,7 @@ function SkillPractice({
               ) : (
                 <>
                   <span className="badge">Writing Task 1</span>
-                  <h3>{currentTopic.writing.task1Prompt}</h3>
+                  <h3>Đề bài Báo cáo số liệu (Writing Task 1)</h3>
                   <p className="callout">{currentTopic.writing.task1Prompt}</p>
                 </>
               )}
@@ -3398,7 +3455,7 @@ function SkillPractice({
               ) : (
                 <>
                   <span className="badge">Writing Task 2</span>
-                  <h3>{currentTopic.writing.task2Prompt}</h3>
+                  <h3>Đề bài Bài luận quan điểm (Writing Task 2)</h3>
                   <p className="callout">{currentTopic.writing.task2Prompt}</p>
                 </>
               )}
