@@ -570,9 +570,8 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 .img2-stat-icon{width:32px;height:32px;border-radius:8px;display:grid;place-items:center}
 .img2-stat-icon.green-icon{background:rgba(63,185,80,.15);color:#3fb950}
 .img2-stat-icon.blue-icon{background:rgba(56,189,248,.15);color:#38bdf8}
-.img2-stat-icon.purple-icon{background:rgba(192,132,252,.15);color:#c084fc}
-.img2-stat-label{color:#c9d1d9}
-.img2-stat-value{font-weight:700;color:#f0f6fc;font-size:13px}
+.img2-stat-label{color:#3b5a4e;font-weight:500}
+.img2-stat-value{font-weight:700;color:#0d2822;font-size:13.5px}
 
 /* Selected Day Detail Card */
 .img2-day-detail-card{background:#131b26;border:1px solid #222d3d;border-radius:14px;padding:18px 22px;display:flex;flex-direction:column;gap:12px;box-shadow:0 4px 18px rgba(0,0,0,.25)}
@@ -1079,8 +1078,9 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
   border-color:#dce9de;
   box-shadow:0 4px 16px rgba(37,91,62,.05);
 }
-.dashboard-main .dashboard-gamified-shell .img2-cal-header-date,.dashboard-main .dashboard-gamified-shell .img2-overview-title,.dashboard-main .dashboard-gamified-shell .img2-detail-date{color:#173f36}
-.dashboard-main .dashboard-gamified-shell .img2-cal-month-title,.dashboard-main .dashboard-gamified-shell .img2-cal-weekdays,.dashboard-main .dashboard-gamified-shell .img2-cal-legend,.dashboard-main .dashboard-gamified-shell .img2-subtitle,.dashboard-main .dashboard-gamified-shell .img2-stat-label,.dashboard-main .dashboard-gamified-shell .img2-detail-empty,.dashboard-main .dashboard-gamified-shell .img2-legend-text{color:#718578}
+.dashboard-main .dashboard-gamified-shell .img2-cal-month-title,.dashboard-main .dashboard-gamified-shell .img2-cal-weekdays,.dashboard-main .dashboard-gamified-shell .img2-cal-legend,.dashboard-main .dashboard-gamified-shell .img2-subtitle,.dashboard-main .dashboard-gamified-shell .img2-detail-empty,.dashboard-main .dashboard-gamified-shell .img2-legend-text{color:#718578}
+.dashboard-main .dashboard-gamified-shell .img2-stat-label,.workspace-theme .img2-stat-label{color:#3b5a4e!important;font-weight:500}
+.dashboard-main .dashboard-gamified-shell .img2-stat-value,.workspace-theme .img2-stat-value{color:#0d2822!important;font-weight:700!important;font-size:13.5px!important}
 .dashboard-main .dashboard-gamified-shell .img2-cal-cell{color:#365b4e}
 .dashboard-main .dashboard-gamified-shell .img2-cal-cell.outside{color:#b3c2b7}
 .dashboard-main .dashboard-gamified-shell .img2-cal-cell:hover:not(.selected){background:#edf6e9}

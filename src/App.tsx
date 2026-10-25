@@ -1026,7 +1026,7 @@ function Dashboard({
       <section className="dashboard-journey-wrap" aria-label="Hành trình học IELTS">
         <ForumStudyTree
           variant="dashboard"
-          activeTrack="vocabulary"
+          activeTrack={null}
           onSelectTrack={track => go(track === 'grammar' ? 'grammar' : 'vocabulary')}
           knownVocabCount={knownVocabCount}
           totalVocabCount={TOTAL_FORUM_VOCAB_COUNT}
