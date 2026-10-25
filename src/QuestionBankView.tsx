@@ -621,7 +621,8 @@ function ActivePracticeRunner({ item, store, setStore, onBack, addToast }: Runne
       setAudioPlaying(false)
     } else {
       const transcript = (item.payload as ListeningQuestionBankPayload).transcript
-      const utterance = new SpeechSynthesisUtterance(transcript)
+      const cleanTranscript = transcript.replace(/^[A-Za-z0-9\.\s'-]{1,30}:\s*/gm, '')
+      const utterance = new SpeechSynthesisUtterance(cleanTranscript)
       utterance.lang = 'en-US'
       utterance.rate = 0.95
       utterance.onend = () => setAudioPlaying(false)

@@ -1280,7 +1280,8 @@ function FullListeningExamSimulator({ exam, store, setStore, onExit, addToast }:
     window.speechSynthesis.cancel()
 
     if (isPlaying && !playedSections.has(activeSection.sectionNumber)) {
-      const utterance = new SpeechSynthesisUtterance(activeSection.transcript)
+      const cleanTranscript = activeSection.transcript.replace(/^[A-Za-z0-9\.\s'-]{1,30}:\s*/gm, '')
+      const utterance = new SpeechSynthesisUtterance(cleanTranscript)
       utterance.rate = 1
       utterance.lang = 'en-GB'
       utterance.onend = () => {

@@ -1812,3 +1812,227 @@ button, input, select, textarea, a {
 .workspace-theme .skill-pie-block strong{font-size:11px}
 .workspace-theme .skill-writing-table-wrap{overflow-x:auto}
 @media(max-width:520px){.workspace-theme .skill-writing-stimulus:has(.skill-writing-chart){overflow-x:auto}.workspace-theme .skill-writing-legend{min-width:560px}}
+
+/* ============================================================================
+ * IELTS Optimizer — Human-like Studio Audio & Enriched Listening UI
+ * ========================================================================== */
+.studio-audio-box {
+  margin: 16px 0;
+  padding: 16px 18px;
+  background: linear-gradient(135deg, #f8fbf6 0%, #eef5eb 100%);
+  border: 1px solid #d2e3cd;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 3px 12px rgba(20, 45, 30, 0.04);
+}
+
+.studio-player-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.studio-voice-selector-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #24574b;
+  font-weight: 600;
+}
+
+.studio-voice-select {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #c2d8bc;
+  background: #ffffff;
+  color: #1a4237;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+}
+
+.studio-voice-select:focus {
+  border-color: #2b7a62;
+  box-shadow: 0 0 0 2px rgba(43, 122, 98, 0.15);
+}
+
+.studio-player-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-play-hero {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  background: #1b5344;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 6px rgba(27, 83, 68, 0.25);
+}
+
+.btn-play-hero:hover {
+  background: #143e33;
+  transform: translateY(-1px);
+}
+
+.btn-player-sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 11px;
+  background: #ffffff;
+  color: #2d5547;
+  border: 1px solid #c7dcc2;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-player-sub:hover {
+  background: #f0f7ed;
+  border-color: #9cbfa7;
+}
+
+.audio-time-label {
+  font-family: 'DM Mono', monospace, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #3b5f52;
+  background: #e4efe0;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.audio-scrubber-track {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.audio-progress-bar {
+  flex: 1;
+  height: 8px;
+  accent-color: #1b5344;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.audio-source-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #d8ecdc;
+  color: #18503f;
+  border: 1px solid #b7dcb9;
+}
+
+.audio-evidence-highlight {
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: #f0f9f6;
+  border-left: 3px solid #207d64;
+  border-radius: 0 8px 8px 0;
+  font-size: 13px;
+  color: #164e3f;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.5;
+}
+
+.audio-distractor-explanation {
+  margin-top: 8px;
+  padding: 9px 13px;
+  background: #fffcf2;
+  border-left: 3px solid #d99a22;
+  border-radius: 0 8px 8px 0;
+  font-size: 12px;
+  color: #7d5208;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.5;
+}
+
+.ielts-question-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #eef3ec;
+  color: #315e50;
+  border: 1px solid #c8dcc6;
+  margin-right: 6px;
+}
+
+.listening-score-banner {
+  margin: 18px 0;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #1b5344 0%, #11362d 100%);
+  color: #ffffff;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  box-shadow: 0 4px 14px rgba(27, 83, 68, 0.25);
+}
+
+.listening-score-badge {
+  background: #f4c878;
+  color: #1c2e26;
+  font-weight: 800;
+  font-size: 18px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.exam-simulator-quick-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1b5344;
+  background: #e8f3e5;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #bcd8b8;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.exam-simulator-quick-link:hover {
+  background: #d6eacc;
+  color: #0f362b;
+}
