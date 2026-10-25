@@ -714,7 +714,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#101a2d}
 .forum-tree-status-box{background:rgba(255,255,252,.88);border:1px solid #c8dfcf;border-radius:18px;padding:20px 22px;display:flex;flex-direction:column;justify-content:space-between;gap:14px;box-shadow:0 8px 22px rgba(7,93,82,.07);backdrop-filter:blur(6px)}
 .tree-stage-visual{display:flex;align-items:center;gap:14px}
 .tree-stage-avatar{width:72px;height:72px;border-radius:18px;background:#eef7eb;border:1px solid #c2dec0;display:grid;place-items:center;flex-shrink:0;box-shadow:0 4px 10px rgba(7,93,82,.08);overflow:hidden}
-.tree-stage-avatar img{display:block;width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain;object-position:center;transform:translateX(-6%)}
+.tree-stage-avatar img{display:block;width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain;object-position:center;transform:translateX(-10%)}
 .tree-stage-meta{display:grid;gap:2px}
 .tree-stage-kicker{font-size:10px;font-weight:800;letter-spacing:.08em;color:#075d52;text-transform:uppercase}
 .tree-stage-meta h4{font:700 18px 'Space Grotesk',sans-serif;margin:0;color:#172236;line-height:1.1}
